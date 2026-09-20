@@ -1,0 +1,191 @@
+/**
+ * LETTERS (HG) - Production Asset Tokens
+ * Complete drop-in stylesheet for integrating all 5 envelope designs & 5 stationery papers.
+ * Assets located in vault/production_assets/
+ */
+
+:root {
+  /* ─── ENVELOPE SET 1: Rose Silk Ribbon & Bow (env_1) ─── */
+  --env-1-closed-url: url('./env_1_rose_silk/env_1_closed.webp');
+  --env-1-open-full-url: url('./env_1_rose_silk/env_1_open_full.webp');
+  --env-1-open-back-url: url('./env_1_rose_silk/env_1_open_back_clean.webp');
+  --env-1-open-front-url: url('./env_1_rose_silk/env_1_open_front.webp');
+  --env-1-closed-aspect: 1197 / 1008;
+  --env-1-open-aspect: 1060 / 1170;
+
+  /* ─── ENVELOPE SET 2: Ceramic Floral Brooch & Golden Twig (env_2) ─── */
+  --env-2-closed-url: url('./env_2_ceramic_flower/env_2_closed.webp');
+  --env-2-open-full-url: url('./env_2_ceramic_flower/env_2_open_full.webp');
+  --env-2-open-back-url: url('./env_2_ceramic_flower/env_2_open_back.webp');
+  --env-2-open-front-url: url('./env_2_ceramic_flower/env_2_open_front.webp');
+  --env-2-closed-aspect: 1166 / 872;
+  --env-2-open-aspect: 1136 / 1218;
+
+  /* ─── ENVELOPE SET 3: Botanical Pressed Flowers & Vintage Stamp (env_3) ─── */
+  --env-3-closed-url: url('./env_3_botanical_stamp/env_3_closed.webp');
+  --env-3-open-full-url: url('./env_3_botanical_stamp/env_3_open_full.webp');
+  --env-3-open-back-url: url('./env_3_botanical_stamp/env_3_open_back.webp');
+  --env-3-open-front-url: url('./env_3_botanical_stamp/env_3_open_front.webp');
+  --env-3-closed-aspect: 1293 / 1169;
+  --env-3-open-aspect: 1238 / 1364;
+
+  /* ─── ENVELOPE SET 4: Pink Floral Heart Envelope (env_4) ─── */
+  --env-4-closed-url: url('./env_4_pink_heart/env_4_closed.webp');
+  --env-4-open-full-url: url('./env_4_pink_heart/env_4_open_full.webp');
+  --env-4-open-back-url: url('./env_4_pink_heart/env_4_open_back_clean.webp');
+  --env-4-open-front-url: url('./env_4_pink_heart/env_4_open_front.webp');
+  --env-4-closed-aspect: 1704 / 1375;
+  --env-4-open-aspect: 1369 / 1479;
+
+  /* ─── ENVELOPE SET 5: Lavender Floral Cosmos Envelope (env_5) ─── */
+  --env-5-closed-url: url('./env_5_lavender_floral/env_5_closed.webp');
+  --env-5-open-full-url: url('./env_5_lavender_floral/env_5_open_full.webp');
+  --env-5-open-back-url: url('./env_5_lavender_floral/env_5_open_back_clean.webp');
+  --env-5-open-front-url: url('./env_5_lavender_floral/env_5_open_front.webp');
+  --env-5-closed-aspect: 2277 / 1788;
+  --env-5-open-aspect: 1291 / 1402;
+
+  /* ─── STATIONERY PAPERS (paper_1 through paper_5) ─── */
+  --paper-1-url: url('./paper_1_botanical/paper_1.webp');
+  --paper-1-aspect: 1332 / 1398;
+  --paper-1-safe-area: 12% 16% 18% 14%;
+
+  --paper-2-url: url('./paper_2_sparkle_bow/paper_2.webp');
+  --paper-2-aspect: 1557 / 1417;
+  --paper-2-safe-area: 14% 14% 18% 14%;
+
+  --paper-3-url: url('./paper_3_floral_border/paper_3.webp');
+  --paper-3-aspect: 1353 / 1396;
+  --paper-3-safe-area: 16% 18% 16% 18%;
+
+  --paper-4-url: url('./paper_4_lavender_lined/paper_4.webp');
+  --paper-4-aspect: 1397 / 1422;
+  --paper-4-safe-area: 12% 14% 22% 14%;
+
+  --paper-5-url: url('./paper_5_cherry_blossom/paper_5.webp');
+  --paper-5-aspect: 1560 / 1438;
+  --paper-5-safe-area: 16% 18% 16% 18%;
+
+  /* ─── Active Workbench / Assembly Variables ─── */
+  --active-env-open-aspect: var(--env-1-open-aspect);
+  --active-env-back-url: var(--env-1-open-back-url);
+  --active-env-front-url: var(--env-1-open-front-url);
+  --active-paper-url: var(--paper-1-url);
+  --active-paper-aspect: var(--paper-1-aspect);
+  --active-paper-padding: var(--paper-1-safe-area);
+  --active-paper-scale: 0.775;
+  --paper-tuck-top: 48%;
+  --paper-unfold-top: -20%;
+  --paper-y-offset: 0px;
+  --paper-x-offset: 0px;
+}
+
+/* 1. Closed Envelope (Mailbox card / Sealed Reveal) */
+.hg-envelope-closed {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 540px;
+  aspect-ratio: var(--env-1-closed-aspect);
+  background-image: var(--env-1-closed-url);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: drop-shadow(0 16px 28px rgba(81, 54, 61, 0.18));
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
+}
+
+.hg-envelope-closed.set-1 { aspect-ratio: var(--env-1-closed-aspect); background-image: var(--env-1-closed-url); }
+.hg-envelope-closed.set-2 { aspect-ratio: var(--env-2-closed-aspect); background-image: var(--env-2-closed-url); }
+.hg-envelope-closed.set-3 { aspect-ratio: var(--env-3-closed-aspect); background-image: var(--env-3-closed-url); }
+.hg-envelope-closed.set-4 { aspect-ratio: var(--env-4-closed-aspect); background-image: var(--env-4-closed-url); }
+.hg-envelope-closed.set-5 { aspect-ratio: var(--env-5-closed-aspect); background-image: var(--env-5-closed-url); }
+
+.hg-envelope-closed:hover {
+  transform: translateY(-6px) rotate(-1deg);
+  filter: drop-shadow(0 22px 34px rgba(81, 54, 61, 0.24));
+}
+
+/* 2. Interactive Layered Envelope Assembly (Back → Paper → Front) */
+.hg-envelope-assembly {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  aspect-ratio: var(--active-env-open-aspect);
+  margin: 0 auto;
+}
+
+.hg-envelope-assembly .layer-back {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: var(--active-env-back-url);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  pointer-events: none;
+}
+
+.hg-envelope-assembly .layer-paper {
+  position: absolute;
+  z-index: 2;
+  left: calc(50% + var(--paper-x-offset));
+  top: calc(var(--paper-tuck-top) + var(--paper-y-offset));
+  width: calc(100% * var(--active-paper-scale));
+  aspect-ratio: var(--active-paper-aspect);
+  transform: translate(-50%, 0);
+  background-image: var(--active-paper-url);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  box-shadow: 0 10px 24px -10px rgba(81, 54, 61, 0.35);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: var(--active-paper-padding);
+  box-sizing: border-box !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.hg-envelope-assembly.unfolded .layer-paper {
+  top: calc(var(--paper-unfold-top) + var(--paper-y-offset));
+  transform: translate(-50%, 0) scale(1.04);
+  box-shadow: 0 20px 40px -12px rgba(81, 54, 61, 0.4);
+}
+
+.hg-envelope-assembly .layer-front {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background-image: var(--active-env-front-url);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 18px rgba(81, 54, 61, 0.12));
+}
+
+/* 3. Standalone Stationery Paper Surface (for Full-Screen Reading / Writing Composer) */
+.hg-stationery-paper {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  aspect-ratio: var(--active-paper-aspect);
+  background-image: var(--active-paper-url);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  box-shadow: 0 4px 12px rgba(81, 54, 61, 0.1), 0 24px 44px -20px rgba(81, 54, 61, 0.28);
+  padding: var(--active-paper-padding);
+  box-sizing: border-box !important;
+  font-family: 'Newsreader', serif;
+  color: #51363d;
+  line-height: 1.75;
+}
+
+.hg-stationery-paper.paper-1 { aspect-ratio: var(--paper-1-aspect); background-image: var(--paper-1-url); padding: 12% 16% 18% 14%; }
+.hg-stationery-paper.paper-2 { aspect-ratio: var(--paper-2-aspect); background-image: var(--paper-2-url); padding: 14% 14% 18% 14%; }
+.hg-stationery-paper.paper-3 { aspect-ratio: var(--paper-3-aspect); background-image: var(--paper-3-url); padding: 16% 18% 16% 18%; }
+.hg-stationery-paper.paper-4 { aspect-ratio: var(--paper-4-aspect); background-image: var(--paper-4-url); padding: 12% 14% 22% 14%; }
+.hg-stationery-paper.paper-5 { aspect-ratio: var(--paper-5-aspect); background-image: var(--paper-5-url); padding: 16% 18% 16% 18%; }

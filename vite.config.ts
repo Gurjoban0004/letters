@@ -14,6 +14,8 @@ export default defineConfig({
       registerType: 'prompt',
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,webp,woff2}'],
+        globIgnores: ['stationery/**/*.png'],
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       },
       devOptions: { enabled: true, type: 'module' },
       manifest: {

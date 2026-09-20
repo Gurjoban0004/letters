@@ -1,0 +1,59 @@
+{
+  "id": "env_1_and_paper_1",
+  "title": "Rose Silk Ribbon Envelope & Deckled Botanical Paper",
+  "aesthetic": "Milky blush surface, warm rose tones, pink silk ribbon with bow, deckled pressed floral stationery",
+  "assets": {
+    "env_1_closed": {
+      "file": "env_1_closed.webp",
+      "width": 1197,
+      "height": 1008,
+      "aspectRatio": 1.1875,
+      "role": "Mailbox card thumbnail, Sealed state, Hero delivery card"
+    },
+    "env_1_open_full": {
+      "file": "env_1_open_full.webp",
+      "width": 1060,
+      "height": 1170,
+      "aspectRatio": 0.906,
+      "role": "Full static open envelope with original tucked card"
+    },
+    "env_1_open_back": {
+      "file": "env_1_open_back.webp",
+      "width": 1060,
+      "height": 1170,
+      "aspectRatio": 0.906,
+      "zIndex": 1,
+      "role": "Layer behind the letter paper (back wall + open flap with heart)"
+    },
+    "env_1_open_front": {
+      "file": "env_1_open_front.webp",
+      "width": 1060,
+      "height": 1170,
+      "aspectRatio": 0.906,
+      "zIndex": 3,
+      "role": "Layer in front of the letter paper (V-pocket + silk ribbon bow)"
+    },
+    "paper_1": {
+      "file": "paper_1.webp",
+      "width": 1332,
+      "height": 1398,
+      "aspectRatio": 0.9528,
+      "zIndex": 2,
+      "role": "Deckled stationery sheet with pressed flowers and washi tape",
+      "recommendedEnvelopeFit": {
+        "scaleWidthPercent": 77.5,
+        "defaultTuckYPercent": 48.0,
+        "maxUnfoldYPercent": -25.0,
+        "safeAreaPadding": "60px 70px 90px 70px"
+      }
+    }
+  },
+  "cssTokens": {
+    "--env-closed-aspect": "1197 / 1008",
+    "--env-open-aspect": "1060 / 1170",
+    "--paper-aspect": "1332 / 1398",
+    "--paper-default-scale": "0.775",
+    "--paper-pocket-top": "34.5%",
+    "--paper-bow-center": "60.5%"
+  }
+}

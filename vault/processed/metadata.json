@@ -1,0 +1,289 @@
+{
+  "project": "Letters (HG)",
+  "generatedAt": "2026-09-20",
+  "description": "Production-ready transparent stationery assets extracted from studio mockups",
+  "envelopes": {
+    "env_1": {
+      "title": "Rose Silk Ribbon & Bow",
+      "badge": "Silk Bow",
+      "aesthetic": "Pink handmade paper, vertical & horizontal rose silk ribbon, bow knot, heart pin",
+      "folder": "env_1_rose_silk",
+      "closed": {
+        "file": "env_1_closed.webp",
+        "w": 1197,
+        "h": 1008,
+        "aspect": 1.1875
+      },
+      "openFull": {
+        "file": "env_1_open_full.webp",
+        "w": 1060,
+        "h": 1170,
+        "aspect": 0.906
+      },
+      "openFront": {
+        "file": "env_1_open_front.webp",
+        "w": 1060,
+        "h": 1170,
+        "zIndex": 3
+      },
+      "openBack": {
+        "file": "env_1_open_back_clean.webp",
+        "w": 1060,
+        "h": 1170,
+        "zIndex": 1
+      },
+      "pocketCut": {
+        "cut_y_start": 345,
+        "v_center_y": 720
+      },
+      "recommendedPaperFit": {
+        "scaleWidthPercent": 77.5,
+        "tuckTopPercent": 48.0,
+        "unfoldTopPercent": -20.0
+      }
+    },
+    "env_2": {
+      "title": "Ceramic Floral Brooch & Golden Twig",
+      "badge": "Ceramic Brooch",
+      "aesthetic": "Pink artisanal paper, sculpted pink ceramic blossom seal, tucked brass twig",
+      "folder": "env_2_ceramic_flower",
+      "closed": {
+        "file": "env_2_closed.webp",
+        "w": 1166,
+        "h": 872,
+        "aspect": 1.3372
+      },
+      "openFull": {
+        "file": "env_2_open_full.webp",
+        "w": 1136,
+        "h": 1218,
+        "aspect": 0.9327
+      },
+      "openFront": {
+        "file": "env_2_open_front.webp",
+        "w": 1136,
+        "h": 1218,
+        "zIndex": 3
+      },
+      "openBack": {
+        "file": "env_2_open_back.webp",
+        "w": 1136,
+        "h": 1218,
+        "zIndex": 1
+      },
+      "pocketCut": {
+        "cut_y_start": 340,
+        "v_center_y": 710
+      },
+      "recommendedPaperFit": {
+        "scaleWidthPercent": 76.0,
+        "tuckTopPercent": 48.0,
+        "unfoldTopPercent": -20.0
+      }
+    },
+    "env_3": {
+      "title": "Pressed Botanical Flowers & Vintage Stamp",
+      "badge": "Vintage Postage",
+      "aesthetic": "Blush speckled paper, delicate pressed flower branches, vintage engraved rose stamp",
+      "folder": "env_3_botanical_stamp",
+      "closed": {
+        "file": "env_3_closed.webp",
+        "w": 1293,
+        "h": 1169,
+        "aspect": 1.1061
+      },
+      "openFull": {
+        "file": "env_3_open_full.webp",
+        "w": 1238,
+        "h": 1364,
+        "aspect": 0.9076
+      },
+      "openFront": {
+        "file": "env_3_open_front.webp",
+        "w": 1238,
+        "h": 1364,
+        "zIndex": 3
+      },
+      "openBack": {
+        "file": "env_3_open_back.webp",
+        "w": 1238,
+        "h": 1364,
+        "zIndex": 1
+      },
+      "pocketCut": {
+        "cut_y_start": 380,
+        "v_center_y": 790
+      },
+      "recommendedPaperFit": {
+        "scaleWidthPercent": 75.0,
+        "tuckTopPercent": 48.0,
+        "unfoldTopPercent": -20.0
+      }
+    },
+    "env_4": {
+      "title": "Pink Floral Heart Envelope",
+      "badge": "Heart Seal",
+      "aesthetic": "Soft pink handmade paper, scattered floral sprigs, 3D heart seal, warm botanical details",
+      "folder": "env_4_pink_heart",
+      "closed": {
+        "file": "env_4_closed.webp",
+        "w": 1704,
+        "h": 1375,
+        "aspect": 1.2393
+      },
+      "openFull": {
+        "file": "env_4_open_full.webp",
+        "w": 1369,
+        "h": 1479,
+        "aspect": 0.9256
+      },
+      "openFront": {
+        "file": "env_4_open_front.webp",
+        "w": 1369,
+        "h": 1479,
+        "zIndex": 3
+      },
+      "openBack": {
+        "file": "env_4_open_back.webp",
+        "w": 1369,
+        "h": 1479,
+        "zIndex": 1
+      },
+      "pocketCut": {
+        "cut_y_start": 510,
+        "v_center_y": 970
+      },
+      "recommendedPaperFit": {
+        "scaleWidthPercent": 76.0,
+        "tuckTopPercent": 48.0,
+        "unfoldTopPercent": -20.0
+      }
+    },
+    "env_5": {
+      "title": "Lavender Floral Envelope",
+      "badge": "Lavender Blooms",
+      "aesthetic": "Soft lavender textured paper, scattered 3D mini cosmos flowers in lilac & gold, stamp & postmark",
+      "folder": "env_5_lavender_floral",
+      "closed": {
+        "file": "env_5_closed.webp",
+        "w": 2277,
+        "h": 1788,
+        "aspect": 1.2735
+      },
+      "openFull": {
+        "file": "env_5_open_full.webp",
+        "w": 1291,
+        "h": 1402,
+        "aspect": 0.9208
+      },
+      "openFront": {
+        "file": "env_5_open_front.webp",
+        "w": 1291,
+        "h": 1402,
+        "zIndex": 3
+      },
+      "openBack": {
+        "file": "env_5_open_back.webp",
+        "w": 1291,
+        "h": 1402,
+        "zIndex": 1
+      },
+      "pocketCut": {
+        "cut_y_start": 475,
+        "v_center_y": 910
+      },
+      "recommendedPaperFit": {
+        "scaleWidthPercent": 77.0,
+        "tuckTopPercent": 48.0,
+        "unfoldTopPercent": -20.0
+      }
+    }
+  },
+  "papers": {
+    "paper_1": {
+      "title": "Deckled Botanical Stationery",
+      "badge": "Pressed Florals",
+      "aesthetic": "Soft pink handmade deckled paper, dried pink blossom sprig, washi tape",
+      "folder": "paper_1_botanical",
+      "file": "paper_1.webp",
+      "w": 1332,
+      "h": 1398,
+      "aspect": 0.9528,
+      "safeArea": {
+        "top": "12%",
+        "left": "12%",
+        "right": "16%",
+        "bottom": "18%"
+      },
+      "paddingCss": "12% 16% 18% 12%"
+    },
+    "paper_2": {
+      "title": "Pink Sparkle Bow Stationery",
+      "badge": "Sparkle Bow",
+      "aesthetic": "Blush pink deckled paper, 4-point sparkle stars in corner, ribbon bow detail at bottom-right",
+      "folder": "paper_2_sparkle_bow",
+      "file": "paper_2.webp",
+      "w": 1557,
+      "h": 1417,
+      "aspect": 1.0988,
+      "safeArea": {
+        "top": "14%",
+        "left": "14%",
+        "right": "14%",
+        "bottom": "18%"
+      },
+      "paddingCss": "14% 14% 18% 14%"
+    },
+    "paper_3": {
+      "title": "Floral Border Botanical Paper",
+      "badge": "Botanical Border",
+      "aesthetic": "Pink handmade textured paper, decorative border of pink & red botanical sprigs and berries",
+      "folder": "paper_3_floral_border",
+      "file": "paper_3.webp",
+      "w": 1353,
+      "h": 1396,
+      "aspect": 0.9692,
+      "safeArea": {
+        "top": "15%",
+        "left": "18%",
+        "right": "18%",
+        "bottom": "16%"
+      },
+      "paddingCss": "15% 18% 16% 18%"
+    },
+    "paper_4": {
+      "title": "Lavender Lined Stationery",
+      "badge": "Lavender Lines",
+      "aesthetic": "Soft lavender/lilac paper with horizontal ruled lines, lavender flower bunch with kraft tape at lower-right",
+      "folder": "paper_4_lavender_lined",
+      "file": "paper_4.webp",
+      "w": 1397,
+      "h": 1422,
+      "aspect": 0.9824,
+      "safeArea": {
+        "top": "11%",
+        "left": "14%",
+        "right": "14%",
+        "bottom": "22%"
+      },
+      "paddingCss": "11% 14% 22% 14%"
+    },
+    "paper_5": {
+      "title": "Cherry Blossom Deckled Paper",
+      "badge": "Cherry Blossoms",
+      "aesthetic": "Warm ivory deckled handmade paper, cherry blossom corners with pink decorative border",
+      "folder": "paper_5_cherry_blossom",
+      "file": "paper_5.webp",
+      "w": 1560,
+      "h": 1438,
+      "aspect": 1.0848,
+      "safeArea": {
+        "top": "16%",
+        "left": "18%",
+        "right": "18%",
+        "bottom": "16%"
+      },
+      "paddingCss": "16% 18% 16% 18%"
+    }
+  }
+}

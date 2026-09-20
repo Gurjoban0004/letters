@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Letters (HG) Vault Lab — Envelope & Paper Workbench</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-blush">
+  <header class="lab-header">
+    <div class="header-left">
+      <div class="lab-badge">HG VAULT LAB</div>
+      <h1>Stationery Component Workbench</h1>
+      <span class="lab-version">5 Envelopes × 5 Papers • Any Combination • Production Calibration</span>
+    </div>
+    <div class="header-right">
+      <div class="bg-switcher" title="Test background surface to inspect edge matting & transparency">
+        <span class="switcher-label">Surface:</span>
+        <button class="bg-btn active" data-bg="theme-blush" title="Milky Blush (HG Default)"></button>
+        <button class="bg-btn" data-bg="theme-surface" title="Ivory Surface"></button>
+        <button class="bg-btn" data-bg="theme-white" title="Pure White"></button>
+        <button class="bg-btn" data-bg="theme-dark" title="Dark Velvet (Inspect White Fringe)"></button>
+        <button class="bg-btn" data-bg="theme-grid" title="Transparency Checkerboard"></button>
+      </div>
+      <button id="btn-export-prod" class="primary-btn">Export Production Assets</button>
+    </div>
+  </header>
+
+  <nav class="lab-tabs">
+    <button class="tab-btn active" data-tab="assembly">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+      Interactive Assembly & Physics
+    </button>
+    <button class="tab-btn" data-tab="inspector">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      Component & Mask Inspector
+    </button>
+    <button class="tab-btn" data-tab="pipeline">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+      Pipeline Tuner
+    </button>
+    <button class="tab-btn" data-tab="tokens">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+      Production Specs & Drop-In Code
+    </button>
+  </nav>
+
+  <main class="lab-content">
+    <!-- TAB 1: INTERACTIVE ASSEMBLY & PHYSICS -->
+    <section id="tab-assembly" class="tab-panel active">
+      <div class="workbench-layout">
+        <!-- Controls Sidebar -->
+        <aside class="workbench-sidebar">
+          <div class="control-group">
+            <h3>Envelope Design</h3>
+            <div class="segmented-control">
+              <button class="design-btn active" data-design="env_1">
+                <strong>Env 1: Silk Ribbon & Bow</strong>
+                <small>Rose paper • Silk ribbon • Heart pin</small>
+              </button>
+              <button class="design-btn" data-design="env_2">
+                <strong>Env 2: Ceramic Floral Brooch</strong>
+                <small>Pink paper • Sculpted flower • Golden twig</small>
+              </button>
+              <button class="design-btn" data-design="env_3">
+                <strong>Env 3: Pressed Flowers & Stamp</strong>
+                <small>Blush paper • Dried florals • Vintage stamp</small>
+              </button>
+              <button class="design-btn" data-design="env_4">
+                <strong>Env 4: Pink Floral Heart</strong>
+                <small>Soft pink paper • Floral sprigs • 3D heart seal</small>
+              </button>
+              <button class="design-btn" data-design="env_5">
+                <strong>Env 5: Lavender Floral</strong>
+                <small>Lavender paper • Cosmos flowers • Postmark</small>
+              </button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <h3>Letter Paper (Stationery)</h3>
+            <div class="segmented-control">
+              <button class="paper-btn active" data-paper="paper_1">
+                <strong>Paper 1: Botanical Deckled</strong>
+                <small>Blush handmade • Dried blossom sprig • Washi tape</small>
+              </button>
+              <button class="paper-btn" data-paper="paper_2">
+                <strong>Paper 2: Sparkle Bow</strong>
+                <small>Pink deckled • Sparkle stars • Ribbon bow</small>
+              </button>
+              <button class="paper-btn" data-paper="paper_3">
+                <strong>Paper 3: Floral Border</strong>
+                <small>Pink textured • Botanical border • Berries</small>
+              </button>
+              <button class="paper-btn" data-paper="paper_4">
+                <strong>Paper 4: Lavender Lined</strong>
+                <small>Lilac ruled lines • Lavender bunch • Kraft tape</small>
+              </button>
+              <button class="paper-btn" data-paper="paper_5">
+                <strong>Paper 5: Cherry Blossom</strong>
+                <small>Ivory deckled • Cherry blossom corners • Pink border</small>
+              </button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <h3>Envelope State</h3>
+            <div class="segmented-control">
+              <button class="segment-btn active" data-state="layered">Open (Layered Pocket)</button>
+              <button class="segment-btn" data-state="closed">Closed (Sealed / Ribbon)</button>
+              <button class="segment-btn" data-state="static-open">Open (Static Card)</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <h3>Envelope Positioning</h3>
+            <label class="slider-label">
+              <span>Envelope Y Offset:</span>
+              <span id="label-env-y-val">0 px</span>
+            </label>
+            <input type="range" id="slider-env-y" min="-120" max="120" value="0" step="1" class="range-slider">
+
+            <label class="slider-label">
+              <span>Envelope Perspective 3D:</span>
+              <span id="label-rot-val">0°</span>
+            </label>
+            <input type="range" id="slider-perspective" min="-15" max="15" value="0" step="1" class="range-slider">
+            
+            <div class="checkbox-row" id="clean-interior-row">
+              <label><input type="checkbox" id="check-clean-interior" checked> Clean Lining (Hide duplicate mockup card)</label>
+            </div>
+          </div>
+
+          <div class="control-group" id="group-tuck-controls">
+            <h3>Letter Mechanics & Precision Fit</h3>
+
+            <div class="quick-actions">
+              <button class="mini-btn active" id="btn-snap-center">🎯 Snap & Center</button>
+              <button class="mini-btn" id="btn-tuck-deep">✉️ Tucked Deep</button>
+              <button class="mini-btn" id="btn-tuck-peek">📜 Peeking Out</button>
+              <button class="mini-btn" id="btn-unfold-full">📖 Reading Focus</button>
+            </div>
+
+            <label class="slider-label">
+              <span>Paper Y Axis (Insertion Depth):</span>
+              <span id="label-paper-y-val">0 px</span>
+            </label>
+            <input type="range" id="slider-paper-y" min="-220" max="180" value="0" step="1" class="range-slider">
+
+            <label class="slider-label">
+              <span>Paper X Axis (Horizontal Center):</span>
+              <span id="label-paper-x-val">0 px</span>
+            </label>
+            <input type="range" id="slider-paper-x" min="-160" max="160" value="0" step="1" class="range-slider">
+
+            <label class="slider-label">
+              <span>Paper Tuck / Unfold:</span>
+              <span id="label-tuck-val">52%</span>
+            </label>
+            <input type="range" id="slider-tuck" min="0" max="100" value="52" class="range-slider">
+
+            <label class="slider-label">
+              <span>Paper Scale:</span>
+              <span id="label-scale-val">76%</span>
+            </label>
+            <input type="range" id="slider-scale" min="50" max="95" value="76" step="0.5" class="range-slider">
+
+            <label class="slider-label">
+              <span>Paper Rotation / Tilt:</span>
+              <span id="label-tilt-val">0°</span>
+            </label>
+            <input type="range" id="slider-tilt" min="-12" max="12" value="0" step="0.5" class="range-slider">
+
+            <div class="checkbox-row" style="margin-top: 6px;">
+              <label style="color: var(--rose); font-weight: 600;">
+                <input type="checkbox" id="check-containment" checked> 
+                Clip Paper inside Envelope Pocket (No Bleed)
+              </label>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <h3>Stationery Typography</h3>
+            <label class="slider-label"><span>Font Family:</span></label>
+            <select id="select-font" class="lab-select">
+              <option value="Caveat" selected>Caveat (Handwritten)</option>
+              <option value="Newsreader">Newsreader (Literary Serif)</option>
+              <option value="Instrument Serif">Instrument Serif (Display Romantic)</option>
+              <option value="system-ui">System Sans</option>
+            </select>
+
+            <label class="slider-label"><span>Text Alignment:</span></label>
+            <div class="segmented-control" style="margin-bottom: 8px;">
+              <button class="align-btn active" data-align="left">Left Aligned</button>
+              <button class="align-btn" data-align="center">Centered</button>
+            </div>
+
+            <label class="slider-label">
+              <span>Text Top Inset:</span>
+              <span id="label-text-inset-val">0 px</span>
+            </label>
+            <input type="range" id="slider-text-inset" min="-30" max="60" value="0" step="1" class="range-slider">
+
+            <label class="slider-label">
+              <span>Font Size:</span>
+              <span id="label-fontsize-val">23px</span>
+            </label>
+            <input type="range" id="slider-fontsize" min="14" max="38" value="23" class="range-slider">
+
+            <div class="checkbox-row">
+              <label><input type="checkbox" id="check-safe-area"> Show Deckled Safe Area</label>
+            </div>
+            <div class="checkbox-row">
+              <label><input type="checkbox" id="check-shadows" checked> Preserved Layer Shadows</label>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Interactive Stage -->
+        <div class="stage-container">
+          <div class="stage-canvas" id="interactive-stage">
+            <!-- 1. LAYERED ENVELOPE ASSEMBLY -->
+            <div class="envelope-rig" id="envelope-rig">
+              <!-- Layer 1: Back Wall & Open Flap -->
+              <div class="layer layer-back" id="rig-back"></div>
+
+              <!-- Layer 2: Letter Paper Sheet -->
+              <div class="layer layer-paper" id="rig-paper">
+                <div class="paper-safe-box" id="safe-box-indicator"></div>
+                <div class="letter-body font-caveat" id="letter-text-container" contenteditable="true" spellcheck="false">
+                  <div class="letter-salutation">My favorite person,</div>
+                  <p>I found this little sprig of pink blossoms this morning and wanted to fold it into your day.</p>
+                  <p>A few words are enough. It’s the thought that travels across the distance to meet you.</p>
+                  <div class="letter-sign">Always, ♡</div>
+                </div>
+              </div>
+
+              <!-- Layer 3: Front Pocket & Silk Ribbon Bow -->
+              <div class="layer layer-front" id="rig-front"></div>
+            </div>
+
+            <!-- 2. CLOSED ENVELOPE (Sealed View) -->
+            <div class="closed-rig" id="closed-rig" style="display: none;">
+              <div class="closed-art" id="closed-art-img">
+                <div class="handwritten-address">
+                  <span>For you,</span>
+                  <small>with love ♡</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. STATIC OPEN ENVELOPE -->
+            <div class="static-open-rig" id="static-open-rig" style="display: none;">
+              <div class="static-open-art" id="static-open-art-img"></div>
+            </div>
+          </div>
+
+          <div class="stage-footer">
+            <div class="stage-tip">
+              💡 <strong>Tip:</strong> Click on the letter paper to edit the text in real-time. Slide the <em>Paper Tuck / Unfold</em> slider to preview how the letter emerges from the envelope pocket!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: COMPONENT & MASK INSPECTOR -->
+    <section id="tab-inspector" class="tab-panel">
+      <div class="inspector-grid">
+        <!-- Component 1: env_1_closed -->
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Closed Envelope</h4>
+            <span class="card-tag">env_1_closed.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/env_1_closed.webp" alt="Closed Envelope" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1197 × 1008 px</strong></div>
+            <div>Aspect Ratio: <strong>1.187 : 1</strong></div>
+            <div>Alpha Mask: <strong>Clean Blue Key + Silk Bow</strong></div>
+          </div>
+        </div>
+
+        <!-- Component 2: env_1_open_front -->
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Front Pocket & Ribbon Bow</h4>
+            <span class="card-tag">env_1_open_front.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/env_1_open_front.webp" alt="Front Pocket" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1060 × 1170 px</strong></div>
+            <div>Z-Index: <strong>3 (Front Layer)</strong></div>
+            <div>Cutout: <strong>V-Fold Pocket Rim + Ribbon Knot</strong></div>
+          </div>
+        </div>
+
+        <!-- Component 3: env_1_open_back -->
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Back Wall & Flap</h4>
+            <span class="card-tag">env_1_open_back.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/env_1_open_back.webp" alt="Back Wall" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1060 × 1170 px</strong></div>
+            <div>Z-Index: <strong>1 (Back Layer)</strong></div>
+            <div>Feature: <strong>Top Flap with Embossed Heart</strong></div>
+          </div>
+        </div>
+
+        <!-- Component Set 2: env_2 -->
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Set 2: Closed (Brooch & Twig)</h4>
+            <span class="card-tag">env_2_closed.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/env_2_closed.webp" alt="Closed Envelope Set 2" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1166 × 872 px</strong></div>
+            <div>Aspect Ratio: <strong>1.337 : 1</strong></div>
+            <div>Badge: <strong>Ceramic Flower & Golden Twig</strong></div>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Set 2: Front Pocket</h4>
+            <span class="card-tag">env_2_open_front.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/env_2_open_front.webp" alt="Front Pocket Set 2" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1136 × 1218 px</strong></div>
+            <div>Z-Index: <strong>3 (Front Layer)</strong></div>
+            <div>Feature: <strong>Sculpted Ceramic Flower Brooch</strong></div>
+          </div>
+        </div>
+
+        <!-- Component Set 3: env_3 -->
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Set 3: Closed (Stamp & Calligraphy)</h4>
+            <span class="card-tag">env_3_closed.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/env_3_closed.webp" alt="Closed Envelope Set 3" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1293 × 1169 px</strong></div>
+            <div>Aspect Ratio: <strong>1.106 : 1</strong></div>
+            <div>Badge: <strong>Pressed Florals & Vintage Stamp</strong></div>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Set 3: Front Pocket</h4>
+            <span class="card-tag">env_3_open_front.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/env_3_open_front.webp" alt="Front Pocket Set 3" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1238 × 1364 px</strong></div>
+            <div>Z-Index: <strong>3 (Front Layer)</strong></div>
+            <div>Feature: <strong>Branching Pressed Florals & Stamp</strong></div>
+          </div>
+        </div>
+
+        <!-- Component 4: paper_1 -->
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Deckled Botanical Paper</h4>
+            <span class="card-tag">paper_1.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/paper_1.webp" alt="Botanical Paper" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1332 × 1398 px</strong></div>
+            <div>Z-Index: <strong>2 (Letter Layer)</strong></div>
+            <div>Feature: <strong>Deckled Edges + Pressed Flowers</strong></div>
+          </div>
+        </div>
+
+        <!-- Component Set 4: env_4 -->
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Set 4: Closed (Heart Seal & Branches)</h4>
+            <span class="card-tag">env_4_closed.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/env_4_closed.webp" alt="Closed Envelope Set 4" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>2125 × 1375 px</strong></div>
+            <div>Aspect Ratio: <strong>1.545 : 1</strong></div>
+            <div>Badge: <strong>Pink Paper & Botanical Branches</strong></div>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Set 4: Front Pocket</h4>
+            <span class="card-tag">env_4_open_front.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/env_4_open_front.webp" alt="Front Pocket Set 4" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1978 × 1479 px</strong></div>
+            <div>Z-Index: <strong>3 (Front Layer)</strong></div>
+            <div>Feature: <strong>3D Heart Seal & Delicate Sprigs</strong></div>
+          </div>
+        </div>
+
+        <!-- Component Set 5: env_5 -->
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Set 5: Closed (Lavender Cosmos & Stamp)</h4>
+            <span class="card-tag">env_5_closed.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/env_5_closed.webp" alt="Closed Envelope Set 5" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>2348 × 1789 px</strong></div>
+            <div>Aspect Ratio: <strong>1.312 : 1</strong></div>
+            <div>Badge: <strong>Lavender Lilac Paper & Postmark</strong></div>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Set 5: Front Pocket</h4>
+            <span class="card-tag">env_5_open_front.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/env_5_open_front.webp" alt="Front Pocket Set 5" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>2752 × 1536 px</strong></div>
+            <div>Z-Index: <strong>3 (Front Layer)</strong></div>
+            <div>Feature: <strong>Sculpted Cosmos Blooms & Golden Leaves</strong></div>
+          </div>
+        </div>
+
+        <!-- Component: paper_2 -->
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Pink Sparkle Bow Paper</h4>
+            <span class="card-tag">paper_2.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/paper_2.webp" alt="Sparkle Bow Paper" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1557 × 1417 px</strong></div>
+            <div>Z-Index: <strong>2 (Letter Layer)</strong></div>
+            <div>Feature: <strong>Sparkle Stars & Corner Ribbon Bow</strong></div>
+          </div>
+        </div>
+
+        <!-- Component: paper_3 -->
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Floral Border Botanical Paper</h4>
+            <span class="card-tag">paper_3.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/paper_3.webp" alt="Floral Border Paper" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1353 × 1396 px</strong></div>
+            <div>Z-Index: <strong>2 (Letter Layer)</strong></div>
+            <div>Feature: <strong>Botanical Sprig Border & Berries</strong></div>
+          </div>
+        </div>
+
+        <!-- Component: paper_4 -->
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Lavender Lined Stationery</h4>
+            <span class="card-tag">paper_4.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/paper_4.webp" alt="Lavender Lined Paper" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1397 × 1422 px</strong></div>
+            <div>Z-Index: <strong>2 (Letter Layer)</strong></div>
+            <div>Feature: <strong>Ruled Writing Lines & Taped Lavender</strong></div>
+          </div>
+        </div>
+
+        <!-- Component: paper_5 -->
+        <div class="component-card">
+          <div class="card-header">
+            <h4>Cherry Blossom Deckled Paper</h4>
+            <span class="card-tag">paper_5.webp</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../processed/paper_5.webp" alt="Cherry Blossom Paper" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Dimensions: <strong>1560 × 1438 px</strong></div>
+            <div>Z-Index: <strong>2 (Letter Layer)</strong></div>
+            <div>Feature: <strong>Deckled Edges & Corner Cherry Blossoms</strong></div>
+          </div>
+        </div>
+
+        <!-- Raw Source 1: env_1.jpeg -->
+        <div class="component-card raw-card">
+          <div class="card-header">
+            <h4>Raw Blue-Screen Source</h4>
+            <span class="card-tag">env_1.jpeg</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../raw_inputs/env_1.jpeg" alt="Raw Envelope" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Source Size: <strong>2752 × 1536 px</strong></div>
+            <div>Background: <strong>Chroma Blue #002cff</strong></div>
+            <div>Extracted Components: <strong>4 Assets</strong></div>
+          </div>
+        </div>
+
+        <!-- Raw Source 2: paper_1.png -->
+        <div class="component-card raw-card">
+          <div class="card-header">
+            <h4>Raw Green-Screen Source</h4>
+            <span class="card-tag">paper_1.png</span>
+          </div>
+          <div class="asset-preview-box">
+            <img src="../raw_inputs/paper_1.png" alt="Raw Paper" class="inspect-img">
+          </div>
+          <div class="card-meta">
+            <div>Source Size: <strong>1416 × 1454 px</strong></div>
+            <div>Background: <strong>Chroma Lime #d6fe51</strong></div>
+            <div>Extracted Components: <strong>1 Asset</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: PIPELINE TUNER -->
+    <section id="tab-pipeline" class="tab-panel">
+      <div class="pipeline-panel-layout">
+        <div class="pipeline-controls-card">
+          <h3>Extraction Pipeline Calibration</h3>
+          <p class="pipeline-sub">Fine-tune chroma thresholds and despill suppression algorithms for <code>better/env_1.jpeg</code> and <code>better/paper_1.png</code>.</p>
+
+          <div class="param-group">
+            <h4>Blue Key Parameters (Envelope)</h4>
+            <label class="slider-label">
+              <span>Blue Dominance Low Threshold:</span>
+              <span id="param-blue-low-val">15.0</span>
+            </label>
+            <input type="range" id="param-blue-low" min="5" max="40" value="15" step="1" class="range-slider">
+
+            <label class="slider-label">
+              <span>Blue Dominance High Threshold:</span>
+              <span id="param-blue-high-val">50.0</span>
+            </label>
+            <input type="range" id="param-blue-high" min="30" max="90" value="50" step="1" class="range-slider">
+
+            <label class="slider-label">
+              <span>Blue Despill Suppression:</span>
+              <span id="param-blue-despill-val">0.95</span>
+            </label>
+            <input type="range" id="param-blue-despill" min="0.5" max="1.0" value="0.95" step="0.05" class="range-slider">
+          </div>
+
+          <div class="param-group">
+            <h4>Green Key Parameters (Paper)</h4>
+            <label class="slider-label">
+              <span>Green Distance Threshold:</span>
+              <span id="param-green-dist-val">58.0</span>
+            </label>
+            <input type="range" id="param-green-dist" min="30" max="80" value="58" step="1" class="range-slider">
+
+            <label class="slider-label">
+              <span>Edge Erosion Iterations:</span>
+              <span id="param-erosion-val">2 px</span>
+            </label>
+            <input type="range" id="param-erosion" min="0" max="4" value="2" step="1" class="range-slider">
+
+            <label class="slider-label">
+              <span>Green Edge Despill Clamp:</span>
+              <span id="param-green-despill-val">0.86</span>
+            </label>
+            <input type="range" id="param-green-despill" min="0.7" max="0.95" value="0.86" step="0.02" class="range-slider">
+          </div>
+
+          <div class="pipeline-actions">
+            <button id="btn-reextract" class="primary-btn">Re-run Pipeline Script</button>
+            <span id="reextract-status" class="status-msg"></span>
+          </div>
+        </div>
+
+        <div class="pipeline-info-card">
+          <h3>Algorithm Diagnostic Summary</h3>
+          <table class="specs-table">
+            <tr>
+              <td>Blue Screen Dominance Metric</td>
+              <td><code>B - max(R, G)</code></td>
+            </tr>
+            <tr>
+              <td>Blue Spill Mitigation</td>
+              <td><code>B_new = B - (B - max(R,G)) * 0.95</code></td>
+            </tr>
+            <tr>
+              <td>Green Color Space Delta</td>
+              <td><code>|| [R,G,B] - [214.6, 253.1, 81.1] ||_2</code></td>
+            </tr>
+            <tr>
+              <td>Paper Deckled Edge Anti-Aliasing</td>
+              <td>Gaussian Sigmoidal Roll-off (<code>σ = 0.75</code>)</td>
+            </tr>
+            <tr>
+              <td>Pocket Seam Splitting</td>
+              <td>Dual-diagonal fold geometry + center ribbon knot detection</td>
+            </tr>
+          </table>
+
+          <div class="terminal-box" id="pipeline-log-box">
+            <div class="terminal-bar">Pipeline Execution Log</div>
+            <pre><code>[PIPELINE] Initialized extract.py from vault/pipeline
+[PIPELINE] Loaded env_1.jpeg: 2752x1536 RGB
+[PIPELINE] Extracted env_1_closed: 1197x1008 (Alpha: Clean)
+[PIPELINE] Extracted env_1_open_full: 1060x1170 (Alpha: Clean)
+[PIPELINE] Extracted env_1_open_front: 1060x1170 (V-Cut: Clean)
+[PIPELINE] Extracted env_1_open_back: 1060x1170 (Alpha: Clean)
+[PIPELINE] Loaded paper_1.png: 1416x1454 RGBA
+[PIPELINE] Extracted paper_1: 1332x1398 (Deckled edge: Clean, Zero green fringe)
+[PIPELINE] Production package written to vault/production_assets/</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: PRODUCTION SPECS & CODE -->
+    <section id="tab-tokens" class="tab-panel">
+      <div class="tokens-layout">
+        <div class="code-card">
+          <div class="card-header">
+            <h4>Drop-In CSS Tokens (tokens.css)</h4>
+            <button class="copy-btn" data-target="code-tokens">Copy CSS</button>
+          </div>
+          <pre><code id="code-tokens">/* LETTERS (HG) Drop-In Production Tokens */
+:root {
+  --env-1-closed-url: url('/stationery/env_1_closed.webp');
+  --env-1-open-back-url: url('/stationery/env_1_open_back.webp');
+  --env-1-open-front-url: url('/stationery/env_1_open_front.webp');
+  --paper-1-url: url('/stationery/paper_1.webp');
+
+  --env-1-closed-aspect: 1197 / 1008;
+  --env-1-open-aspect: 1060 / 1170;
+  --paper-1-aspect: 1332 / 1398;
+
+  --paper-envelope-scale: 0.775;
+  --paper-tuck-top: 48%;
+  --paper-unfold-top: -20%;
+}
+
+.hg-envelope-assembly {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  aspect-ratio: var(--env-1-open-aspect);
+}
+.hg-envelope-assembly .layer-back {
+  position: absolute; inset: 0; z-index: 1;
+  background-image: var(--env-1-open-back-url);
+  background-size: contain; background-repeat: no-repeat;
+}
+.hg-envelope-assembly .layer-paper {
+  position: absolute; z-index: 2; left: 50%;
+  top: var(--paper-tuck-top);
+  width: calc(100% * var(--paper-envelope-scale));
+  aspect-ratio: var(--paper-1-aspect);
+  transform: translate(-50%, 0);
+  background-image: var(--paper-1-url);
+  background-size: cover;
+  transition: top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hg-envelope-assembly.unfolded .layer-paper {
+  top: var(--paper-unfold-top);
+}
+.hg-envelope-assembly .layer-front {
+  position: absolute; inset: 0; z-index: 3;
+  background-image: var(--env-1-open-front-url);
+  background-size: contain; background-repeat: no-repeat;
+  pointer-events: none;
+}</code></pre>
+        </div>
+
+        <div class="code-card">
+          <div class="card-header">
+            <h4>Component Manifest (metadata.json)</h4>
+            <button class="copy-btn" data-target="code-json">Copy JSON</button>
+          </div>
+          <pre><code id="code-json">{
+  "id": "env_1_and_paper_1",
+  "title": "Rose Silk Ribbon Envelope & Deckled Botanical Paper",
+  "assets": {
+    "closedEnvelope": {
+      "file": "env_1_closed.webp",
+      "width": 1197,
+      "height": 1008,
+      "aspectRatio": 1.1875
+    },
+    "openEnvelopeBack": {
+      "file": "env_1_open_back.webp",
+      "width": 1060,
+      "height": 1170,
+      "zIndex": 1
+    },
+    "stationeryPaper": {
+      "file": "paper_1.webp",
+      "width": 1332,
+      "height": 1398,
+      "zIndex": 2,
+      "recommendedScale": 0.775,
+      "safeArea": "60px 70px 90px 70px"
+    },
+    "openEnvelopeFront": {
+      "file": "env_1_open_front.webp",
+      "width": 1060,
+      "height": 1170,
+      "zIndex": 3
+    }
+  }
+}</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

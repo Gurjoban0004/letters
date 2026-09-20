@@ -1,66 +1,64 @@
-export type LetterBlock = { id: string; kind: 'text' | 'photo' | 'doodle' | 'voice'; value: string; align?: 'left' | 'center' | 'right' }
+export type LetterBlock = { id: string; kind: 'text' | 'photo' | 'doodle' | 'voice'; value: string; align?: 'left' | 'center' | 'right'; frame?: 'polaroid' | 'stamp' | 'deckled' }
 export type LetterContent = { version: 1; font: string; decoration: string; greeting?: string; envelope?: string; blocks: LetterBlock[] }
 export type Draft = LetterContent & { id: string; title: string; paper: string; envelope: string; updated: number; unlockAt: string }
-export const fonts: Record<string, string> = { Handwritten: "'Caveat', cursive", Literary: "'Newsreader', Georgia, serif", Classic: 'Georgia, serif', Simple: 'system-ui, sans-serif' }
-export type Stationery = {
-  id: string
-  name: string
-  mood: 'Floral' | 'Classic' | 'Playful' | 'Quiet'
-  desktop: [number, number]
-  mobile: [number, number]
-  tint: string
+export const fonts: Record<string, string> = {
+  Handwritten: "'Caveat', cursive",
+  Literary: "'Newsreader', Georgia, serif",
+  Classic: "'Instrument Serif', Georgia, serif",
 }
-export type Envelope = {
+export interface Paper {
   id: string
   name: string
-  mood: 'Botanical' | 'Romantic' | 'Vintage' | 'Playful'
-  source: 'square' | 'wide'
-  cell: [number, number]
+  badge: string
+  mood: 'Floral' | 'Classic' | 'Playful' | 'Quiet'
+  url: string
+  aspect: string
+  padding: string
+}
+export interface Envelope {
+  id: string
+  name: string
+  badge: string
+  closedUrl: string
+  openFrontUrl: string
+  openBackUrl: string
+  openFullUrl: string
+  closedAspect: string
+  openAspect: string
+  defaultScale: number
 }
 
-// Every preview and writing surface crops the user's original stationery
-// boards. The desktop and portrait coordinates are intentionally independent.
-export const stationery: Stationery[] = [
-  { id: 'blushing-bloom', name: 'Blushing Bloom', mood: 'Floral', desktop: [0, 0], mobile: [0, 0], tint: '#f7e3e4' },
-  { id: 'rose-lines', name: 'Rose Lines', mood: 'Classic', desktop: [1, 0], mobile: [1, 0], tint: '#f7eee8' },
-  { id: 'pressed-petals', name: 'Pressed Petals', mood: 'Quiet', desktop: [2, 0], mobile: [2, 0], tint: '#f2e7da' },
-  { id: 'pink-grid', name: 'Pink Grid', mood: 'Playful', desktop: [3, 0], mobile: [3, 0], tint: '#f4d9dc' },
-  { id: 'garden-border', name: 'Garden Border', mood: 'Floral', desktop: [4, 0], mobile: [4, 0], tint: '#f5ebdf' },
-  { id: 'lavender-note', name: 'Lavender Note', mood: 'Quiet', desktop: [5, 0], mobile: [0, 1], tint: '#e4dff0' },
-  { id: 'cozy-cat', name: 'Cozy Cat', mood: 'Playful', desktop: [0, 1], mobile: [1, 1], tint: '#f7eee5' },
-  { id: 'blue-post', name: 'Blue Post', mood: 'Classic', desktop: [1, 1], mobile: [2, 1], tint: '#dce7f2' },
-  { id: 'meadow-grid', name: 'Meadow Grid', mood: 'Quiet', desktop: [4, 2], mobile: [3, 1], tint: '#ece9dc' },
-  { id: 'heart-lines', name: 'Heart Lines', mood: 'Playful', desktop: [0, 2], mobile: [0, 2], tint: '#f3d9df' },
-  { id: 'fallen-petals', name: 'Fallen Petals', mood: 'Quiet', desktop: [1, 2], mobile: [1, 2], tint: '#f3e8dc' },
-  { id: 'ribbon-frame', name: 'Ribbon Frame', mood: 'Floral', desktop: [3, 2], mobile: [3, 2], tint: '#f7dfe3' },
-  { id: 'little-daisies', name: 'Little Daisies', mood: 'Floral', desktop: [5, 1], mobile: [0, 3], tint: '#f1e4d4' },
-  { id: 'moon-letter', name: 'Moon Letter', mood: 'Quiet', desktop: [3, 3], mobile: [2, 3], tint: '#dae4f1' },
-  { id: 'rose-portrait', name: 'Rose Portrait', mood: 'Classic', desktop: [4, 3], mobile: [4, 4], tint: '#f6eadf' },
+export const stationery: Paper[] = [
+  { id: 'paper_1', name: 'Deckled Botanical', badge: 'Pressed Florals', mood: 'Floral', url: '/stationery/paper_1_botanical/paper_1.webp', aspect: '1332 / 1398', padding: '12% 16% 18% 14%' },
+  { id: 'paper_2', name: 'Sparkle Bow', badge: 'Sparkle Bow', mood: 'Playful', url: '/stationery/paper_2_sparkle_bow/paper_2.webp', aspect: '1557 / 1417', padding: '14% 14% 18% 14%' },
+  { id: 'paper_3', name: 'Floral Border', badge: 'Botanical Border', mood: 'Floral', url: '/stationery/paper_3_floral_border/paper_3.webp', aspect: '1353 / 1396', padding: '16% 18% 16% 18%' },
+  { id: 'paper_4', name: 'Lavender Lined', badge: 'Lavender Lines', mood: 'Quiet', url: '/stationery/paper_4_lavender_lined/paper_4.webp', aspect: '1397 / 1422', padding: '12% 14% 22% 14%' },
+  { id: 'paper_5', name: 'Cherry Blossom', badge: 'Cherry Blossoms', mood: 'Classic', url: '/stationery/paper_5_cherry_blossom/paper_5.webp', aspect: '1560 / 1438', padding: '16% 18% 16% 18%' },
 ]
-// These are individual crops from both envelope boards in the inspiration folder.
 export const envelopes: Envelope[] = [
-  { id: 'pink-post', name: 'Pink Post', mood: 'Romantic', source: 'square', cell: [0, 0] },
-  { id: 'rose-seal', name: 'Rose Seal', mood: 'Botanical', source: 'square', cell: [1, 0] },
-  { id: 'peony-fold', name: 'Peony Fold', mood: 'Romantic', source: 'square', cell: [2, 0] },
-  { id: 'forget-me-not', name: 'Forget-me-not', mood: 'Botanical', source: 'square', cell: [3, 0] },
-  { id: 'pressed-rose', name: 'Pressed Rose', mood: 'Vintage', source: 'square', cell: [0, 1] },
-  { id: 'heart-window', name: 'Heart Window', mood: 'Playful', source: 'square', cell: [1, 1] },
-  { id: 'little-bow', name: 'Little Bow', mood: 'Playful', source: 'square', cell: [2, 1] },
-  { id: 'wildflower-mail', name: 'Wildflower Mail', mood: 'Botanical', source: 'square', cell: [3, 1] },
-  { id: 'berry-wax', name: 'Berry Wax', mood: 'Vintage', source: 'wide', cell: [0, 0] },
-  { id: 'lace-post', name: 'Lace Post', mood: 'Romantic', source: 'wide', cell: [1, 0] },
-  { id: 'tulip-letter', name: 'Tulip Letter', mood: 'Botanical', source: 'wide', cell: [2, 0] },
-  { id: 'ribbon-mail', name: 'Ribbon Mail', mood: 'Playful', source: 'wide', cell: [3, 0] },
+  { id: 'env_1', name: 'Rose Silk Ribbon & Bow', badge: 'Silk Bow', closedUrl: '/stationery/env_1_rose_silk/env_1_closed.webp', openFrontUrl: '/stationery/env_1_rose_silk/env_1_open_front.webp', openBackUrl: '/stationery/env_1_rose_silk/env_1_open_back_clean.webp', openFullUrl: '/stationery/env_1_rose_silk/env_1_open_full.webp', closedAspect: '1197 / 1008', openAspect: '1060 / 1170', defaultScale: 0.775 },
+  { id: 'env_2', name: 'Ceramic Floral Brooch', badge: 'Ceramic Brooch', closedUrl: '/stationery/env_2_ceramic_flower/env_2_closed.webp', openFrontUrl: '/stationery/env_2_ceramic_flower/env_2_open_front.webp', openBackUrl: '/stationery/env_2_ceramic_flower/env_2_open_back.webp', openFullUrl: '/stationery/env_2_ceramic_flower/env_2_open_full.webp', closedAspect: '1166 / 872', openAspect: '1136 / 1218', defaultScale: 0.76 },
+  { id: 'env_3', name: 'Pressed Botanical Stamp', badge: 'Vintage Postage', closedUrl: '/stationery/env_3_botanical_stamp/env_3_closed.webp', openFrontUrl: '/stationery/env_3_botanical_stamp/env_3_open_front.webp', openBackUrl: '/stationery/env_3_botanical_stamp/env_3_open_back.webp', openFullUrl: '/stationery/env_3_botanical_stamp/env_3_open_full.webp', closedAspect: '1293 / 1169', openAspect: '1238 / 1364', defaultScale: 0.75 },
+  { id: 'env_4', name: 'Pink Floral Heart', badge: 'Heart Seal', closedUrl: '/stationery/env_4_pink_heart/env_4_closed.webp', openFrontUrl: '/stationery/env_4_pink_heart/env_4_open_front.webp', openBackUrl: '/stationery/env_4_pink_heart/env_4_open_back_clean.webp', openFullUrl: '/stationery/env_4_pink_heart/env_4_open_full.webp', closedAspect: '1704 / 1375', openAspect: '1369 / 1479', defaultScale: 0.76 },
+  { id: 'env_5', name: 'Lavender Floral Cosmos', badge: 'Lavender Blooms', closedUrl: '/stationery/env_5_lavender_floral/env_5_closed.webp', openFrontUrl: '/stationery/env_5_lavender_floral/env_5_open_front.webp', openBackUrl: '/stationery/env_5_lavender_floral/env_5_open_back_clean.webp', openFullUrl: '/stationery/env_5_lavender_floral/env_5_open_full.webp', closedAspect: '2277 / 1788', openAspect: '1291 / 1402', defaultScale: 0.77 },
 ]
 export const papers = stationery.map((paper) => paper.id)
 const legacyPapers: Record<string, string> = {
-  'Rose garden': 'blushing-bloom', Blush: 'pink-grid', Milk: 'rose-lines', Lilac: 'lavender-note', Botanical: 'garden-border',
+  'Rose garden': 'paper_1', Blush: 'paper_2', Milk: 'paper_3', Lilac: 'paper_4', Botanical: 'paper_5',
+  'blushing-bloom': 'paper_1', 'rose-lines': 'paper_2', 'pressed-petals': 'paper_3', 'pink-grid': 'paper_2', 'garden-border': 'paper_3',
+  'lavender-note': 'paper_4', 'cozy-cat': 'paper_2', 'blue-post': 'paper_4', 'meadow-grid': 'paper_1', 'heart-lines': 'paper_2',
+  'fallen-petals': 'paper_1', 'ribbon-frame': 'paper_3', 'little-daisies': 'paper_5', 'moon-letter': 'paper_4', 'rose-portrait': 'paper_5',
+}
+const legacyEnvelopes: Record<string, string> = {
+  'pink-post': 'env_1', 'rose-seal': 'env_2', 'peony-fold': 'env_4', 'forget-me-not': 'env_5', 'pressed-rose': 'env_3',
+  'heart-window': 'env_4', 'little-bow': 'env_1', 'wildflower-mail': 'env_5', 'berry-wax': 'env_3', 'lace-post': 'env_2',
+  'tulip-letter': 'env_5', 'ribbon-mail': 'env_1',
 }
 export function getStationery(id: string) {
   return stationery.find((paper) => paper.id === (legacyPapers[id] ?? id)) ?? stationery[0]
 }
 export function getEnvelope(id?: string) {
-  return envelopes.find((envelope) => envelope.id === id) ?? envelopes[0]
+  return envelopes.find((envelope) => envelope.id === (id ? legacyEnvelopes[id] ?? id : id)) ?? envelopes[0]
 }
 export function newDraft(): Draft {
   return { id: crypto.randomUUID(), version: 1, title: '', paper: papers[0], envelope: envelopes[0].id, font: 'Handwritten', decoration: '', blocks: [{ id: crypto.randomUUID(), kind: 'text', value: '' }], updated: Date.now(), unlockAt: '' }
