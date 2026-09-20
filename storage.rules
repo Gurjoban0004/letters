@@ -1,0 +1,29 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Membership is read from the pairing document, so Storage and Firestore
+    // can never disagree about who the two of you are.
+    match /pairings/{pairingId}/{file} {
+      function member() {
+        return request.auth != null
+          && request.auth.uid in
+             firestore.get(/databases/(default)/documents/pairings/$(pairingId)).data.members;
+      }
+
+      allow read: if member();
+
+      allow create, update: if member()
+        && request.resource.size < 25 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*|video/.*');
+
+      // Burning a snap deletes the object outright.
+      allow delete: if member();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

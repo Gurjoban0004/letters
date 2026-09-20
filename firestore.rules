@@ -1,0 +1,77 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------------------
+    // The entire guest list. Both of you sign in once, then paste your UIDs
+    // here and redeploy. An email allow-list would NOT be safe: anyone could
+    // register an account using your address before you do. A UID cannot be
+    // guessed or claimed, so this is the real boundary.
+    //
+    // Find them: Firebase console -> Authentication -> Users -> "User UID".
+    // ---------------------------------------------------------------------
+    function known() {
+      return request.auth != null && request.auth.uid in [
+        'ruA3lTiNdG7kGUXHwgwZmEOAXmaV',
+        'M6tdNRJOFhr2UL7qEukHZRrr9gz6'
+      ];
+    }
+
+    // The shared masthead: names, editions, the day you met. This document is
+    // the single source of truth for who the two of you are.
+    match /pairings/{pairingId} {
+      allow read, write: if known();
+    }
+
+    // Everything in here is shared between exactly the two people above, so the
+    // allow-list IS the boundary. Copying a membership list onto each document
+    // would add no security and would silently hide anything sent before the
+    // second person signed up.
+    match /memories/{memoryId} {
+      allow read: if known();
+
+      allow create: if known()
+                    && request.resource.data.senderId == request.auth.uid
+                    && request.resource.data.isBurned == false;
+
+      // Reactions, view receipts and burning. Authorship is frozen and a burn
+      // can never be undone.
+      allow update: if known()
+                    && request.resource.data.senderId == resource.data.senderId
+                    && request.resource.data.type == resource.data.type
+                    && !(resource.data.isBurned == true && request.resource.data.isBurned == false);
+
+      allow delete: if false;
+
+      // The body of a letter. This is what makes "open when" real rather than
+      // cosmetic: until the clock passes unlockAt the server refuses to hand
+      // the text over at all, so there is nothing on the device to peek at.
+      match /secret/content {
+        allow read: if known()
+                    && (resource.data.unlockAt == null
+                        || request.time >= resource.data.unlockAt);
+
+        allow create: if known();
+        allow update, delete: if false;  // a sealed letter is not rewritten
+      }
+    }
+
+    match /alerts/{alertId} {
+      allow read: if known();
+      allow create: if known() && request.resource.data.from == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // Device push tokens. Only Cloud Functions (admin SDK) ever read these.
+    match /tokens/{token} {
+      allow read: if false;
+      allow create, update: if known() && request.resource.data.uid == request.auth.uid;
+      allow delete: if known();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
