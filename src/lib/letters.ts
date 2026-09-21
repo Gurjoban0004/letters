@@ -1,10 +1,27 @@
-export type LetterBlock = { id: string; kind: 'text' | 'photo' | 'doodle' | 'voice'; value: string; align?: 'left' | 'center' | 'right'; frame?: 'polaroid' | 'stamp' | 'deckled' }
-export type LetterContent = { version: 1; font: string; decoration: string; greeting?: string; envelope?: string; blocks: LetterBlock[] }
+export type LetterBlock = {
+  id: string
+  kind: 'text' | 'photo' | 'doodle' | 'voice'
+  value: string
+  align?: 'left' | 'center' | 'right'
+  frame?: 'polaroid' | 'stamp' | 'deckled'
+  /** Canvas placement, stored as percentages so it survives every screen size. */
+  x?: number
+  y?: number
+  size?: number
+  rotation?: number
+}
+export type PlacedDetail = { id: string; name: string; x: number; y: number; size: number; rotation?: number; float?: 'left' | 'right' }
+export type LetterContent = { version: 1; font: string; decoration: string; greeting?: string; envelope?: string; blocks: LetterBlock[]; placedDetails?: PlacedDetail[] }
 export type Draft = LetterContent & { id: string; title: string; paper: string; envelope: string; updated: number; unlockAt: string }
 export const fonts: Record<string, string> = {
   Handwritten: "'Caveat', cursive",
   Literary: "'Newsreader', Georgia, serif",
   Classic: "'Instrument Serif', Georgia, serif",
+  Romantic: "'Dancing Script', cursive",
+  Storybook: "'IM Fell English', Georgia, serif",
+  Gentle: "'Lora', Georgia, serif",
+  Postcard: "'Satisfy', cursive",
+  Editorial: "'Playfair Display', Georgia, serif",
 }
 export interface Paper {
   id: string
@@ -61,17 +78,17 @@ export function getEnvelope(id?: string) {
   return envelopes.find((envelope) => envelope.id === (id ? legacyEnvelopes[id] ?? id : id)) ?? envelopes[0]
 }
 export function newDraft(): Draft {
-  return { id: crypto.randomUUID(), version: 1, title: '', paper: papers[0], envelope: envelopes[0].id, font: 'Handwritten', decoration: '', blocks: [{ id: crypto.randomUUID(), kind: 'text', value: '' }], updated: Date.now(), unlockAt: '' }
+  return { id: crypto.randomUUID(), version: 1, title: '', paper: papers[0], envelope: envelopes[0].id, font: 'Handwritten', decoration: '', blocks: [{ id: crypto.randomUUID(), kind: 'text', value: '', x: 7, y: 10, size: 86, rotation: 0 }], placedDetails: [], updated: Date.now(), unlockAt: '' }
 }
 export function decodeLetter(body: string): LetterContent {
   try {
     const parsed = JSON.parse(body)
-    if (parsed.version === 1 && Array.isArray(parsed.blocks)) return { version: 1, font: fonts[parsed.font] ? parsed.font : 'Literary', decoration: typeof parsed.decoration === 'string' ? parsed.decoration : '', ...(typeof parsed.greeting === 'string' ? { greeting: parsed.greeting } : {}), ...(typeof parsed.envelope === 'string' ? { envelope: parsed.envelope } : {}), blocks: parsed.blocks.filter((b: LetterBlock) => b && ['text', 'photo', 'doodle', 'voice'].includes(b.kind) && typeof b.value === 'string') }
+    if (parsed.version === 1 && Array.isArray(parsed.blocks)) return { version: 1, font: fonts[parsed.font] ? parsed.font : 'Literary', decoration: typeof parsed.decoration === 'string' ? parsed.decoration : '', ...(typeof parsed.greeting === 'string' ? { greeting: parsed.greeting } : {}), ...(typeof parsed.envelope === 'string' ? { envelope: parsed.envelope } : {}), blocks: parsed.blocks.filter((b: LetterBlock) => b && ['text', 'photo', 'doodle', 'voice'].includes(b.kind) && typeof b.value === 'string'), placedDetails: Array.isArray(parsed.placedDetails) ? parsed.placedDetails.filter((detail: PlacedDetail) => detail && typeof detail.id === 'string' && typeof detail.name === 'string' && Number.isFinite(detail.x) && Number.isFinite(detail.y) && Number.isFinite(detail.size)) : [] }
   } catch { /* Letters sent before the redesign contain plain text. */ }
   return { version: 1, font: 'Literary', decoration: '', blocks: [{ id: 'body', kind: 'text', value: body }] }
 }
 export function encodeLetter(draft: Draft) {
-  const body = JSON.stringify({ version: 1, font: draft.font, decoration: draft.decoration, envelope: draft.envelope, ...(draft.greeting ? { greeting: draft.greeting } : {}), blocks: draft.blocks })
+  const body = JSON.stringify({ version: 1, font: draft.font, decoration: draft.decoration, envelope: draft.envelope, ...(draft.greeting ? { greeting: draft.greeting } : {}), blocks: draft.blocks, placedDetails: draft.placedDetails ?? [] })
   if (new Blob([body]).size > 850_000) throw new Error('This letter is a little too heavy. Remove a photo or shorten the voice note before sending.')
   if (!draft.blocks.some(b => b.value.trim())) throw new Error('Add a few words or a little something before sealing your letter.')
   return body

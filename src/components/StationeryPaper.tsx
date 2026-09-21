@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import { forwardRef, type CSSProperties, type ComponentPropsWithoutRef } from 'react'
 import { getStationery } from '../lib/letters'
 
 type PaperVariables = CSSProperties & {
@@ -8,17 +8,18 @@ type PaperVariables = CSSProperties & {
   '--letter-font'?: string
 }
 
-export function StationeryPaper({
+type StationeryPaperProps = Omit<ComponentPropsWithoutRef<'article'>, 'style'> & {
+  paperId?: string
+  fontFamily?: string
+}
+
+export const StationeryPaper = forwardRef<HTMLElement, StationeryPaperProps>(function StationeryPaper({
   paperId = 'paper_1',
   fontFamily,
   className = '',
   children,
-}: {
-  paperId?: string
-  fontFamily?: string
-  className?: string
-  children: ReactNode
-}) {
+  ...articleProps
+}, ref) {
   const paper = getStationery(paperId)
   const style: PaperVariables = {
     '--paper-image': `url("${paper.url}")`,
@@ -27,5 +28,5 @@ export function StationeryPaper({
     ...(fontFamily ? { '--letter-font': fontFamily } : {}),
   }
 
-  return <article className={`stationery-paper ${className}`} style={style}>{children}</article>
-}
+  return <article ref={ref} className={`stationery-paper ${className}`} style={style} {...articleProps}>{children}</article>
+})

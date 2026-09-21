@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Dancing+Script:wght@400;600&family=IM+Fell+English:ital@0;1&family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Satisfy&display=swap');
 :root{--bg:oklch(96.2% .014 12);--surface:oklch(98.8% .007 12);--pink:oklch(93% .026 12);--ink:oklch(35% .045 5);--muted:oklch(48% .045 5);--rose:oklch(51% .115 5);--rose-light:oklch(89% .05 8);--line:oklch(87% .026 8);--sans:'DM Sans',system-ui,sans-serif;--serif:'Instrument Serif',Georgia,serif;--hand:'Caveat',cursive;--ease:cubic-bezier(.16,1,.3,1);--safe-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}button,input,textarea,select{font:inherit;color:inherit}button,a,input,textarea,select{-webkit-tap-highlight-color:transparent}button{cursor:pointer;border:0;background:none}button:disabled{cursor:not-allowed;opacity:.45}button{transition:background .18s,color .18s,transform .22s var(--ease)}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--rose);outline-offset:4px}button:hover:not(:disabled){color:var(--rose)}button:active:not(:disabled){transform:translateY(1px)}a{color:inherit;text-decoration:none}img{display:block;max-width:100%}h1,h2,h3,p{margin:0}h1,h2,h3{text-wrap:balance}h1,h2{font-family:var(--serif);font-weight:400}p{text-wrap:pretty}svg{flex-shrink:0}input,textarea,select{min-width:0}button{min-height:40px}.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;gap:12px;font-weight:500;font-size:13px;min-height:44px;padding:12px 22px;border-radius:7px;white-space:nowrap}.primary{background:var(--rose);color:white;box-shadow:0 3px 6px #8c3e5414}.primary:hover:not(:disabled){background:oklch(44% .11 5);color:white;transform:translateY(-1px)}.secondary{border:1px solid var(--line);background:var(--surface)}.secondary:hover:not(:disabled){background:var(--pink)}.text-button{font-size:12px;color:var(--rose)}.handwritten{font-family:var(--hand);font-size:27px;font-weight:400}.little-label{font-size:9px;letter-spacing:1.8px;font-weight:600;color:var(--muted)}.brand{font-family:var(--serif);font-size:46px;letter-spacing:-2px;line-height:1.15;display:inline-flex;gap:5px;align-items:flex-start}.brand span{font-family:var(--hand);font-size:29px;color:var(--rose);margin-top:4px;letter-spacing:0}.brand-caption{font-family:var(--hand);font-size:17px;color:var(--muted);margin:1px 0 36px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.loading-page{min-height:100dvh;display:grid;place-content:center;text-align:center;gap:18px}.loading-page .brand{justify-content:center}.loading-page p{color:var(--muted)}
 /* The quiet frame around the stationery desk. */
@@ -177,6 +177,121 @@
   .writing-tools button{border-radius:8px}
   .reader .letter-paper{padding:68px 42px 132px;font-size:19px;line-height:1.7}
   .reading-title{font-size:30px}
+}
+
+.google-sign-in{width:100%;background:#fff;color:#51363d;border:1px solid #dbc9ca;box-shadow:none}.google-sign-in:hover:not(:disabled){background:#fff7f5;color:#51363d}.google-mark{display:grid;width:24px;height:24px;place-items:center;border-radius:50%;background:#fff;color:#4285f4;font:700 16px Arial,sans-serif}
+
+/* Letter canvas interactions: one predictable model for every keepsake. */
+.letter-fluid-body{min-height:460px}
+.letter-prose-editor{height:auto;min-height:310px;overflow:hidden;resize:none}
+.letter-density-compact{font-size:21px!important}
+.letter-density-tight{font-size:18px!important;line-height:1.55!important}
+.canvas-item{
+  cursor:grab;
+  user-select:none;
+  touch-action:none;
+  transform-origin:center;
+}
+.canvas-item:active{cursor:grabbing}
+.canvas-item.is-active{outline:1px dashed #a34b62;outline-offset:7px}
+.canvas-item-content,.canvas-item-content>.details-asset{width:100%;height:auto}
+.canvas-item-content>.details-asset,.canvas-item-content img{object-fit:contain}
+.canvas-item .taped-photo,.canvas-item .drawn-piece,.canvas-item .voice-illustrated-card{width:100%;max-width:none;margin:0}
+.canvas-item .drawn-piece img{width:100%;height:auto;max-height:none;object-fit:contain}
+.canvas-item .voice-caption{font-size:clamp(12px,2.4vw,20px)}
+.canvas-item-actions{
+  position:absolute;
+  right:-9px;
+  top:-43px;
+  z-index:12;
+  display:flex;
+  align-items:center;
+  gap:2px;
+  min-height:34px;
+  padding:3px;
+  border-radius:999px;
+  background:#fff9f6;
+  color:#694047;
+  box-shadow:0 3px 8px #5a28322b;
+  font:10px var(--sans);
+}
+.canvas-item-actions button{display:grid;width:30px;min-height:30px;padding:0;place-items:center;border-radius:50%;font-size:18px}
+.canvas-item-actions button:hover{background:#f2d7d8}
+.canvas-item-actions .canvas-remove{background:var(--rose);color:#fff}
+.canvas-resize-handle{
+  position:absolute;
+  right:-14px;
+  bottom:-14px;
+  z-index:12;
+  width:30px;
+  min-height:30px;
+  border-radius:50%;
+  background:#fff9f6;
+  box-shadow:0 2px 7px #5a283238;
+  cursor:nwse-resize;
+  touch-action:none;
+}
+.canvas-resize-handle:after{content:'';display:block;width:9px;height:9px;margin:auto;border-right:2px solid var(--rose);border-bottom:2px solid var(--rose)}
+.canvas-item-static{cursor:default;touch-action:auto}
+.placed-detail-item>.details-asset{width:100%;height:auto;object-fit:contain}
+.detail-tile .details-asset{width:100%;height:68px;object-fit:contain}
+
+/* Drawing should feel direct on a finger or stylus, without turning into a mini design app. */
+.doodle-area{position:relative;margin:12px 0 22px;padding:14px;border:1px solid #dbaeb4;border-radius:10px;background:#fffafa}
+.doodle-area canvas{border-radius:5px;background:#fff;box-shadow:inset 0 0 0 1px #ead7d8}
+.doodle-controls{margin-top:12px;gap:10px}
+.doodle-inks{display:flex;align-items:center;gap:7px}
+.doodle-inks button,.doodle-inks label{display:block;width:28px;min-width:28px;height:28px;min-height:28px;padding:0;border-radius:50%;box-shadow:inset 0 0 0 1px #51363d25}
+.doodle-inks button[aria-pressed=true]{outline:2px solid var(--rose);outline-offset:2px}
+.doodle-inks input{width:28px;height:28px;opacity:0;cursor:pointer}
+.doodle-inks label{background:conic-gradient(#e0566e,#d4a31c,#4f8c72,#4e73a2,#9d55a5,#e0566e)}
+.brush-size{display:flex;align-items:center;gap:7px}.brush-size input{width:86px;accent-color:var(--rose)}
+
+/* Reading is a page, not a viewport inside a page. The paper grows with the letter. */
+.reader-letter-stage{max-width:900px;margin:0 auto;padding:56px 28px 110px}
+.reader-letter-paper{
+  position:relative;
+  width:min(720px,100%);
+  min-height:760px;
+  margin:0 auto;
+  padding:var(--paper-padding);
+  overflow:visible;
+  background-color:#fffafa;
+  background-image:var(--paper-image);
+  background-size:100% 100%;
+  box-shadow:0 7px 8px #51363d1f;
+  color:#513d41;
+  font-family:var(--letter-font,var(--serif));
+  font-size:22px;
+  line-height:1.72;
+}
+.reader-letter-paper .reading-title{max-width:15ch;margin:18px 0 30px;font-size:38px;line-height:1.15}
+.reader-letter-paper .letter-prose{max-width:68ch}
+.reader-letter-paper .letter-signature{position:relative;z-index:10;margin-top:42px}
+.reader-reply{max-width:720px;margin:34px auto 0;justify-content:flex-end}
+.reader-reply-btn{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 4px;color:#79575f;font-size:11px;opacity:.74}
+.reader-reply-btn:hover{color:var(--rose);opacity:1}.reader-reply-btn svg{width:16px;height:16px}
+
+@media(max-width:600px){
+  .stationery-paper.letter-paper{font-size:20px}
+  .letter-density-compact{font-size:17px!important}
+  .letter-density-tight{font-size:15px!important;line-height:1.5!important}
+  .letter-fluid-body{min-height:390px}
+  .letter-prose-editor{min-height:260px}
+  .canvas-item-actions{top:-38px;right:-7px}
+  .canvas-item-actions button{width:32px;min-height:32px}
+  .detail-tile .details-asset{height:56px}
+  .doodle-area{margin-inline:-8px;padding:10px}.doodle-area>p{margin-bottom:6px}
+  .doodle-controls{align-items:center}.brush-size{width:100%}.brush-size input{flex:1}
+  .reader-letter-stage{padding:24px 12px 94px}
+  .reader-letter-paper{min-height:70dvh;padding:34px 25px 58px;font-size:17px;line-height:1.62}
+  .reader-letter-paper .reading-title{font-size:29px;margin:12px 0 20px}
+  .reader-letter-paper .letter-fluid-body{min-height:360px}
+  .reader-reply{position:static;justify-content:center;margin-top:25px;padding:0}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .canvas-item{transition:none}
 }
 
 /* Envelope drawer — crops from the two source-of-truth envelope boards. */
@@ -489,4 +604,486 @@ body,.letters-app{background-color:#f8e9e7;background-image:radial-gradient(circ
   .settings-page{padding-top:30px}
   .attachment-chooser{margin:-4px 0 15px;padding:12px 36px 12px 10px;gap:7px;overflow-x:auto}.attachment-chooser>div{display:none}.attachment-chooser>button:not(.attachment-close){min-width:74px}.attachment-chooser>button .details-asset{height:62px}
   .decoration-options{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.decoration-options button{height:78px;padding:5px}.decoration-options button .details-asset{max-height:65px}
+}
+
+/* Invisible border allowing text to naturally reach and overlap paper florals */
+.stationery-paper.letter-paper{
+  min-height:680px;
+  padding:clamp(28px, 5.5%, 52px) clamp(24px, 6.5%, 54px)!important;
+  box-sizing:border-box!important;
+  overflow:visible;
+  background-color:transparent;
+  background-image:var(--paper-image);
+  background-size:100% 100%;
+  border-radius:4px;
+}
+.layer-paper-surface{
+  padding:clamp(28px, 5.5%, 52px) clamp(24px, 6.5%, 54px)!important;
+}
+
+/* Fluid body flow: floated stickers with CSS shape-outside for snug text wrap */
+.letter-fluid-body{
+  position:relative;
+  min-height:280px;
+  margin:10px 0 16px;
+  overflow:visible;
+}
+.placed-detail-item{
+  position:relative;
+  z-index:6;
+  cursor:grab;
+  user-select:none;
+  touch-action:none;
+  shape-margin:16px;
+  margin-bottom:12px;
+  transition:transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.placed-detail-item:active{
+  cursor:grabbing;
+  transform:scale(1.03);
+}
+.placed-detail-item.float-right{
+  float:right;
+  margin-left:18px;
+  margin-right:0;
+}
+.placed-detail-item.float-left{
+  float:left;
+  margin-right:18px;
+  margin-left:0;
+}
+.placed-detail-item.is-active{
+  outline:2px dashed #b5676e80;
+  outline-offset:4px;
+  border-radius:8px;
+}
+.placed-controls{
+  position:absolute;
+  top:-34px;
+  right:-8px;
+  z-index:10;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#fff9f6;
+  box-shadow:0 3px 10px rgba(90, 40, 50, 0.18);
+}
+.placed-remove{
+  display:grid;
+  width:22px;
+  min-height:22px;
+  padding:0;
+  place-items:center;
+  border-radius:50%;
+  background:var(--rose);
+  color:white;
+  font-size:14px;
+  line-height:1;
+}
+.placed-remove:hover:not(:disabled){color:white}
+.placed-resize{
+  width:64px;
+  height:4px;
+  accent-color:var(--rose);
+}
+
+/* Cozy continuous prose editor */
+.letter-prose-editor{
+  display:block;
+  width:100%;
+  min-height:300px;
+  border:0;
+  background:transparent;
+  font-family:inherit;
+  font-size:inherit;
+  line-height:1.75;
+  color:inherit;
+  resize:vertical;
+  outline:none;
+  padding:0;
+  white-space:pre-wrap;
+  overflow-wrap:break-word;
+}
+.letter-prose-editor::placeholder{
+  color:#85545e88;
+}
+.letter-prose{
+  white-space:pre-wrap;
+  overflow-wrap:break-word;
+  line-height:1.75;
+  font-family:inherit;
+  font-size:inherit;
+  color:inherit;
+}
+
+/* Media attachments (photos, voice notes, doodles) */
+.letter-media-item{
+  position:relative;
+  margin:24px auto;
+  width:max-content;
+  max-width:100%;
+}
+.media-remove-btn{
+  position:absolute;
+  top:-10px;
+  right:-10px;
+  z-index:12;
+  display:grid;
+  width:26px;
+  min-height:26px;
+  padding:0;
+  place-items:center;
+  border-radius:50%;
+  background:var(--rose);
+  color:white;
+  font-size:16px;
+  line-height:1;
+  box-shadow:0 2px 6px rgba(90, 40, 50, 0.25);
+  opacity:0.85;
+  transition:opacity 0.18s;
+}
+.letter-media-item:hover .media-remove-btn{
+  opacity:1;
+}
+
+/* Aesthetically taped photos */
+.taped-photo{
+  position:relative;
+  margin:0 auto;
+  padding:12px 12px 34px;
+  background:#fffdf9;
+  box-shadow:0 10px 24px rgba(80, 45, 55, 0.14);
+  transform:rotate(-1.5deg);
+  border-radius:2px;
+  max-width:min(340px, 90vw);
+}
+.taped-photo.frame-stamp{
+  padding:10px;
+  border:7px dotted #eed3d2;
+  background:#fff9f5;
+  transform:rotate(1deg);
+}
+.taped-photo.frame-deckled{
+  padding:14px 14px 40px;
+  clip-path:polygon(1% 2%, 99% 0, 98% 99%, 2% 97%);
+  transform:rotate(-1deg);
+}
+.taped-photo img{
+  width:100%;
+  height:auto;
+  display:block;
+  border-radius:1px;
+}
+.photo-tape{
+  position:absolute;
+  top:-16px;
+  left:50%;
+  width:92px;
+  transform:translateX(-50%) rotate(2deg);
+  z-index:4;
+  pointer-events:none;
+  filter:drop-shadow(0 2px 4px rgba(60, 30, 40, 0.15));
+}
+.photo-frame-toggle{
+  position:absolute;
+  right:8px;
+  bottom:8px;
+  z-index:5;
+  display:flex;
+  gap:4px;
+  padding:3px 6px;
+  border-radius:999px;
+  background:#fff9f4ee;
+  box-shadow:0 2px 6px rgba(0,0,0,0.08);
+}
+.photo-frame-toggle button{
+  min-height:22px;
+  padding:2px 8px;
+  border-radius:999px;
+  color:#765057;
+  font-size:9px;
+  text-transform:capitalize;
+}
+.photo-frame-toggle button[aria-pressed=true]{
+  background:#efc7cb;
+  color:#813847;
+  font-weight:600;
+}
+
+/* Illustrated voice note player card from details.png */
+.voice-illustrated-card{
+  position:relative;
+  display:block;
+  width:min(100%, 360px);
+  margin:10px auto;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  transition:transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  filter:drop-shadow(0 4px 10px rgba(120, 50, 70, 0.12));
+}
+.voice-illustrated-card:hover{
+  transform:translateY(-2px);
+}
+.voice-illustrated-card:active{
+  transform:scale(0.98);
+}
+.voice-illustrated-card audio{
+  display:none;
+}
+.voice-caption{
+  display:block;
+  text-align:center;
+  font-size:20px;
+  color:#8c4e5b;
+  margin-top:6px;
+}
+
+/* Live voice recording card */
+.voice-recording-card{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:14px 20px;
+  margin:16px 0 22px;
+  border-radius:14px;
+  background:#fdecef;
+  border:1px solid #f2c2cb;
+  box-shadow:0 6px 16px rgba(150, 50, 70, 0.12);
+}
+.recording-waveform{
+  display:flex;
+  align-items:center;
+  gap:3.5px;
+  height:24px;
+}
+.recording-waveform span{
+  width:4px;
+  height:100%;
+  background:var(--rose);
+  border-radius:999px;
+  animation:recWave 0.85s ease-in-out infinite alternate;
+}
+.recording-waveform span:nth-child(2){animation-delay:0.12s;}
+.recording-waveform span:nth-child(3){animation-delay:0.24s;}
+.recording-waveform span:nth-child(4){animation-delay:0.36s;}
+.recording-waveform span:nth-child(5){animation-delay:0.48s;}
+.recording-waveform span:nth-child(6){animation-delay:0.6s;}
+.recording-waveform span:nth-child(7){animation-delay:0.18s;}
+@keyframes recWave{
+  0%{height:5px;}
+  100%{height:24px;}
+}
+.recording-info{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.rec-label{
+  font-size:11px;
+  font-weight:600;
+  color:#6b2e3c;
+}
+.rec-timer{
+  font-size:11px;
+  color:var(--rose);
+  font-weight:600;
+}
+.rec-finish-btn{
+  padding:8px 16px;
+  border-radius:999px;
+  background:var(--rose);
+  color:white;
+  font-size:12px;
+  font-weight:600;
+  min-height:36px;
+  white-space:nowrap;
+  box-shadow:0 2px 6px rgba(140, 40, 60, 0.25);
+}
+.rec-finish-btn:hover{
+  background:#893144;
+  color:white;
+}
+
+/* Detail stickers drawer */
+.detail-tile{
+  display:flex;
+  min-width:0;
+  min-height:105px;
+  padding:10px 8px;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  border-radius:10px;
+  background:#f8eae7;
+  color:#6f4148;
+  cursor:grab;
+  touch-action:none;
+  transition:background 0.15s, transform 0.18s;
+}
+.detail-tile:hover{
+  background:#f2dcd8;
+  transform:translateY(-2px);
+}
+.detail-tile:active{
+  cursor:grabbing;
+}
+.detail-tile .details-asset{
+  max-width:100%;
+  height:68px;
+}
+.detail-tile span{
+  font:10px/1.2 var(--sans);
+  text-align:center;
+}
+
+/* Settings tucked away quietly in the footer */
+.footer-settings{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-top:8px;
+  font-size:11px;
+  color:var(--muted);
+  opacity:0.75;
+}
+.footer-settings:hover{
+  opacity:1;
+  color:var(--rose);
+}
+.footer-settings svg{
+  width:14px;
+  height:14px;
+}
+
+/* Subtle reader reply button */
+.reader-reply{
+  display:flex;
+  justify-content:center;
+  max-width:680px;
+  margin:40px auto 0;
+}
+.reader-reply-btn{
+  border-radius:999px;
+  min-height:46px;
+  padding:12px 28px;
+  font-size:13px;
+  box-shadow:0 6px 18px rgba(120, 50, 70, 0.18);
+}
+
+/* The letter slide affordance & envelope disappearance */
+.layered-envelope-wrapper{
+  position:relative;
+  max-width:760px;
+  margin:0 auto;
+}
+.layered-envelope-wrapper .layer-paper{
+  cursor:grab;
+}
+.layered-envelope-wrapper .layer-paper:active{
+  cursor:grabbing;
+}
+.pull-handle{
+  position:absolute;
+  left:50%;
+  bottom:4%;
+  z-index:5;
+  display:grid;
+  width:52px;
+  height:26px;
+  transform:translateX(-50%);
+  place-items:center;
+  pointer-events:none;
+}
+.pull-handle span{
+  display:block;
+  width:38px;
+  height:4px;
+  border-radius:999px;
+  background:#75485080;
+  box-shadow:0 1px #fff8;
+}
+.pull-hint{
+  text-align:center;
+  margin-top:14px;
+  color:#81545c;
+  font-size:19px;
+}
+.envelope-gone .pull-hint{
+  display:none;
+}
+.envelope-gone .layered-envelope{
+  aspect-ratio:auto!important;
+}
+
+@media(max-width:600px){
+  .stationery-paper.letter-paper{
+    padding:28px 20px 48px!important;
+    min-height:560px;
+  }
+  .layer-paper-surface{
+    padding:28px 20px 48px!important;
+  }
+  .mobile-nav{
+    grid-template-columns:repeat(4,1fr);
+  }
+  .detail-tile{
+    min-height:88px;
+  }
+  .detail-tile .details-asset{
+    height:56px;
+  }
+  .reader-reply{
+    position:sticky;
+    z-index:8;
+    bottom:calc(16px + var(--safe-bottom));
+    padding:0 14px;
+  }
+}
+
+/* Final letter-canvas overrides live after the legacy responsive layer. */
+.stationery-paper.letter-paper,.reader-letter-paper{aspect-ratio:auto}
+.letter-fluid-body{position:relative;min-height:460px;overflow:visible}
+.letter-prose-editor{height:auto;min-height:310px;overflow:hidden;resize:none}
+.letter-density-compact{font-size:21px!important}.letter-density-tight{font-size:18px!important;line-height:1.55!important}
+.canvas-item{cursor:grab;user-select:none;touch-action:none;transform-origin:center}.canvas-item:active{cursor:grabbing}.canvas-item.is-active{outline:0}.canvas-item.is-active>.canvas-item-content{outline:1px dashed #a34b62;outline-offset:7px}
+.canvas-item-content,.canvas-item-content>.details-asset{width:100%;height:auto;transform-origin:center}.canvas-item-content>.details-asset,.canvas-item-content img{object-fit:contain}
+.canvas-item .taped-photo,.canvas-item .drawn-piece,.canvas-item .voice-illustrated-card{width:100%;max-width:none;margin:0}.canvas-item .drawn-piece img{width:100%;height:auto;max-height:none;object-fit:contain}
+.canvas-item-static{cursor:default;touch-action:auto}.placed-detail-item>.details-asset{width:100%;height:auto;object-fit:contain}.detail-tile .details-asset{width:100%;height:68px;object-fit:contain}
+.reader-letter-stage{max-width:900px;margin:0 auto;padding:56px 28px 110px}.reader-letter-paper{position:relative;width:min(720px,100%);min-height:760px;margin:0 auto;padding:var(--paper-padding);overflow:visible;background:#fffafa var(--paper-image) 0 0/100% 100%;box-shadow:0 7px 8px #51363d1f;color:#513d41;font-family:var(--letter-font,var(--serif));font-size:22px;line-height:1.72}
+.reader-letter-paper .reading-title{max-width:15ch;margin:18px 0 30px;font-size:38px;line-height:1.15}.reader-letter-paper .letter-prose{max-width:68ch}.reader-letter-paper .letter-signature{position:relative;z-index:10;margin-top:42px}
+.reader-reply{position:static;max-width:720px;margin:34px auto 0;padding:0;justify-content:flex-end}.reader-reply-btn{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 4px;border-radius:0;box-shadow:none;color:#79575f;font-size:11px;opacity:.74}.reader-reply-btn:hover{color:var(--rose);opacity:1}.reader-reply-btn svg{width:16px;height:16px}
+@media(max-width:600px){.stationery-paper.letter-paper{font-size:20px}.letter-density-compact{font-size:17px!important}.letter-density-tight{font-size:15px!important;line-height:1.5!important}.letter-fluid-body{min-height:390px}.letter-prose-editor{min-height:260px}.detail-tile .details-asset{height:56px}.reader-letter-stage{padding:24px 12px 94px}.reader-letter-paper{min-height:70dvh;padding:34px 25px 58px;font-size:17px;line-height:1.62}.reader-letter-paper .reading-title{font-size:29px;margin:12px 0 20px}.reader-letter-paper .letter-fluid-body{min-height:360px}.reader-reply{position:static;justify-content:center;margin-top:25px;padding:0}}
+
+/* Movable type stays real type: resizing changes the column, never stretches glyphs. */
+.stationery-paper.letter-paper,.reader-letter-paper{background-size:cover;background-position:center;background-repeat:no-repeat;background-color:#f5dfdc}
+.letter-text-box{display:block;width:100%;min-height:92px;padding:5px 7px;background:#fffaf824;border:0;border-radius:3px;line-height:1.65;overflow:hidden;resize:none}
+.letter-text-box:focus{background:#fffaf86b;outline:1px solid #a34b6270;outline-offset:3px}
+.letter-text-static{white-space:pre-wrap;overflow-wrap:anywhere}
+.canvas-rotate-handle{position:absolute;left:-14px;bottom:-14px;z-index:12;display:grid;width:30px;min-height:30px;padding:0;place-items:center;border-radius:50%;background:#fff9f6;color:var(--rose);box-shadow:0 2px 7px #5a283238;cursor:grab;touch-action:none;font-size:17px}.canvas-rotate-handle:active{cursor:grabbing}
+
+/* Voice notes use their real media duration and the same visual language as recording. */
+.voice-illustrated-card{display:flex;width:100%;min-height:72px;margin:0;padding:12px 14px;align-items:center;gap:11px;border-radius:12px;background:#f8dfe3;color:#683a43;filter:none;text-align:left;box-shadow:0 3px 7px #6a34401f}
+.voice-illustrated-card:hover{transform:none}.voice-play{display:grid;width:38px;height:38px;flex:0 0 38px;place-items:center;border-radius:50%;background:var(--rose);color:#fff;font:12px var(--sans)}
+.voice-player-copy{display:flex;min-width:0;flex:1;flex-direction:column;gap:7px}.voice-player-copy strong{font:600 10px var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.voice-player-wave{position:relative;display:flex;height:20px;align-items:center;gap:2px;overflow:hidden}.voice-player-wave:after{content:'';position:absolute;inset:0 auto 0 0;width:var(--voice-progress);background:#a34b6230;pointer-events:none}
+.voice-player-wave i{display:block;width:2px;height:45%;border-radius:99px;background:#9a5261}.voice-player-wave i:nth-child(3n){height:90%}.voice-player-wave i:nth-child(4n){height:65%}.voice-player-wave i:nth-child(5n){height:30%}
+.voice-time{flex:0 0 auto;color:#87525d;font:600 9px var(--sans);white-space:nowrap}
+
+/* Focused, mobile-first drawing surface inspired by story editors. */
+.doodle-area{position:fixed;inset:0;z-index:80;display:flex;margin:0;padding:0;flex-direction:column;border:0;border-radius:0;background:#251e21;box-shadow:none;color:#fff}
+.doodle-header{display:grid;min-height:68px;padding:10px 14px calc(10px + env(safe-area-inset-top,0px));grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;background:#1d181a}.doodle-header>strong{font:500 14px var(--sans)}.doodle-header>button{justify-self:start;color:#fff}.doodle-header>div{display:flex;justify-self:end;gap:5px}.doodle-header button{min-height:42px;padding:8px 10px;color:#fff;font-size:12px}.doodle-header .doodle-done{padding-inline:17px;border-radius:999px;background:#fff;color:#39272d;font-weight:650}
+.doodle-canvas-wrap{position:relative;min-height:0;flex:1;background:radial-gradient(circle at 50% 38%,#fffaf8,#eedadc 78%)}.doodle-area canvas{position:absolute;inset:0;width:100%;height:100%;margin:0;border-radius:0;background:transparent;box-shadow:none;cursor:crosshair;touch-action:none}
+.doodle-area .brush-size{position:absolute;top:50%;left:8px;z-index:2;width:130px;transform:translate(-45px,-50%) rotate(-90deg)}.doodle-area .brush-size input{width:130px;accent-color:#fff}
+.doodle-area>.doodle-inks{display:flex;min-height:82px;padding:13px 12px calc(13px + env(safe-area-inset-bottom,0px));align-items:center;justify-content:center;gap:10px;background:#1d181a;overflow-x:auto}.doodle-area>.doodle-inks button,.doodle-area>.doodle-inks label{width:34px;min-width:34px;height:34px;min-height:34px;border:2px solid #ffffff40;box-shadow:0 0 0 1px #0005}.doodle-area>.doodle-inks button[aria-pressed=true]{outline:2px solid #fff;outline-offset:3px;transform:scale(1.08)}
+
+@media(max-width:600px){
+  .letter-text-box{min-height:72px;padding:4px;line-height:1.55}
+  .voice-illustrated-card{min-height:66px;padding:10px;gap:8px}.voice-play{width:34px;height:34px;flex-basis:34px}.voice-player-copy strong{font-size:9px}.voice-time{font-size:8px}
+  .doodle-header{min-height:72px}.doodle-area>.doodle-inks{justify-content:flex-start;padding-inline:18px}
 }

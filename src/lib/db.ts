@@ -1,6 +1,6 @@
 import {
   addDoc, collection, doc, setDoc, updateDoc, onSnapshot, orderBy, query, limit,
-  serverTimestamp, Timestamp, deleteField, getDoc, writeBatch,
+  serverTimestamp, Timestamp, deleteField, getDoc, writeBatch, where,
 } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { useEffect, useState } from 'react'
@@ -10,6 +10,7 @@ export type MemoryType = 'letter' | 'doodle' | 'snap' | 'scrapbook' | 'classifie
 
 export type Memory = {
   id: string
+  pairingId?: string
   senderId: string
   type: MemoryType
   createdAt: Timestamp | null
@@ -38,21 +39,21 @@ const alertsCol = () => collection(db, 'alerts')
 
 /* ---------------- reads ---------------- */
 
-export function useMemories(uid: string | null, max = 200) {
-  return useLiveList<Memory>(memoriesCol, uid, max)
+export function useMemories(uid: string | null, max = 200, pairingId = PAIRING_ID) {
+  return useLiveList<Memory>(memoriesCol, uid, max, pairingId)
 }
 
 export function useAlerts(uid: string | null, max = 40) {
   return useLiveList<Alert>(alertsCol, uid, max) ?? []
 }
 
-function useLiveList<T>(col: () => ReturnType<typeof collection>, uid: string | null, max: number) {
+function useLiveList<T>(col: () => ReturnType<typeof collection>, uid: string | null, max: number, pairingId?: string) {
   const [items, setItems] = useState<T[] | null>(null)
   const [retry, setRetry] = useState(0)
 
   useEffect(() => {
-    if (!uid) return
-    const q = query(col(), orderBy('createdAt', 'desc'), limit(max))
+    if (!uid || (pairingId !== undefined && !pairingId)) return
+    const q = pairingId ? query(col(), where('pairingId', '==', pairingId), orderBy('createdAt', 'desc'), limit(max)) : query(col(), orderBy('createdAt', 'desc'), limit(max))
     return onSnapshot(
       q,
       (snap) => setItems(snap.docs.map((d) => ({ id: d.id, ...d.data() })) as T[]),
@@ -63,7 +64,7 @@ function useLiveList<T>(col: () => ReturnType<typeof collection>, uid: string | 
         setTimeout(() => setRetry((n) => n + 1), 1500)
       },
     )
-  }, [uid, max, retry])
+  }, [uid, max, retry, pairingId])
 
   return items
 }
@@ -86,13 +87,14 @@ export function isSealed(m: Memory, now = Date.now()) {
 
 export async function sendLetter(opts: {
   senderId: string; title: string; body: string
-  paper: string; envelope?: string; unlockAt: Date | null
+  paper: string; envelope?: string; unlockAt: Date | null; pairingId?: string
 }) {
+  const pairingId = opts.pairingId ?? PAIRING_ID
   const unlock = opts.unlockAt ? Timestamp.fromDate(opts.unlockAt) : null
   const memory = doc(memoriesCol())
   const batch = writeBatch(db)
   batch.set(memory, {
-    pairingId: PAIRING_ID,
+    pairingId,
     senderId: opts.senderId,
     type: 'letter' as MemoryType,
     title: opts.title || 'Untitled',
@@ -107,6 +109,7 @@ export async function sendLetter(opts: {
   // The body lives apart from its envelope, carrying its own copy of unlockAt so
   // the rule can refuse to serve it early without a cross-document lookup.
   batch.set(doc(db, 'memories', memory.id, 'secret', 'content'), {
+    pairingId,
     unlockAt: unlock,
     body: opts.body,
   })

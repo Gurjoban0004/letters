@@ -33,22 +33,32 @@ const messaging = getMessaging(initializeApp({
 // payload would make the browser auto-display a second, uglier copy.
 onBackgroundMessage(messaging, (payload) => {
   const d = (payload.data ?? {}) as Record<string, string>
-  self.registration.showNotification(d.title || 'Twofold', {
+  const options: NotificationOptions & { image?: string; renotify?: boolean; actions?: Array<{ action: string; title: string; icon?: string }> } = {
     body: d.body || '',
     icon: '/icons/icon-192.png',
     badge: '/icons/badge.png',
-    tag: d.tag || 'twofold',
+    image: '/icons/icon-512.png',
+    tag: d.tag || 'letters-inbox',
+    renotify: true,
+    actions: [{ action: 'open', title: 'Open letter' }],
     data: { url: d.url || '/' },
-  })
+  }
+  return self.registration.showNotification(d.title || 'A letter arrived', options)
 })
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
-  const url = (event.notification.data as { url?: string })?.url ?? '/'
+  const requested = (event.notification.data as { url?: string })?.url ?? '/'
+  const target = new URL(requested, self.location.origin)
+  const url = target.origin === self.location.origin ? target.href : self.location.origin
   event.waitUntil((async () => {
     const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
     const existing = clients.find((c) => c.url.includes(self.location.origin))
-    if (existing) { await existing.focus(); return }
+    if (existing) {
+      if ('navigate' in existing) await existing.navigate(url)
+      await existing.focus()
+      return
+    }
     await self.clients.openWindow(url)
   })())
 })
