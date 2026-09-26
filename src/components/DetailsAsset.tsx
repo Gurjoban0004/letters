@@ -10,6 +10,7 @@ export const detailNames = [
   'noteLined', 'heartNote', 'smallProgress', 'letterNote', 'withLoveTag',
   'botanical', 'petal', 'leaf', 'cloud', 'botanicalFlower', 'floralSprig',
   'bow', 'waxSeal', 'waxSealSmall', 'paperclip', 'miniEnvelope', 'cat',
+  'loveLetter', 'ribbonBowPink', 'tulipBouquet', 'duckHeartStamp',
 ] as const
 
 export type DetailAssetName = typeof detailNames[number]
@@ -29,10 +30,11 @@ export function DetailsAsset({
   label?: string
   style?: React.CSSProperties
 }) {
+  const format = ['loveLetter', 'ribbonBowPink', 'tulipBouquet', 'duckHeartStamp'].includes(name) ? 'webp' : 'png'
   return (
     <img
-      src={`/stationery/details/${name}.png`}
-      className={`details-asset ${className}`}
+      src={`/stationery/details/${name}.${format}`}
+      className={`details-asset detail-${name} ${className}`}
       alt={label ?? ''}
       aria-hidden={label ? undefined : true}
       role={label ? 'img' : undefined}

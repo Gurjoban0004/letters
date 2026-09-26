@@ -13,7 +13,7 @@ export default defineConfig({
       filename: 'sw.ts',
       registerType: 'prompt',
       injectManifest: {
-        globPatterns: ['**/*.{js,css,html,svg,png,jpg,webp,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,jpg,webp,woff2,ttf}'],
         globIgnores: ['stationery/**/*.png'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       },
