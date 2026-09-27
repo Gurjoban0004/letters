@@ -4,7 +4,7 @@ import getStroke from 'perfect-freehand'
 import { useSession } from '../lib/session'
 import { isSealed, markViewed, readLetterBody, type Memory } from '../lib/db'
 import {
-  decodeLetter, encodeLetter, envelopes, fonts, gestureDelta, getStationery, migrateV1, paginateText, photoData, redoDraft, stationery, undoDraft, upgradeDraft,
+  decodeLetter, encodeLetter, envelopes, fonts, gestureDelta, getStationery, measuredPageBreak, migrateV1, photoData, redoDraft, stationery, undoDraft, upgradeDraft,
   type Draft, type LetterContent, type LetterContentV1, type LetterContentV2, type LetterItem, type LetterPage, type LetterStyle,
 } from '../lib/letters'
 import { play } from '../lib/sound'
@@ -25,6 +25,8 @@ const detailChoices: { id: DetailAssetName; label: string }[] = [
   { id: 'cloudLovebirds', label: 'Cloud lovebirds' }, { id: 'roseGoldStar', label: 'Rose-gold star' },
   { id: 'roseTeaCup', label: 'Rose tea' }, { id: 'pearlHeartCharm', label: 'Pearl heart' },
   { id: 'blueLoveMailbox', label: 'Love mailbox' }, { id: 'daisyPair', label: 'Pressed daisies' },
+  { id: 'blueberrySprig', label: 'Blueberry sprig' }, { id: 'porcelainSwan', label: 'Porcelain swan' },
+  { id: 'laceHeart', label: 'Lace heart' }, { id: 'diaryKey', label: 'Diary key' },
   { id: 'botanical', label: 'Pressed florals' }, { id: 'bow', label: 'Silk ribbon bow' },
   { id: 'waxSeal', label: 'Heart wax seal' }, { id: 'stamps', label: 'Keepsake stamps' },
   { id: 'stampCat', label: 'Cat postage' }, { id: 'stampTulip', label: 'Tulip postage' },
@@ -64,6 +66,55 @@ function usePageFocus(onClose: () => void) {
 type SaveState = 'saved' | 'saving' | 'unsaved' | 'error'
 type Guide = { x?: boolean; y?: boolean; warning?: boolean }
 
+function textFits(node: HTMLElement, text: string) {
+  if (!text) return true
+  const clone = node.cloneNode(false) as HTMLElement
+  const computed = getComputedStyle(node)
+  const copied = [
+    'font-family', 'font-size', 'font-style', 'font-weight', 'font-variant', 'line-height',
+    'letter-spacing', 'word-spacing', 'text-transform', 'text-indent', 'white-space',
+    'overflow-wrap', 'word-break', 'padding-top', 'padding-right', 'padding-bottom',
+    'padding-left', 'border-top-width', 'border-right-width', 'border-bottom-width',
+    'border-left-width', 'border-style', 'box-sizing',
+  ]
+  for (const property of copied) clone.style.setProperty(property, computed.getPropertyValue(property))
+  Object.assign(clone.style, {
+    position: 'fixed', inset: '0 auto auto -10000px', display: 'block', visibility: 'hidden',
+    pointerEvents: 'none', margin: '0', flex: 'none', width: `${node.clientWidth}px`,
+    height: `${node.clientHeight}px`, minWidth: '0', minHeight: '0', maxWidth: 'none',
+    maxHeight: 'none', overflow: 'hidden', zIndex: '-1',
+  })
+  clone.removeAttribute('id'); clone.setAttribute('aria-hidden', 'true')
+  if (clone instanceof HTMLTextAreaElement) clone.value = text
+  else clone.textContent = text
+  document.body.append(clone)
+  const fits = clone.scrollHeight <= clone.clientHeight + 1
+  clone.remove()
+  return fits
+}
+
+function measuredReflow(text: string, original: LetterPage[], nodes: Map<string, HTMLElement>) {
+  const chunks: string[] = []
+  let remaining = text
+  for (const page of original) {
+    if (!remaining) break
+    const node = nodes.get(page.id)
+    if (!node || node.clientWidth < 1 || node.clientHeight < 1) break
+    const at = measuredPageBreak(remaining, candidate => textFits(node, candidate))
+    chunks.push(remaining.slice(0, at)); remaining = remaining.slice(at)
+  }
+  if (remaining) chunks.push(remaining)
+  const requiredForItems = original.reduce((last, page, index) => page.items.length ? index + 1 : last, 0)
+  const length = Math.max(chunks.length, requiredForItems, 1)
+  return Array.from({ length }, (_, index) => ({
+    id: original[index]?.id ?? crypto.randomUUID(), text: chunks[index] ?? '', items: original[index]?.items ?? [],
+  }))
+}
+
+function samePageFlow(left: LetterPage[], right: LetterPage[]) {
+  return left.length === right.length && left.every((page, index) => page.text === right[index].text && page.id === right[index].id)
+}
+
 export function Composer({ initial, sender, recipient, demo, onSave, onSend, onClose, onSent }: {
   initial: Draft; sender: string; recipient: string; demo: boolean
   onSave: (draft: Draft) => Promise<void>; onSend: (draft: Draft) => Promise<void>; onClose: () => void; onSent: () => void
@@ -90,11 +141,13 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
   const currentDraft = useRef(draft); currentDraft.current = draft
   const lastSaved = useRef(JSON.stringify(draft))
   const composing = useRef(false)
-  const textareas = useRef(new Map<string, HTMLTextAreaElement>())
+  const textareas = useRef(new Map<string, HTMLElement>())
   const papers = useRef(new Map<string, HTMLElement>())
   const past = useRef<Draft[]>([])
   const future = useRef<Draft[]>([])
   const lastHistory = useRef({ kind: '', at: 0 })
+  const pendingCaret = useRef<number | null>(null)
+  const [layoutTick, setLayoutTick] = useState(0)
 
   const dirty = JSON.stringify(draft) !== lastSaved.current
 
@@ -168,25 +221,19 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
     if (window.matchMedia('(max-width: 800px)').matches) requestAnimationFrame(() => panel.current?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'end' }))
   }
 
-  function mapPages(text: string, original: LetterPage[], paperId = draft.paper) {
-    const chunks = paginateText(text, getStationery(paperId).profile)
-    const requiredForItems = original.reduce((last, page, index) => page.items.length ? index + 1 : last, 0)
-    const length = Math.max(chunks.length, requiredForItems, 1)
-    return Array.from({ length }, (_, index) => ({ id: original[index]?.id ?? crypto.randomUUID(), text: chunks[index] ?? '', items: original[index]?.items ?? [] }))
-  }
-
   function restoreCaret(offset: number, pages: LetterPage[]) {
     requestAnimationFrame(() => {
       let passed = 0
       for (const page of pages) {
         if (offset <= passed + page.text.length) {
           const field = textareas.current.get(page.id)
-          field?.focus({ preventScroll: true }); field?.setSelectionRange(offset - passed, offset - passed)
+          if (field instanceof HTMLTextAreaElement) { field.focus({ preventScroll: true }); field.setSelectionRange(offset - passed, offset - passed) }
           return
         }
         passed += page.text.length
       }
-      const last = pages.at(-1); if (last) textareas.current.get(last.id)?.focus({ preventScroll: true })
+      const last = pages.at(-1), field = last ? textareas.current.get(last.id) : null
+      if (field instanceof HTMLTextAreaElement) field.focus({ preventScroll: true })
     })
   }
 
@@ -198,11 +245,27 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
       commit(valueDraft => ({ ...valueDraft, pages: valueDraft.pages.map(page => page.id === pageId ? { ...page, text: value } : page) }), 'typing', true)
       return
     }
-    const full = draft.pages.map((page, pageIndex) => pageIndex === index ? value : page.text).join('')
-    const pages = mapPages(full, draft.pages)
-    commit({ pages }, 'typing', true)
-    restoreCaret(before + caret, pages)
+    pendingCaret.current = before + caret
+    commit(valueDraft => ({ ...valueDraft, pages: valueDraft.pages.map(page => page.id === pageId ? { ...page, text: value } : page) }), 'typing', true)
   }
+
+  useLayoutEffect(() => {
+    if ((phase !== 'write' && phase !== 'preview') || composing.current) return
+    const pages = measuredReflow(draft.pages.map(page => page.text).join(''), draft.pages, textareas.current)
+    if (samePageFlow(pages, draft.pages)) { pendingCaret.current = null; return }
+    const caret = pendingCaret.current
+    setDraft(value => ({ ...value, pages })); setSaveState('unsaved')
+    if (caret !== null) restoreCaret(caret, pages)
+  }, [draft.pages, draft.paper, draft.style, draft.title, draft.greeting, phase, layoutTick])
+
+  useEffect(() => {
+    if (phase !== 'write' && phase !== 'preview') return
+    let cancelled = false
+    void document.fonts?.ready.then(() => { if (!cancelled) setLayoutTick(value => value + 1) })
+    const observer = new ResizeObserver(() => setLayoutTick(value => value + 1))
+    for (const node of textareas.current.values()) observer.observe(node)
+    return () => { cancelled = true; observer.disconnect() }
+  }, [draft.pages.length, draft.paper, draft.style, phase])
 
   function pageUpdate(pageId: string, update: (page: LetterPage) => LetterPage, kind = 'item') {
     commit(value => ({ ...value, pages: value.pages.map(page => page.id === pageId ? update(page) : page) }), kind, kind === 'move')
@@ -309,7 +372,7 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
                   title={draft.title} greeting={draft.greeting} date={new Date().toLocaleDateString(undefined, { dateStyle: 'long' })}
                   editable={phase === 'write'} activeItem={activeItem} guide={activePage === page.id ? guide : {}}
                   paperRef={node => { if (node) papers.current.set(page.id, node); else papers.current.delete(page.id) }}
-                  textareaRef={node => { if (node) textareas.current.set(page.id, node); else textareas.current.delete(page.id) }}
+                  proseRef={node => { if (node) textareas.current.set(page.id, node); else textareas.current.delete(page.id) }}
                   onActivatePage={() => { setActivePage(page.id); if (window.matchMedia('(max-width: 800px)').matches) setTool(null) }} onActivateItem={setActiveItem} onGuide={setGuide}
                   onTitle={value => commit({ title: value }, 'title', true)} onGreeting={value => commit({ greeting: value }, 'greeting', true)}
                   onText={(value, caret) => editPage(page.id, value, caret)}
@@ -325,7 +388,7 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
             {phase === 'write' && tool && <aside className="customization customization-v2" ref={panel} aria-label={`${tool} options`}>
               <div className="customize-heading"><div><h2>Make it yours.</h2><p>Quiet choices, made for this paper.</p></div><button className="inspector-close" onClick={() => setTool(null)} aria-label="Close customization"><Icon.Close /></button></div>
               <div className="customize-tabs">{(['Paper', 'Type', 'Envelope', 'Details'] as const).map(name => <button key={name} className={tool === name ? 'active' : ''} aria-pressed={tool === name} onClick={() => setTool(name)}>{name}</button>)}</div>
-              {tool === 'Paper' && <div className="paper-options">{stationery.map(paper => <button key={paper.id} className={draft.paper === paper.id ? 'chosen' : ''} onClick={() => commit(value => ({ ...value, paper: paper.id, pages: mapPages(value.pages.map(page => page.text).join(''), value.pages, paper.id) }), 'paper')} aria-pressed={draft.paper === paper.id}><span className="paper-swatch"><img src={paper.url} alt="" />{draft.paper === paper.id && <b>✓</b>}</span><strong>{paper.name}</strong><small>{paper.mood}</small></button>)}</div>}
+              {tool === 'Paper' && <div className="paper-options">{stationery.map(paper => <button key={paper.id} className={draft.paper === paper.id ? 'chosen' : ''} onClick={() => commit({ paper: paper.id }, 'paper')} aria-pressed={draft.paper === paper.id}><span className="paper-swatch"><img src={paper.url} alt="" />{draft.paper === paper.id && <b>✓</b>}</span><strong>{paper.name}</strong><small>{paper.mood}</small></button>)}</div>}
               {tool === 'Type' && <div className="font-options">{([
                 ['paper', "Paper’s choice", 'Matched to this stationery'], ['literary', 'Literary', 'Newsreader'], ['handwritten', 'Handwritten', 'Caveat'],
                 ['dreamy', 'Dreamy', 'Soft Fraunces'], ['classic', 'Classic', 'Cormorant'],
@@ -351,9 +414,9 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
   )
 }
 
-function LetterPageView({ paperId, style, page, pageIndex, title, greeting, date, editable, activeItem, guide, paperRef, textareaRef, onActivatePage, onActivateItem, onGuide, onTitle, onGreeting, onText, onCompositionStart, onCompositionEnd, onItem }: {
+function LetterPageView({ paperId, style, page, pageIndex, title, greeting, date, editable, activeItem, guide, paperRef, proseRef, onActivatePage, onActivateItem, onGuide, onTitle, onGreeting, onText, onCompositionStart, onCompositionEnd, onItem }: {
   paperId: string; style: LetterStyle; page: LetterPage; pageIndex: number; pageCount: number; title: string; greeting: string; date: string; editable: boolean
-  activeItem: string | null; guide: Guide; paperRef: (node: HTMLElement | null) => void; textareaRef: (node: HTMLTextAreaElement | null) => void
+  activeItem: string | null; guide: Guide; paperRef: (node: HTMLElement | null) => void; proseRef: (node: HTMLTextAreaElement | HTMLParagraphElement | null) => void
   onActivatePage: () => void; onActivateItem: (id: string | null) => void; onGuide: (guide: Guide) => void
   onTitle: (value: string) => void; onGreeting: (value: string) => void; onText: (value: string, caret: number) => void
   onCompositionStart: () => void; onCompositionEnd: (value: string, caret: number) => void
@@ -369,11 +432,11 @@ function LetterPageView({ paperId, style, page, pageIndex, title, greeting, date
         {editable ? <input className="letter-greeting-input" value={greeting} onChange={event => onGreeting(event.target.value)} placeholder="Dear you," aria-label="Greeting" maxLength={120} /> : greeting ? <p className="letter-greeting">{greeting}</p> : null}
       </header>}
       {editable ? <textarea
-        ref={textareaRef} className="paper-textarea" value={page.text} aria-label={`Letter body, page ${pageIndex + 1}`} placeholder={pageIndex === 0 ? 'Take your time. Write whatever is on your heart today…' : 'Keep writing…'}
+        ref={proseRef} className="paper-textarea" value={page.text} aria-label={`Letter body, page ${pageIndex + 1}`} placeholder={pageIndex === 0 ? 'Take your time. Write whatever is on your heart today…' : 'Keep writing…'}
         spellCheck autoCapitalize="sentences" autoCorrect="on" rows={1}
         onFocus={onActivatePage} onChange={event => onText(event.target.value, event.target.selectionStart)}
         onCompositionStart={onCompositionStart} onCompositionEnd={event => onCompositionEnd(event.currentTarget.value, event.currentTarget.selectionStart)}
-      /> : <p className="letter-page-text">{page.text}</p>}
+      /> : <p ref={proseRef} className="letter-page-text">{page.text}</p>}
     </div>
     {editable && guide.x && <span className="smart-guide guide-x" aria-hidden />}{editable && guide.y && <span className="smart-guide guide-y" aria-hidden />}
     {page.items.map(item => <CanvasItem key={item.id} item={item} paperId={paperId} paperRef={paperRef} active={editable && activeItem === item.id} editable={editable} onActivate={() => onActivateItem(item.id)} onGuide={onGuide} onChange={(update, kind) => onItem(item.id, update, kind)}><LetterItemView item={item} /></CanvasItem>)}
@@ -495,7 +558,26 @@ function LegacyContent({ content }: { content: LetterContentV1 }) {
 }
 
 function LetterPages({ content, paperId, title, date }: { content: LetterContentV2; paperId: string; title: string; date: string }) {
-  return <div className="reader-page-stack">{content.pages.map((page, index) => <div className="sheet-wrap" key={page.id}><LetterPageView paperId={paperId} style={content.style} page={page} pageIndex={index} pageCount={content.pages.length} title={title} greeting={content.greeting} date={date} editable={false} activeItem={null} guide={{}} paperRef={() => {}} textareaRef={() => {}} onActivatePage={() => {}} onActivateItem={() => {}} onGuide={() => {}} onTitle={() => {}} onGreeting={() => {}} onText={() => {}} onCompositionStart={() => {}} onCompositionEnd={() => {}} onItem={() => {}} />{index > 0 && <span className="page-number">{index + 1}</span>}</div>)}</div>
+  const [pages, setPages] = useState(content.pages)
+  const prose = useRef(new Map<string, HTMLElement>())
+  const [layoutTick, setLayoutTick] = useState(0)
+  const source = useRef(content)
+  useEffect(() => {
+    if (source.current === content) return
+    source.current = content; setPages(content.pages)
+  }, [content])
+  useLayoutEffect(() => {
+    const next = measuredReflow(pages.map(page => page.text).join(''), pages, prose.current)
+    if (!samePageFlow(next, pages)) setPages(next)
+  }, [pages, paperId, content.style, title, content.greeting, layoutTick])
+  useEffect(() => {
+    let cancelled = false
+    void document.fonts?.ready.then(() => { if (!cancelled) setLayoutTick(value => value + 1) })
+    const observer = new ResizeObserver(() => setLayoutTick(value => value + 1))
+    for (const node of prose.current.values()) observer.observe(node)
+    return () => { cancelled = true; observer.disconnect() }
+  }, [pages.length, paperId, content.style])
+  return <div className="reader-page-stack">{pages.map((page, index) => <div className="sheet-wrap" key={page.id}><LetterPageView paperId={paperId} style={content.style} page={page} pageIndex={index} pageCount={pages.length} title={title} greeting={content.greeting} date={date} editable={false} activeItem={null} guide={{}} paperRef={() => {}} proseRef={node => { if (node) prose.current.set(page.id, node); else prose.current.delete(page.id) }} onActivatePage={() => {}} onActivateItem={() => {}} onGuide={() => {}} onTitle={() => {}} onGreeting={() => {}} onText={() => {}} onCompositionStart={() => {}} onCompositionEnd={() => {}} onItem={() => {}} />{index > 0 && <span className="page-number">{index + 1}</span>}</div>)}</div>
 }
 
 type DoodlePen = 'fountain' | 'monoline' | 'marker' | 'pencil' | 'airbrush' | 'highlighter' | 'eraser'

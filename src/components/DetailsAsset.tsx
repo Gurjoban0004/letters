@@ -15,6 +15,7 @@ export const detailNames = [
   'sleepyCatPink', 'lovePen', 'loveCherries', 'meadowStamp',
   'forgetMeNotSprig', 'strawberryRibbon', 'cloudLovebirds', 'roseGoldStar',
   'roseTeaCup', 'pearlHeartCharm', 'blueLoveMailbox', 'daisyPair',
+  'blueberrySprig', 'porcelainSwan', 'laceHeart', 'diaryKey',
 ] as const
 
 export type DetailAssetName = typeof detailNames[number]
@@ -34,7 +35,7 @@ export function DetailsAsset({
   label?: string
   style?: React.CSSProperties
 }) {
-  const format = ['loveLetter', 'ribbonBowPink', 'tulipBouquet', 'duckHeartStamp', 'crescentMoon', 'heartCandle', 'heartFlourish', 'pinkButterfly', 'sleepyCatPink', 'lovePen', 'loveCherries', 'meadowStamp', 'forgetMeNotSprig', 'strawberryRibbon', 'cloudLovebirds', 'roseGoldStar', 'roseTeaCup', 'pearlHeartCharm', 'blueLoveMailbox', 'daisyPair'].includes(name) ? 'webp' : 'png'
+  const format = ['loveLetter', 'ribbonBowPink', 'tulipBouquet', 'duckHeartStamp', 'crescentMoon', 'heartCandle', 'heartFlourish', 'pinkButterfly', 'sleepyCatPink', 'lovePen', 'loveCherries', 'meadowStamp', 'forgetMeNotSprig', 'strawberryRibbon', 'cloudLovebirds', 'roseGoldStar', 'roseTeaCup', 'pearlHeartCharm', 'blueLoveMailbox', 'daisyPair', 'blueberrySprig', 'porcelainSwan', 'laceHeart', 'diaryKey'].includes(name) ? 'webp' : 'png'
   return (
     <img
       src={`/stationery/details/${name}.${format}`}

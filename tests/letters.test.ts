@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import {
-  decodeLetter, encodeLetter, envelopes, gestureDelta, getStationery, migrateV1, newDraft, paginateText, redoDraft, reflowPages, stationery, undoDraft, upgradeDraft,
+  decodeLetter, encodeLetter, envelopes, gestureDelta, getStationery, measuredPageBreak, migrateV1, newDraft, paginateText, redoDraft, reflowPages, stationery, undoDraft, upgradeDraft,
   type LetterContentV1, type LetterItem, type LetterPage,
 } from '../src/lib/letters.ts'
 
@@ -43,8 +43,8 @@ const dreamyRoundTrip = decodeLetter(JSON.stringify({ ...roundTrip, style: 'drea
 const classicRoundTrip = decodeLetter(JSON.stringify({ ...roundTrip, style: 'classic' }))
 assert.equal(dreamyRoundTrip.version === 2 ? dreamyRoundTrip.style : '', 'dreamy')
 assert.equal(classicRoundTrip.version === 2 ? classicRoundTrip.style : '', 'classic')
-assert.equal(stationery.length, 8, 'the expanded paper collection is registered')
-assert.equal(envelopes.length, 7, 'the expanded envelope collection is registered')
+assert.equal(stationery.length, 10, 'the expanded paper collection is registered')
+assert.equal(envelopes.length, 9, 'the expanded envelope collection is registered')
 assert.equal(getStationery('paper_6').profile.defaultStyle, 'dreamy')
 
 const profile = getStationery('paper_1').profile
@@ -66,6 +66,15 @@ assert.ok(emojiPages.every(page => !/[\uD800-\uDBFF]$/u.test(page) && !/^[\uDC00
 
 const multilingual = 'नमस्ते दुनिया। こんにちは世界。 مرحباً بالعالم. สวัสดีชาวโลก 🌏 '.repeat(180)
 assert.equal(paginateText(multilingual, profile).join(''), multilingual)
+
+const measuredText = 'one two three four five six'
+const measuredAt = measuredPageBreak(measuredText, candidate => Array.from(candidate).length <= 15)
+assert.equal(measuredText.slice(0, measuredAt), 'one two three ', 'measured pagination prefers the last fitting whitespace')
+const family = 'a👨‍👩‍👧‍👦b'
+const familyAt = measuredPageBreak(family, candidate => Array.from(candidate).length <= 2)
+assert.equal(family.slice(0, familyAt), 'a', 'measured pagination never splits a grapheme cluster')
+const multilingualAt = measuredPageBreak('नमस्ते दुनिया', candidate => candidate.length <= 7)
+assert.equal('नमस्ते दुनिया'.slice(0, multilingualAt), 'नमस्ते ', 'measured pagination keeps multilingual graphemes whole')
 
 const fivePages: LetterPage[] = pastedPages.slice(0, 5).map((text, index) => ({ id: `page-${index}`, text, items: [] }))
 const shortened = reflowPages([{ ...fivePages[0], text: fivePages[0].text.slice(0, 90) }, ...fivePages.slice(1)], profile)

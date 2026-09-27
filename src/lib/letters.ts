@@ -23,6 +23,7 @@ export type Draft = LetterContentV2 & { id: string; title: string; paper: string
 export type PaperProfile = {
   safe: { top: number; right: number; bottom: number; left: number }
   capacity: { first: number; continuation: number; charsPerLine: number; lines: number }
+  quietShape: string
   ink: string
   defaultStyle: Exclude<LetterStyle, 'paper'>
   fontSize: number
@@ -45,18 +46,21 @@ export interface Envelope { id: string; name: string; badge: string; closedUrl: 
 const literaryProfile: PaperProfile = {
   safe: { top: 13, right: 14, bottom: 12, left: 14 },
   capacity: { first: 560, continuation: 800, charsPerLine: 42, lines: 22 },
+  quietShape: '18px 22px 20px 16px / 22px 18px 24px 20px',
   ink: '#4a3439', defaultStyle: 'literary', fontSize: 21, lineHeight: 1.58, paragraphSpacing: 0.72,
 }
 
 export const stationery: Paper[] = [
-  { id: 'paper_1', name: 'Deckled Botanical', badge: 'Pressed Florals', mood: 'Floral', url: '/stationery/paper_1_botanical/paper_1_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 13, right: 16, bottom: 38, left: 15 }, capacity: { first: 350, continuation: 480, charsPerLine: 42, lines: 13 } } },
-  { id: 'paper_2', name: 'Sparkle Bow', badge: 'Sparkle Bow', mood: 'Playful', url: '/stationery/paper_2_sparkle_bow/paper_2_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 14, right: 15, bottom: 15, left: 15 }, capacity: { first: 520, continuation: 760, charsPerLine: 39, lines: 20 }, ink: '#583843', defaultStyle: 'handwritten', fontSize: 24, lineHeight: 1.48 } },
-  { id: 'paper_3', name: 'Floral Border', badge: 'Botanical Border', mood: 'Floral', url: '/stationery/paper_3_floral_border/paper_3_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 14, right: 18, bottom: 15, left: 18 }, capacity: { first: 520, continuation: 740, charsPerLine: 39, lines: 21 } } },
-  { id: 'paper_4', name: 'Lavender Lined', badge: 'Lavender Lines', mood: 'Quiet', url: '/stationery/paper_4_lavender_lined/paper_4_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 8.1, right: 14, bottom: 38, left: 14 }, capacity: { first: 190, continuation: 340, charsPerLine: 38, lines: 9 }, ink: '#49364f', defaultStyle: 'handwritten', fontSize: 25, lineHeight: 1.92, paragraphSpacing: 0, printedBaseline: { offset: 8.1, step: 5.86 } } },
-  { id: 'paper_5', name: 'Cherry Blossom', badge: 'Cherry Blossoms', mood: 'Classic', url: '/stationery/paper_5_cherry_blossom/paper_5_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 15, right: 17, bottom: 29, left: 17 }, capacity: { first: 420, continuation: 560, charsPerLine: 40, lines: 15 } } },
+  { id: 'paper_1', name: 'Deckled Botanical', badge: 'Pressed Florals', mood: 'Floral', url: '/stationery/paper_1_botanical/paper_1_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 13, right: 17, bottom: 40, left: 16 }, capacity: { first: 350, continuation: 480, charsPerLine: 42, lines: 13 }, quietShape: '22px 16px 28px 18px / 18px 24px 20px 26px' } },
+  { id: 'paper_2', name: 'Sparkle Bow', badge: 'Sparkle Bow', mood: 'Playful', url: '/stationery/paper_2_sparkle_bow/paper_2_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 14, right: 16, bottom: 17, left: 16 }, capacity: { first: 520, continuation: 760, charsPerLine: 39, lines: 20 }, quietShape: '24px 18px 22px 20px / 18px 26px 16px 24px', ink: '#583843', defaultStyle: 'handwritten', fontSize: 24, lineHeight: 1.48 } },
+  { id: 'paper_3', name: 'Floral Border', badge: 'Botanical Border', mood: 'Floral', url: '/stationery/paper_3_floral_border/paper_3_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 15, right: 19, bottom: 17, left: 19 }, capacity: { first: 520, continuation: 740, charsPerLine: 39, lines: 21 }, quietShape: '20px 28px 18px 24px / 26px 18px 24px 20px' } },
+  { id: 'paper_4', name: 'Lavender Lined', badge: 'Lavender Lines', mood: 'Quiet', url: '/stationery/paper_4_lavender_lined/paper_4_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 8.1, right: 15, bottom: 40, left: 15 }, capacity: { first: 190, continuation: 340, charsPerLine: 38, lines: 9 }, quietShape: '16px 22px 18px 24px / 22px 16px 24px 18px', ink: '#49364f', defaultStyle: 'handwritten', fontSize: 25, lineHeight: 1.92, paragraphSpacing: 0, printedBaseline: { offset: 8.1, step: 5.86 } } },
+  { id: 'paper_5', name: 'Cherry Blossom', badge: 'Cherry Blossoms', mood: 'Classic', url: '/stationery/paper_5_cherry_blossom/paper_5_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 16, right: 19, bottom: 32, left: 18 }, capacity: { first: 420, continuation: 560, charsPerLine: 40, lines: 15 }, quietShape: '26px 18px 30px 16px / 20px 28px 18px 24px' } },
   { id: 'paper_6', name: 'Moonlit Forget-Me-Not', badge: 'Moonlit Blooms', mood: 'Quiet', url: '/stationery/paper_6_moonlit/paper_6_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 15, right: 16, bottom: 17, left: 16 }, capacity: { first: 500, continuation: 720, charsPerLine: 40, lines: 19 }, ink: '#38445c', defaultStyle: 'dreamy' } },
   { id: 'paper_7', name: 'Strawberry Tea', badge: 'Wild Strawberries', mood: 'Playful', url: '/stationery/paper_7_strawberry/paper_7_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 16, right: 19, bottom: 20, left: 17 }, capacity: { first: 450, continuation: 650, charsPerLine: 39, lines: 17 }, ink: '#503538', defaultStyle: 'classic' } },
   { id: 'paper_8', name: 'Cloud Lovebirds', badge: 'Lovebirds & Bows', mood: 'Classic', url: '/stationery/paper_8_lovebirds/paper_8_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 17, right: 17, bottom: 18, left: 17 }, capacity: { first: 470, continuation: 680, charsPerLine: 40, lines: 18 }, ink: '#4c3a48', defaultStyle: 'dreamy' } },
+  { id: 'paper_9', name: 'Blueberry Moon', badge: 'Moonlit Berries', mood: 'Quiet', url: '/stationery/paper_9_blueberry/paper_9_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 16, right: 22, bottom: 22, left: 20 }, capacity: { first: 430, continuation: 640, charsPerLine: 38, lines: 17 }, quietShape: '26px 18px 22px 30px / 18px 26px 28px 20px', ink: '#35425d', defaultStyle: 'dreamy' } },
+  { id: 'paper_10', name: 'Peach Ribbon Garden', badge: 'Peach Ribbons', mood: 'Floral', url: '/stationery/paper_10_peach_ribbon/paper_10_portrait.webp', aspect: '3 / 4', profile: { ...literaryProfile, safe: { top: 18, right: 22, bottom: 23, left: 21 }, capacity: { first: 410, continuation: 620, charsPerLine: 38, lines: 16 }, quietShape: '18px 30px 24px 16px / 28px 18px 30px 22px', ink: '#543b3b', defaultStyle: 'classic' } },
 ]
 
 export const envelopes: Envelope[] = [
@@ -67,6 +71,8 @@ export const envelopes: Envelope[] = [
   { id: 'env_5', name: 'Lavender Floral Cosmos', badge: 'Lavender Blooms', closedUrl: '/stationery/env_5_lavender_floral/env_5_closed.webp', openFrontUrl: '/stationery/env_5_lavender_floral/env_5_open_front.webp', openBackUrl: '/stationery/env_5_lavender_floral/env_5_open_back_clean.webp', openFullUrl: '/stationery/env_5_lavender_floral/env_5_open_full.webp', closedAspect: '2277 / 1788', openAspect: '1291 / 1402', defaultScale: 0.77 },
   { id: 'env_6', name: 'Moonlit Forget-Me-Not', badge: 'Crescent Seal', closedUrl: '/stationery/env_6_moonlit/env_6_closed.webp', openFrontUrl: '/stationery/env_6_moonlit/env_6_open_full.webp', openBackUrl: '/stationery/env_6_moonlit/env_6_open_full.webp', openFullUrl: '/stationery/env_6_moonlit/env_6_open_full.webp', closedAspect: '4 / 3', openAspect: '1155 / 1362', defaultScale: 0.76 },
   { id: 'env_7', name: 'Strawberry Tea Ribbon', badge: 'Berry Ribbon', closedUrl: '/stationery/env_7_strawberry/env_7_closed.webp', openFrontUrl: '/stationery/env_7_strawberry/env_7_open_full.webp', openBackUrl: '/stationery/env_7_strawberry/env_7_open_full.webp', openFullUrl: '/stationery/env_7_strawberry/env_7_open_full.webp', closedAspect: '4 / 3', openAspect: '1225 / 1284', defaultScale: 0.76 },
+  { id: 'env_8', name: 'Blueberry Moon', badge: 'Moon Seal', closedUrl: '/stationery/env_8_blueberry/env_8_closed.webp', openFrontUrl: '/stationery/env_8_blueberry/env_8_open_full.webp', openBackUrl: '/stationery/env_8_blueberry/env_8_open_full.webp', openFullUrl: '/stationery/env_8_blueberry/env_8_open_full.webp', closedAspect: '4 / 3', openAspect: '4 / 3', defaultScale: 0.76 },
+  { id: 'env_9', name: 'Peach Ribbon Garden', badge: 'Pearl Heart', closedUrl: '/stationery/env_9_peach_ribbon/env_9_closed.webp', openFrontUrl: '/stationery/env_9_peach_ribbon/env_9_open_full.webp', openBackUrl: '/stationery/env_9_peach_ribbon/env_9_open_full.webp', openFullUrl: '/stationery/env_9_peach_ribbon/env_9_open_full.webp', closedAspect: '4 / 3', openAspect: '4 / 3', defaultScale: 0.76 },
 ]
 
 export const papers = stationery.map(paper => paper.id)
@@ -196,6 +202,24 @@ function pageBreak(text: string, capacity: number) {
   const floor = ends[Math.floor(capacity * .68)] ?? 0
   for (let index = hard; index >= floor; index--) if (/\s/u.test(text[index - 1] ?? '')) return index
   return hard
+}
+
+export function measuredPageBreak(text: string, fits: (candidate: string) => boolean) {
+  if (!text || fits(text)) return text.length
+  const ends = graphemeEnds(text)
+  let low = 0, high = ends.length - 1, best = 0
+  while (low <= high) {
+    const middle = Math.floor((low + high) / 2)
+    const end = ends[middle]
+    if (fits(text.slice(0, end))) { best = end; low = middle + 1 }
+    else high = middle - 1
+  }
+  if (!best) return ends[0] ?? 0
+  const floor = Math.floor(best * .68)
+  for (let index = best; index > floor; index--) {
+    if (/\s/u.test(text[index - 1] ?? '') && fits(text.slice(0, index))) return index
+  }
+  return best
 }
 
 export function paginateText(text: string, profile: PaperProfile) {

@@ -14,6 +14,7 @@ type PaperVariables = CSSProperties & {
   '--paper-type-size': string
   '--paper-line-height': string
   '--paper-paragraph-space': string
+  '--paper-quiet-shape': string
   '--paper-rule-offset'?: string
   '--paper-rule-step'?: string
 }
@@ -43,6 +44,7 @@ export const StationeryPaper = forwardRef<HTMLElement, StationeryPaperProps>(fun
     '--paper-type-size': `${paper.profile.fontSize}px`,
     '--paper-line-height': String(paper.profile.lineHeight),
     '--paper-paragraph-space': `${paper.profile.paragraphSpacing}em`,
+    '--paper-quiet-shape': paper.profile.quietShape,
     ...(paper.profile.printedBaseline ? {
       '--paper-rule-offset': `${paper.profile.printedBaseline.offset}%`,
       '--paper-rule-step': `${paper.profile.printedBaseline.step}%`,
