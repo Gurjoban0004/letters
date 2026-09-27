@@ -20,17 +20,17 @@ const db = getFirestore()
  * itself, which keeps one consistent presentation and avoids the browser
  * auto-displaying a second, uglier copy alongside ours.
  */
-async function notify(uid: string, payload: { title: string; body: string; tag: string }) {
+async function notify(uid: string, payload: { title: string; body: string; tag: string; url?: string }) {
   const tokens = await db.collection('tokens').where('uid', '==', uid).get()
   if (tokens.empty) return
 
   const ids = tokens.docs.map((d) => d.id)
   const res = await getMessaging().sendEachForMulticast({
     tokens: ids,
-    data: { ...payload, url: '/' },
+    data: { ...payload, url: payload.url ?? '/' },
     webpush: {
       headers: { Urgency: 'high', TTL: '86400' },
-      fcmOptions: { link: '/' },
+      fcmOptions: { link: payload.url ?? '/' },
     },
   })
 
@@ -83,8 +83,8 @@ export const onMemoryCreated = onDocumentCreated('memories/{memoryId}', async (e
 
   const copy: Record<string, { title: string; body: string }> = {
     letter: sealed
-      ? { title: 'A sealed letter arrived', body: `${name} wrote to you. It opens ${sealed.toLocaleDateString()}.` }
-      : { title: 'A letter arrived', body: `${name} wrote to you. Take your time.` },
+      ? { title: `A sealed letter from ${name}`, body: `It will be ready for you on ${sealed.toLocaleDateString()}.` }
+      : { title: `A little letter from ${name}`, body: 'It’s waiting quietly in your letterbox.' },
     doodle: { title: 'A new illustration', body: `${name} drew you something.` },
     snap: { title: 'Something brief', body: `${name} sent a view-once snap. It won't wait forever.` },
     scrapbook: { title: 'A photograph', body: `${name} filed a picture in the archive.` },
@@ -94,7 +94,7 @@ export const onMemoryCreated = onDocumentCreated('memories/{memoryId}', async (e
   const chosen = copy[m.type as string]
   if (!chosen) return
 
-  await notify(to, { ...chosen, tag: `memory-${m.type}` })
+  await notify(to, { ...chosen, tag: `memory-${event.params.memoryId}`, url: `/?open=${encodeURIComponent(event.params.memoryId)}` })
 })
 
 /* ------------------------------------------------------------------ */
@@ -105,7 +105,7 @@ export const onAlertCreated = onDocumentCreated('alerts/{alertId}', async (event
   const a = event.data?.data()
   if (!a) return
 
-  const to = recipientOf(a.members, a.from)
+  const { recipient: to } = await pairingFacts(String(a.pairingId ?? ''), String(a.from ?? ''))
   if (!to) return
 
   const title = a.type === 'screenshot' ? 'Stop press'

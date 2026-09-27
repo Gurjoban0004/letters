@@ -33,13 +33,14 @@ const messaging = getMessaging(initializeApp({
 // payload would make the browser auto-display a second, uglier copy.
 onBackgroundMessage(messaging, (payload) => {
   const d = (payload.data ?? {}) as Record<string, string>
-  const options: NotificationOptions & { image?: string; renotify?: boolean; actions?: Array<{ action: string; title: string; icon?: string }> } = {
+  const options: NotificationOptions & { renotify?: boolean; timestamp?: number; vibrate?: number[]; actions?: Array<{ action: string; title: string; icon?: string }> } = {
     body: d.body || '',
     icon: '/icons/icon-192.png',
     badge: '/icons/badge.png',
-    image: '/icons/icon-512.png',
     tag: d.tag || 'letters-inbox',
     renotify: true,
+    timestamp: Date.now(),
+    vibrate: [45, 35, 75],
     actions: [{ action: 'open', title: 'Open letter' }],
     data: { url: d.url || '/' },
   }

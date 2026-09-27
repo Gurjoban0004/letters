@@ -39,6 +39,10 @@ draft.pages[0].items.push(keepsake)
 const roundTrip = decodeLetter(encodeLetter(draft))
 assert.equal(roundTrip.version, 2)
 assert.deepEqual(roundTrip, { version: 2, style: draft.style, greeting: draft.greeting, envelope: draft.envelope, pages: draft.pages })
+const dreamyRoundTrip = decodeLetter(JSON.stringify({ ...roundTrip, style: 'dreamy' }))
+const classicRoundTrip = decodeLetter(JSON.stringify({ ...roundTrip, style: 'classic' }))
+assert.equal(dreamyRoundTrip.version === 2 ? dreamyRoundTrip.style : '', 'dreamy')
+assert.equal(classicRoundTrip.version === 2 ? classicRoundTrip.style : '', 'classic')
 
 const profile = getStationery('paper_1').profile
 const largePaste = Array.from({ length: 900 }, (_, index) => `word${index}`).join(' ')

@@ -1,4 +1,4 @@
-export type LetterStyle = 'paper' | 'literary' | 'handwritten'
+export type LetterStyle = 'paper' | 'literary' | 'handwritten' | 'dreamy' | 'classic'
 
 export type LetterBlock = {
   id: string
@@ -35,6 +35,8 @@ export const fonts: Record<LetterStyle, string> = {
   paper: "var(--paper-font, 'Newsreader', Georgia, serif)",
   literary: "'Newsreader', Georgia, serif",
   handwritten: "'Caveat', 'Segoe Print', cursive",
+  dreamy: "'Fraunces', 'Newsreader', Georgia, serif",
+  classic: "'Cormorant Garamond', Georgia, serif",
 }
 
 export interface Paper { id: string; name: string; badge: string; mood: 'Floral' | 'Classic' | 'Playful' | 'Quiet'; url: string; aspect: string; profile: PaperProfile }
@@ -115,7 +117,7 @@ function sanitizeV2(value: Record<string, unknown>): LetterContentV2 | null {
     const page = raw && typeof raw === 'object' ? raw as Partial<LetterPage> : {}
     return { id: typeof page.id === 'string' ? page.id : id(), text: typeof page.text === 'string' ? page.text : '', items: Array.isArray(page.items) ? page.items.map(sanitizeItem).filter((item): item is LetterItem => Boolean(item)) : [] }
   })
-  const style = ['paper', 'literary', 'handwritten'].includes(String(value.style)) ? value.style as LetterStyle : 'paper'
+  const style = ['paper', 'literary', 'handwritten', 'dreamy', 'classic'].includes(String(value.style)) ? value.style as LetterStyle : 'paper'
   return { version: 2, style, greeting: typeof value.greeting === 'string' ? value.greeting : '', envelope: typeof value.envelope === 'string' ? value.envelope : envelopes[0].id, pages: pages.length ? pages : [{ id: id(), text: '', items: [] }] }
 }
 

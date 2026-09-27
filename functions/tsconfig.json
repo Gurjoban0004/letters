@@ -6,6 +6,8 @@
     "outDir": "lib",
     "rootDir": "src",
     "strict": true,
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "sourceMap": true

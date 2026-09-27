@@ -1,7 +1,6 @@
 /**
  * Every sound is synthesised at runtime — no audio files, no network cost.
- * The palette is mechanical and papery on purpose: this is a printing press,
- * not a notification tray.
+ * A very quiet tactile palette: soft paper, warm wax and a distant bell.
  */
 
 let ctx: AudioContext | null = null
@@ -49,7 +48,8 @@ function noise(c: AudioContext, o: NoiseOpts) {
   g.gain.setValueAtTime(0.0001, c.currentTime)
   g.gain.exponentialRampToValueAtTime(peak, c.currentTime + attack)
   g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + o.dur)
-  src.connect(filter).connect(g).connect(c.destination)
+  const master = c.createGain(); master.gain.value = .48
+  src.connect(filter).connect(g).connect(master).connect(c.destination)
   src.start()
   src.stop(c.currentTime + o.dur)
 }
@@ -69,7 +69,8 @@ function tone(c: AudioContext, o: ToneOpts) {
   g.gain.setValueAtTime(0.0001, t0)
   g.gain.exponentialRampToValueAtTime(o.gain ?? 0.12, t0 + 0.006)
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + o.dur)
-  osc.connect(g).connect(c.destination)
+  const master = c.createGain(); master.gain.value = .42
+  osc.connect(g).connect(master).connect(c.destination)
   osc.start(t0)
   osc.stop(t0 + o.dur + 0.02)
 }
@@ -82,32 +83,31 @@ export function play(name: Sfx) {
   const c = ac()
   if (!c) return
   switch (name) {
-    case 'key': // typewriter strike
-      noise(c, { dur: 0.035, freq: 2600, q: 1.2, gain: 0.09 })
-      tone(c, { freq: 190, dur: 0.045, type: 'triangle', gain: 0.05, glideTo: 110 })
+    case 'key':
+      noise(c, { dur: 0.045, type: 'lowpass', freq: 1200, q: .6, gain: 0.035 })
       break
-    case 'pen': // nib on paper
-      noise(c, { dur: 0.09, type: 'highpass', freq: 3200, gain: 0.035 })
+    case 'pen':
+      noise(c, { dur: 0.08, type: 'bandpass', freq: 1250, q: .55, gain: 0.028 })
       break
-    case 'rustle': // turning the page
-      noise(c, { dur: 0.42, type: 'highpass', freq: 1700, gain: 0.07, attack: 0.09, sweepTo: 4200 })
+    case 'rustle':
+      noise(c, { dur: 0.36, type: 'bandpass', freq: 720, gain: 0.055, attack: 0.1, sweepTo: 1750, q: .45 })
       break
-    case 'seal': // wax pressed and released
-      tone(c, { freq: 240, dur: 0.24, type: 'sine', gain: 0.16, glideTo: 62 })
-      noise(c, { dur: 0.2, type: 'lowpass', freq: 900, gain: 0.13, attack: 0.02 })
-      tone(c, { freq: 520, dur: 0.1, type: 'sine', gain: 0.05, delay: 0.16 })
+    case 'seal':
+      tone(c, { freq: 165, dur: 0.3, type: 'sine', gain: 0.12, glideTo: 72 })
+      noise(c, { dur: 0.26, type: 'lowpass', freq: 620, gain: 0.07, attack: 0.045 })
+      tone(c, { freq: 392, dur: 0.28, type: 'sine', gain: 0.035, delay: 0.18 })
       break
-    case 'stamp': // rubber stamp on stock
-      tone(c, { freq: 130, dur: 0.11, type: 'triangle', gain: 0.17, glideTo: 58 })
-      noise(c, { dur: 0.06, freq: 1500, gain: 0.1 })
+    case 'stamp':
+      tone(c, { freq: 105, dur: 0.16, type: 'sine', gain: 0.11, glideTo: 54 })
+      noise(c, { dur: 0.09, type: 'lowpass', freq: 780, gain: 0.065 })
       break
     case 'thud':
       tone(c, { freq: 90, dur: 0.16, type: 'sine', gain: 0.14, glideTo: 45 })
       break
-    case 'chime': // something good arrived
-      tone(c, { freq: 880, dur: 0.9, gain: 0.07 })
-      tone(c, { freq: 1318.5, dur: 0.75, gain: 0.045, delay: 0.07 })
-      tone(c, { freq: 1760, dur: 0.6, gain: 0.025, delay: 0.14 })
+    case 'chime':
+      tone(c, { freq: 523.25, dur: 1.1, gain: 0.055 })
+      tone(c, { freq: 659.25, dur: 1.0, gain: 0.038, delay: 0.09 })
+      tone(c, { freq: 783.99, dur: 0.9, gain: 0.028, delay: 0.18 })
       break
     case 'tear':
       noise(c, { dur: 0.3, freq: 900, sweepTo: 5000, q: 0.8, gain: 0.12 })
@@ -127,7 +127,7 @@ export function play(name: Sfx) {
   }
 }
 
-/** Haptics where the platform offers them; silently ignored on iOS Safari. */
+/** Android/native vibration fallback. iOS uses a directly tapped switch in HapticButton. */
 export function buzz(pattern: number | number[] = 8) {
   try { navigator.vibrate?.(pattern) } catch { /* unsupported */ }
 }

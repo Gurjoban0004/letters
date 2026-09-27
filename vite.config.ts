@@ -14,7 +14,14 @@ export default defineConfig({
       registerType: 'prompt',
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,webp,woff2,ttf}'],
-        globIgnores: ['stationery/**/*.png'],
+        globIgnores: [
+          'stationery/env_*/*.png',
+          'stationery/paper_*/*.png',
+          'stationery/env_*/*_open.webp',
+          'stationery/env_*/*_open_front.webp',
+          'stationery/env_*/*_open_back*.webp',
+          'stationery/paper_*/paper_[1-5].webp',
+        ],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       },
       devOptions: { enabled: true, type: 'module' },

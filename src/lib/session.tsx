@@ -4,6 +4,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signOut as fbSignOut,
   type User,
@@ -56,6 +58,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     if (!u) { setPairingId(null); setPairing(null); setPairingReady(true) }
   }), [])
 
+  useEffect(() => { void getRedirectResult(auth).catch(error => console.warn('Google redirect sign-in failed:', error.code)) }, [])
+
   useEffect(() => {
     if (!user) return
     let active = true
@@ -107,7 +111,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     user, pairing, me, partnerUid, partner, pairingId, inviteUrl, joiningInvite: !!inviteId && !pairingId, loading: !authReady || (!!user && (!identityReady || (!!pairingId && !pairingReady))),
     signIn: async (email, password) => { await signInWithEmailAndPassword(auth, email, password) },
     register: async (email, password) => { await createUserWithEmailAndPassword(auth, email, password) },
-    signInWithGoogle: async () => { await signInWithPopup(auth, new GoogleAuthProvider()) },
+    signInWithGoogle: async () => {
+      const provider = new GoogleAuthProvider()
+      provider.setCustomParameters({ prompt: 'select_account' })
+      const standalone = matchMedia('(display-mode: standalone)').matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+      if (standalone) await signInWithRedirect(auth, provider)
+      else await signInWithPopup(auth, provider)
+    },
     signOut: async () => { await fbSignOut(auth) },
     claimSlot: async (name, edition) => {
       if (!user) return

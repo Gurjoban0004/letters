@@ -18,9 +18,11 @@ export type PushStatus =
   | 'needs-permission' // supported, user hasn't granted yet
   | 'blocked'          // user denied
   | 'needs-install'    // iOS Safari tab — must Add to Home Screen first
+  | 'misconfigured'    // app needs its public Web Push key
   | 'unsupported'
 
 export async function pushStatus(): Promise<PushStatus> {
+  if (!VAPID_KEY || VAPID_KEY === 'MISSING') return 'misconfigured'
   if (!(await isSupported().catch(() => false))) {
     return isIOS() && !isInstalled() ? 'needs-install' : 'unsupported'
   }
@@ -36,7 +38,7 @@ export async function pushStatus(): Promise<PushStatus> {
  */
 export async function enablePush(uid: string): Promise<PushStatus> {
   const status = await pushStatus()
-  if (status === 'needs-install' || status === 'unsupported' || status === 'blocked') return status
+  if (status === 'needs-install' || status === 'unsupported' || status === 'blocked' || status === 'misconfigured') return status
 
   const permission = await Notification.requestPermission()
   if (permission !== 'granted') return permission === 'denied' ? 'blocked' : 'needs-permission'

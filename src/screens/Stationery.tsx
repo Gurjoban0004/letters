@@ -10,12 +10,17 @@ import {
 import { play } from '../lib/sound'
 import { Icon } from '../components/ui'
 import { EnvelopeSealed } from '../components/EnvelopeSealed'
+import { HapticButton } from '../components/HapticButton'
 import { StationeryPaper } from '../components/StationeryPaper'
 import { DetailsAsset, isDetailAsset, type DetailAssetName } from '../components/DetailsAsset'
 
 const detailChoices: { id: DetailAssetName; label: string }[] = [
   { id: 'loveLetter', label: 'Love letter' }, { id: 'ribbonBowPink', label: 'Pink ribbon' },
   { id: 'tulipBouquet', label: 'Tulip bouquet' }, { id: 'duckHeartStamp', label: 'Duck heart stamp' },
+  { id: 'crescentMoon', label: 'Blushing moon' }, { id: 'heartCandle', label: 'Heart candle' },
+  { id: 'heartFlourish', label: 'Love flourish' }, { id: 'pinkButterfly', label: 'Pink butterfly' },
+  { id: 'sleepyCatPink', label: 'Sleepy pink cat' }, { id: 'lovePen', label: 'Love-note pen' },
+  { id: 'loveCherries', label: 'Love cherries' }, { id: 'meadowStamp', label: 'Meadow postage' },
   { id: 'botanical', label: 'Pressed florals' }, { id: 'bow', label: 'Silk ribbon bow' },
   { id: 'waxSeal', label: 'Heart wax seal' }, { id: 'stamps', label: 'Keepsake stamps' },
   { id: 'stampCat', label: 'Cat postage' }, { id: 'stampTulip', label: 'Tulip postage' },
@@ -73,6 +78,7 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
   const [activeItem, setActiveItem] = useState<string | null>(null)
   const [guide, setGuide] = useState<Guide>({})
   const [historyTick, setHistoryTick] = useState(0)
+  const [detailSelection, setDetailSelection] = useState<DetailAssetName[]>([])
 
   const root = usePageFocus(() => void close())
   const panel = useRef<HTMLElement>(null)
@@ -205,6 +211,25 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
     setActiveItem(item.id); play('rustle')
   }
 
+  function placeSelectedDetails() {
+    if (!detailSelection.length) return
+    const pageId = draft.pages.some(page => page.id === activePage) ? activePage : draft.pages[0].id
+    const ids = detailSelection.map(() => crypto.randomUUID())
+    commit(value => ({ ...value, pages: value.pages.map(page => {
+      if (page.id !== pageId) return page
+      const top = Math.max(0, ...page.items.map(item => item.z))
+      const items = detailSelection.map((detail, index): LetterItem => ({
+        id: ids[index], kind: 'detail', value: detail,
+        x: 55 + (index % 3) * 7, y: 54 + (index % 4) * 6,
+        width: detail === 'heartFlourish' ? 38 : detail === 'lovePen' ? 18 : 25,
+        rotation: [-7, 4, -2, 8][index % 4], z: top + index + 1,
+      }))
+      return { ...page, items: [...page.items, ...items] }
+    }) }), 'details')
+    setActiveItem(ids.at(-1) ?? null); setDetailSelection([]); play('rustle')
+    if (matchMedia('(max-width: 800px)').matches) setTool(null)
+  }
+
   function selected() {
     for (const page of draft.pages) { const item = page.items.find(entry => entry.id === activeItem); if (item) return { page, item } }
     return null
@@ -299,23 +324,23 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
               {tool === 'Paper' && <div className="paper-options">{stationery.map(paper => <button key={paper.id} className={draft.paper === paper.id ? 'chosen' : ''} onClick={() => commit(value => ({ ...value, paper: paper.id, pages: mapPages(value.pages.map(page => page.text).join(''), value.pages, paper.id) }), 'paper')} aria-pressed={draft.paper === paper.id}><span className="paper-swatch"><img src={paper.url} alt="" />{draft.paper === paper.id && <b>✓</b>}</span><strong>{paper.name}</strong><small>{paper.mood}</small></button>)}</div>}
               {tool === 'Type' && <div className="font-options">{([
                 ['paper', "Paper’s choice", 'Matched to this stationery'], ['literary', 'Literary', 'Newsreader'], ['handwritten', 'Handwritten', 'Caveat'],
+                ['dreamy', 'Dreamy', 'Soft Fraunces'], ['classic', 'Classic', 'Cormorant'],
               ] as [LetterStyle, string, string][]).map(([style, label, note]) => <button key={style} aria-pressed={draft.style === style} className={draft.style === style ? 'chosen' : ''} onClick={() => commit({ style }, 'type')}><span style={{ fontFamily: fonts[style] }}>Dear you,</span><small>{label} · {note}</small></button>)}</div>}
               {tool === 'Envelope' && <div className="envelope-options">{envelopes.map(envelope => <button key={envelope.id} className={draft.envelope === envelope.id ? 'chosen' : ''} onClick={() => commit({ envelope: envelope.id }, 'envelope')} aria-pressed={draft.envelope === envelope.id}><span className="envelope-swatch"><EnvelopeSealed envelopeId={envelope.id} />{draft.envelope === envelope.id && <b>✓</b>}</span><strong>{envelope.name}</strong><small>{envelope.badge}</small></button>)}</div>}
-              {tool === 'Details' && <><p className="tool-note">Add a keepsake to the active sheet, then place it anywhere you like.</p><div className="decoration-options">{detailChoices.map(detail => <button key={detail.id} className="detail-tile" onClick={() => addItem('detail', detail.id)} aria-label={`Add ${detail.label}`}><DetailsAsset name={detail.id} /><span>{detail.label}</span></button>)}</div></>}
+              {tool === 'Details' && <><p className="tool-note">Choose a little collection, then place everything together on this sheet.</p><div className="decoration-options">{detailChoices.map(detail => { const chosen = detailSelection.includes(detail.id); return <button key={detail.id} className={`detail-tile${chosen ? ' chosen' : ''}`} onClick={() => setDetailSelection(value => chosen ? value.filter(item => item !== detail.id) : [...value, detail.id])} aria-label={`${chosen ? 'Remove' : 'Select'} ${detail.label}`} aria-pressed={chosen}><DetailsAsset name={detail.id} /><span>{detail.label}</span>{chosen && <b aria-hidden>✓</b>}</button> })}</div><div className="details-selection-bar"><span>{detailSelection.length ? `${detailSelection.length} selected` : 'Pick as many as you like'}</span><button className="primary" disabled={!detailSelection.length} onClick={placeSelectedDetails}>Place keepsakes</button></div></>}
             </aside>}
 
             {phase === 'write' && selectedValue && <ObjectActions item={selectedValue.item} warning={guide.warning} onResize={width => updateSelected({ width })} onRotate={rotation => updateSelected({ rotation })} onBack={() => layerSelected(-1)} onFront={() => layerSelected(1)} onDelete={removeSelected} />}
           </motion.div>
         ) : phase === 'seal' ? (
           <motion.section key="seal" className="sealing-stage" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="little-label">A LITTLE PIECE OF YOU</span><h1>Ready for their letterbox.</h1><p>From {sender} to {recipient}.</p>
-            <EnvelopeSealed envelopeId={draft.envelope} className="seal-envelope" />
-            <label className="delivery-label">When can they open it?<input type="datetime-local" value={draft.unlockAt} onChange={event => commit({ unlockAt: event.target.value }, 'unlock')} /></label>
-            <p className="tool-note">{draft.unlockAt ? 'Your words stay sealed until this time.' : 'Leave empty for a lovely surprise right now.'}</p>
-            <button className="primary" onClick={() => void send()} disabled={busy}>{busy ? 'Sending your letter…' : demo ? 'Send sample letter ↗' : 'Send this little letter ↗'}</button>
+            <span className="little-label">THE LAST LITTLE RITUAL</span><h1>Tuck it in with care.</h1><p>From {sender}, held safely for {recipient}.</p>
+            <div className="seal-ritual-art"><EnvelopeSealed envelopeId={draft.envelope} state="open" className="seal-envelope" /><div className="seal-paper-peek"><span>{draft.title || 'Just for you'}</span><small>{draft.pages.length} {draft.pages.length === 1 ? 'sheet' : 'sheets'}</small></div></div>
+            <div className="delivery-card"><label className="delivery-label"><span>When can they open it?</span><input type="datetime-local" value={draft.unlockAt} onChange={event => commit({ unlockAt: event.target.value }, 'unlock')} /></label><p>{draft.unlockAt ? 'Until then, the envelope stays quietly sealed.' : 'Leave this empty and it arrives ready to open.'}</p></div>
+            <HapticButton className="primary send-ritual" label={demo ? 'Send sample letter' : 'Send this letter'} onPress={() => void send()} disabled={busy}>{busy ? 'Sending your letter…' : demo ? 'Send sample letter ↗' : 'Seal & send with love ↗'}</HapticButton>
             {demo && <small>Preview only. This won't be sent to anyone.</small>}
           </motion.section>
-        ) : <motion.section key="sent" className="sent-stage" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><span className="sent-heart">♡</span><h1>A little closer, already.</h1><p>{demo ? 'Your sample letter is in Sent for this preview session.' : `Your letter is waiting for ${recipient}.`}</p><button className="primary" onClick={onSent}>Back to the letterbox →</button></motion.section>}
+        ) : <motion.section key="sent" className="sent-stage" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><DetailsAsset name="heartFlourish" className="sent-flourish" /><span className="sent-heart">♡</span><h1>Off it goes, softly.</h1><p>{demo ? 'Your sample letter is resting in the shared correspondence.' : `Your letter is on its way to ${recipient}.`}</p><button className="primary" onClick={onSent}>See all letters →</button></motion.section>}
       </AnimatePresence>
     </div>
   )
@@ -468,24 +493,28 @@ function LetterPages({ content, paperId, title, date }: { content: LetterContent
   return <div className="reader-page-stack">{content.pages.map((page, index) => <div className="sheet-wrap" key={page.id}><LetterPageView paperId={paperId} style={content.style} page={page} pageIndex={index} pageCount={content.pages.length} title={title} greeting={content.greeting} date={date} editable={false} activeItem={null} guide={{}} paperRef={() => {}} textareaRef={() => {}} onActivatePage={() => {}} onActivateItem={() => {}} onGuide={() => {}} onTitle={() => {}} onGreeting={() => {}} onText={() => {}} onCompositionStart={() => {}} onCompositionEnd={() => {}} onItem={() => {}} />{index > 0 && <span className="page-number">{index + 1}</span>}</div>)}</div>
 }
 
-type DoodlePen = 'fountain' | 'felt' | 'pencil' | 'highlighter'
-type DoodleStroke = { color: string; size: number; pen: DoodlePen; points: [number, number, number][] }
-const doodlePens: Record<DoodlePen, { label: string; glyph: string; scale: number; opacity: number; options: Parameters<typeof getStroke>[1] }> = {
-  fountain: { label: 'Fountain pen', glyph: '✒', scale: 1.15, opacity: 1, options: { thinning: .58, smoothing: .78, streamline: .72, simulatePressure: true } },
-  felt: { label: 'Soft marker', glyph: '●', scale: 1.25, opacity: .88, options: { thinning: .16, smoothing: .82, streamline: .74, simulatePressure: false } },
-  pencil: { label: 'Pencil', glyph: '╱', scale: .68, opacity: .72, options: { thinning: .44, smoothing: .72, streamline: .8, simulatePressure: true } },
-  highlighter: { label: 'Pastel highlighter', glyph: '▰', scale: 2.25, opacity: .3, options: { thinning: 0, smoothing: .86, streamline: .8, simulatePressure: false } },
+type DoodlePen = 'fountain' | 'monoline' | 'marker' | 'pencil' | 'airbrush' | 'highlighter' | 'eraser'
+type DoodleStroke = { color: string; size: number; pen: DoodlePen; points: [number, number, number][]; done?: boolean }
+const doodlePens: Record<DoodlePen, { label: string; scale: number; opacity: number; preview: string; options: Parameters<typeof getStroke>[1] }> = {
+  fountain: { label: 'Pressure pen', scale: 1.05, opacity: .98, preview: 'pen-pressure', options: { thinning: .72, smoothing: .9, streamline: .68, easing: t => t * t, simulatePressure: true, start: { taper: 3 }, end: { taper: 4 } } },
+  monoline: { label: 'Monoline', scale: .86, opacity: .96, preview: 'pen-round', options: { thinning: 0, smoothing: .92, streamline: .78, simulatePressure: false, start: { cap: true }, end: { cap: true } } },
+  marker: { label: 'Soft marker', scale: 1.65, opacity: .72, preview: 'pen-marker', options: { thinning: .08, smoothing: .94, streamline: .82, simulatePressure: false, start: { cap: true }, end: { cap: true } } },
+  pencil: { label: 'Colored pencil', scale: .56, opacity: .66, preview: 'pen-pencil', options: { thinning: .38, smoothing: .84, streamline: .76, simulatePressure: true, start: { taper: 2 }, end: { taper: 3 } } },
+  airbrush: { label: 'Pastel airbrush', scale: 2.1, opacity: .26, preview: 'pen-airbrush', options: { thinning: .08, smoothing: .95, streamline: .86, simulatePressure: false, start: { cap: true }, end: { cap: true } } },
+  highlighter: { label: 'Highlighter', scale: 2.5, opacity: .24, preview: 'pen-highlighter', options: { thinning: 0, smoothing: .92, streamline: .82, simulatePressure: false, start: { cap: true }, end: { cap: true } } },
+  eraser: { label: 'Eraser', scale: 2.3, opacity: 1, preview: 'pen-eraser', options: { thinning: 0, smoothing: .92, streamline: .8, simulatePressure: false, start: { cap: true }, end: { cap: true } } },
 }
 const doodleColors = [
-  { value: '#51363d', label: 'Plum ink' }, { value: '#b7667b', label: 'Dusty rose' },
-  { value: '#e79aae', label: 'Blush pink' }, { value: '#e5bc76', label: 'Soft honey' },
-  { value: '#8fb7a0', label: 'Sage' }, { value: '#8eafd0', label: 'Powder blue' },
-  { value: '#b59acb', label: 'Lavender' }, { value: '#f1c8b5', label: 'Peach' },
+  { value: '#50343e', label: 'Mulberry ink' }, { value: '#9e526c', label: 'Berry rose' },
+  { value: '#e987a5', label: 'Petal pink' }, { value: '#f3b6c7', label: 'Cloud pink' },
+  { value: '#efc57d', label: 'Butter cream' }, { value: '#a8c9a8', label: 'Meadow sage' },
+  { value: '#8fbcd4', label: 'Daydream blue' }, { value: '#b8a3d7', label: 'Lilac mist' },
+  { value: '#eab7a3', label: 'Peach milk' }, { value: '#f5e8dd', label: 'Paper white' },
 ]
 
 function doodlePath(points: [number, number, number][], stroke: DoodleStroke, width: number, height: number) {
   const pen = doodlePens[stroke.pen]
-  const outline = getStroke(points.map(([x, y, pressure]) => [x * width, y * height, pressure]), { ...pen.options, size: stroke.size * pen.scale })
+  const outline = getStroke(points.map(([x, y, pressure]) => [x * width, y * height, pressure]), { ...pen.options, size: stroke.size * pen.scale, last: stroke.done })
   const path = new Path2D()
   if (!outline.length) return path
   path.moveTo(outline[0][0], outline[0][1])
@@ -498,27 +527,40 @@ function doodlePath(points: [number, number, number][], stroke: DoodleStroke, wi
 }
 
 function Doodle({ onAdd, onCancel }: { onAdd: (data: string) => void; onCancel: () => void }) {
-  const canvas = useRef<HTMLCanvasElement>(null); const drawing = useRef<number | null>(null); const [strokes, setStrokes] = useState<DoodleStroke[]>([]); const [ink, setInk] = useState(doodleColors[0].value); const [brush, setBrush] = useState(11); const [pen, setPen] = useState<DoodlePen>('fountain')
+  const canvas = useRef<HTMLCanvasElement>(null); const drawing = useRef<number | null>(null); const [strokes, setStrokes] = useState<DoodleStroke[]>([]); const [redoStrokes, setRedoStrokes] = useState<DoodleStroke[]>([]); const [ink, setInk] = useState(doodleColors[0].value); const [brush, setBrush] = useState(11); const [pen, setPen] = useState<DoodlePen>('fountain')
   const paint = useCallback(() => {
     const surface = canvas.current; if (!surface) return
     const rect = surface.getBoundingClientRect(), scale = Math.min(devicePixelRatio || 1, 2)
     if (surface.width !== Math.round(rect.width * scale) || surface.height !== Math.round(rect.height * scale)) { surface.width = Math.round(rect.width * scale); surface.height = Math.round(rect.height * scale) }
     const context = surface.getContext('2d')!; context.setTransform(scale, 0, 0, scale, 0, 0); context.clearRect(0, 0, rect.width, rect.height)
     for (const stroke of strokes) {
-      context.save(); context.globalAlpha = doodlePens[stroke.pen].opacity; context.fillStyle = stroke.color
-      if (stroke.pen === 'highlighter') context.globalCompositeOperation = 'multiply'
+      const tool = doodlePens[stroke.pen]
+      context.save(); context.globalAlpha = tool.opacity; context.fillStyle = stroke.color
+      if (stroke.pen === 'eraser') context.globalCompositeOperation = 'destination-out'
+      else if (stroke.pen === 'highlighter' || stroke.pen === 'marker') context.globalCompositeOperation = 'multiply'
+      if (stroke.pen === 'airbrush') { context.shadowColor = stroke.color; context.shadowBlur = Math.max(10, stroke.size * 1.8) }
       context.fill(doodlePath(stroke.points, stroke, rect.width, rect.height)); context.restore()
+      if (stroke.pen === 'pencil') {
+        context.save(); context.globalAlpha = .18; context.fillStyle = stroke.color; context.translate(.7, -.45)
+        context.fill(doodlePath(stroke.points, stroke, rect.width, rect.height)); context.restore()
+      }
     }
   }, [strokes])
   useLayoutEffect(() => { const observer = new ResizeObserver(paint); if (canvas.current) observer.observe(canvas.current); paint(); return () => observer.disconnect() }, [paint])
   function draw(event: PointerEvent<HTMLCanvasElement>) {
     const rect = event.currentTarget.getBoundingClientRect()
     const point = (value: globalThis.PointerEvent): [number, number, number] => [(value.clientX - rect.left) / rect.width, (value.clientY - rect.top) / rect.height, value.pressure > 0 ? value.pressure : .5]
-    if (event.type === 'pointerdown') { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); drawing.current = strokes.length; setStrokes(value => [...value, { color: ink, size: brush, pen, points: [point(event.nativeEvent)] }]); return }
+    if (event.type === 'pointerdown') { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); drawing.current = strokes.length; setRedoStrokes([]); setStrokes(value => [...value, { color: ink, size: brush, pen, points: [point(event.nativeEvent)] }]); return }
     if (drawing.current === null) return
     const events = event.nativeEvent.getCoalescedEvents?.() ?? [event.nativeEvent]
     setStrokes(value => value.map((stroke, index) => index === drawing.current ? { ...stroke, points: [...stroke.points, ...events.map(point)] } : stroke))
   }
+  function finishStroke() {
+    const index = drawing.current; drawing.current = null
+    if (index !== null) setStrokes(value => value.map((stroke, strokeIndex) => strokeIndex === index ? { ...stroke, done: true } : stroke))
+  }
+  function undoStroke() { setStrokes(value => { const last = value.at(-1); if (last) setRedoStrokes(items => [...items, last]); return value.slice(0, -1) }) }
+  function redoStroke() { setRedoStrokes(value => { const last = value.at(-1); if (last) setStrokes(items => [...items, last]); return value.slice(0, -1) }) }
   function finish() {
     paint(); const source = canvas.current; if (!source || !strokes.length) return
     const context = source.getContext('2d')!, pixels = context.getImageData(0, 0, source.width, source.height), data = pixels.data
@@ -530,7 +572,7 @@ function Doodle({ onAdd, onCancel }: { onAdd: (data: string) => void; onCancel: 
     output.getContext('2d')!.drawImage(source, left, top, output.width, output.height, 0, 0, output.width, output.height)
     onAdd(output.toDataURL('image/png'))
   }
-  return <div className="doodle-area" role="dialog" aria-modal="true" aria-label="Doodle on your letter"><header className="doodle-header"><button onClick={onCancel}>Cancel</button><strong>Draw something</strong><div><button onClick={() => setStrokes(value => value.slice(0, -1))} disabled={!strokes.length}>Undo</button><button className="doodle-done" disabled={!strokes.length} onClick={finish}>Done</button></div></header><div className="doodle-canvas-wrap"><canvas ref={canvas} onPointerDown={draw} onPointerMove={draw} onPointerUp={() => { drawing.current = null }} onPointerCancel={() => { drawing.current = null }} aria-label="Drawing canvas"/><label className="brush-size"><span>Stroke</span><input type="range" min="3" max="24" value={brush} onChange={event => setBrush(Number(event.target.value))} /></label></div><div className="doodle-controls"><div className="doodle-pens" role="toolbar" aria-label="Drawing tools">{(Object.entries(doodlePens) as [DoodlePen, (typeof doodlePens)[DoodlePen]][]).map(([id, value]) => <button key={id} aria-pressed={pen === id} aria-label={value.label} onClick={() => setPen(id)}><span aria-hidden>{value.glyph}</span><small>{value.label.replace('Pastel ', '')}</small></button>)}</div><div className="doodle-inks" aria-label="Pastel ink color">{doodleColors.map(color => <button key={color.value} aria-pressed={ink === color.value} aria-label={`Use ${color.label}`} style={{ background: color.value }} onClick={() => setInk(color.value)} />)}</div></div></div>
+  return <div className="doodle-area" role="dialog" aria-modal="true" aria-label="Doodle on your letter"><header className="doodle-header"><button onClick={onCancel}>Cancel</button><div><strong>Draw a little something</strong><small>{doodlePens[pen].label}</small></div><div><button onClick={undoStroke} disabled={!strokes.length} aria-label="Undo drawing stroke"><Icon.Undo /></button><button onClick={redoStroke} disabled={!redoStrokes.length} aria-label="Redo drawing stroke"><Icon.Redo /></button><button className="doodle-done" disabled={!strokes.length} onClick={finish}>Keep it</button></div></header><div className="doodle-canvas-wrap"><canvas ref={canvas} onPointerDown={draw} onPointerMove={draw} onPointerUp={finishStroke} onPointerCancel={finishStroke} aria-label="Drawing canvas"/><label className="brush-size"><span>Size</span><input type="range" min="3" max="28" value={brush} onChange={event => setBrush(Number(event.target.value))} /></label></div><div className="doodle-controls"><div className="doodle-pens" role="toolbar" aria-label="Drawing tools">{(Object.entries(doodlePens) as [DoodlePen, (typeof doodlePens)[DoodlePen]][]).map(([id, value]) => <button key={id} aria-pressed={pen === id} aria-label={value.label} title={value.label} onClick={() => setPen(id)}><span className={`pen-preview ${value.preview}`} aria-hidden><i style={{ background: id === 'eraser' ? '#f7f0eb' : ink }} /></span></button>)}</div><div className={`doodle-inks${pen === 'eraser' ? ' is-disabled' : ''}`} aria-label="Soft pastel ink colors">{doodleColors.map(color => <button key={color.value} disabled={pen === 'eraser'} aria-pressed={ink === color.value} aria-label={`Use ${color.label}`} title={color.label} style={{ background: color.value }} onClick={() => setInk(color.value)} />)}</div></div></div>
 }
 
 export function Reader({ memory, sender, demo, sampleBody, kept, onKeep, onClose, onOpened, onReply }: {
@@ -540,5 +582,5 @@ export function Reader({ memory, sender, demo, sampleBody, kept, onKeep, onClose
   useEffect(() => { alive.current = true; const timer = setInterval(() => setNow(Date.now()), 1000); return () => { alive.current = false; clearInterval(timer) } }, [])
   const locked = isSealed(memory, now)
   async function open() { if (locked || busy) return; setBusy(true); setError(''); setPhase('opening'); play('seal'); const [body] = await Promise.all([demo ? Promise.resolve(sampleBody ?? '') : readLetterBody(memory.id), new Promise(resolve => setTimeout(resolve, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 450))]); if (!alive.current) return; if (body === null) { setError("We couldn't open this letter yet. Check your connection and try again."); setPhase('sealed'); setBusy(false); return } setContent(decodeLetter(body)); onOpened(); setPhase('open'); setBusy(false); play('rustle'); if (!demo && user && memory.senderId !== user.uid && !memory.viewedAt) markViewed(memory.id).catch(() => {}) }
-  return <div className="workspace-overlay reader reader-v2" ref={root} tabIndex={-1} role="dialog" aria-modal="true" aria-label={memory.title || 'Read your letter'}><header className="workspace-header"><button className="back-button" aria-label="Back to your letters" onClick={onClose}><Icon.Back /><span>Letters</span></button><span className="workspace-title">{phase === 'open' ? 'A moment, just for you' : 'Something with your name on it'}</span><button className="secondary" onClick={onKeep} aria-pressed={kept}><Icon.Heart />{kept ? 'Kept close' : 'Keep this'}</button></header><AnimatePresence mode="wait">{phase !== 'open' ? <motion.section key="envelope" className="reader-envelope" exit={{ opacity: 0, y: 50 }}><span className="little-label">FROM {sender.toUpperCase()}</span><h1>{memory.title || 'Just for you'}</h1><EnvelopeSealed envelopeId={memory.envelope} onClick={() => void open()} disabled={locked || busy} className={`open-envelope${phase === 'opening' ? ' is-opening' : ''}`} label="Break the seal and open your letter"/>{locked ? <><h2>A little something to look forward to.</h2><p>Sealed until {memory.unlockAt?.toDate().toLocaleString()}</p></> : <><p className="handwritten">Go on, it's yours. ♡</p><button className="primary" disabled={busy} onClick={() => void open()}>{busy ? 'Opening your envelope…' : 'Break the seal'}</button></>}{error && <p className="error" role="alert">{error}</p>}</motion.section> : <motion.div key="content" className="reader-letter-stage" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>{content?.version === 2 ? <LetterPages content={content} paperId={memory.paper ?? ''} title={memory.title ?? ''} date={memory.createdAt?.toDate().toLocaleDateString(undefined, { dateStyle: 'long' }) ?? ''} /> : content ? <StationeryPaper paperId={memory.paper ?? ''} fontFamily={fonts[migrateV1(content).style]} className="reader-letter-paper legacy-reader-paper"><span className="letter-date">{memory.createdAt?.toDate().toLocaleDateString(undefined, { dateStyle: 'long' })}</span><h1 className="reading-title">{memory.title}</h1><LegacyContent content={content} /></StationeryPaper> : null}<div className="reader-reply"><button className="reader-reply-btn" onClick={onReply}>Write back <Icon.Nib /></button></div></motion.div>}</AnimatePresence></div>
+  return <div className="workspace-overlay reader reader-v2" ref={root} tabIndex={-1} role="dialog" aria-modal="true" aria-label={memory.title || 'Read your letter'}><header className="workspace-header"><button className="back-button" aria-label="Back to your letters" onClick={onClose}><Icon.Back /><span>Letters</span></button><span className="workspace-title">{phase === 'open' ? 'A moment, just for you' : 'Something with your name on it'}</span><button className="secondary" onClick={onKeep} aria-pressed={kept}><Icon.Heart />{kept ? 'Kept close' : 'Keep this'}</button></header><AnimatePresence mode="wait">{phase !== 'open' ? <motion.section key="envelope" className={`reader-envelope${phase === 'opening' ? ' is-opening' : ''}`} exit={{ opacity: 0, y: 50 }}><DetailsAsset name="crescentMoon" className="reader-moon" /><span className="little-label">A LETTER FROM {sender.toUpperCase()}</span><h1>{memory.title || 'Just for you'}</h1><p className="reader-envelope-note">A small pocket of their day, made just for you.</p><EnvelopeSealed envelopeId={memory.envelope} state={phase === 'opening' ? 'open' : 'sealed'} onClick={() => void open()} disabled={locked || busy} className="open-envelope" label="Break the seal and open your letter"/>{locked ? <div className="locked-note"><h2>Something lovely is waiting.</h2><p>This envelope opens {memory.unlockAt?.toDate().toLocaleString()}.</p></div> : <><p className="handwritten">Find a quiet moment. Then go on. ♡</p><HapticButton className="primary break-seal" disabled={busy} label="Break the seal" onPress={() => void open()}>{busy ? 'Unfolding your letter…' : 'Break the seal'}</HapticButton></>}{error && <p className="error" role="alert">{error}</p>}</motion.section> : <motion.div key="content" className="reader-letter-stage" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>{content?.version === 2 ? <LetterPages content={content} paperId={memory.paper ?? ''} title={memory.title ?? ''} date={memory.createdAt?.toDate().toLocaleDateString(undefined, { dateStyle: 'long' }) ?? ''} /> : content ? <StationeryPaper paperId={memory.paper ?? ''} fontFamily={fonts[migrateV1(content).style]} className="reader-letter-paper legacy-reader-paper"><span className="letter-date">{memory.createdAt?.toDate().toLocaleDateString(undefined, { dateStyle: 'long' })}</span><h1 className="reading-title">{memory.title}</h1><LegacyContent content={content} /></StationeryPaper> : null}<div className="reader-reply"><button className="reader-reply-btn" onClick={onReply}>Write back <Icon.Nib /></button></div></motion.div>}</AnimatePresence></div>
 }
