@@ -1,5 +1,5 @@
 import { forwardRef, type CSSProperties, type ComponentPropsWithoutRef } from 'react'
-import { getStationery } from '../lib/letters'
+import { fonts, getStationery } from '../lib/letters'
 
 type PaperVariables = CSSProperties & {
   '--paper-image': string
@@ -34,7 +34,7 @@ export const StationeryPaper = forwardRef<HTMLElement, StationeryPaperProps>(fun
   const style: PaperVariables = {
     '--paper-image': `url("${paper.url}")`,
     '--paper-aspect': paper.aspect,
-    '--paper-font': paper.profile.defaultStyle === 'handwritten' ? "'Caveat', 'Segoe Print', cursive" : "'Newsreader', Georgia, serif",
+    '--paper-font': fonts[paper.profile.defaultStyle],
     '--paper-ink': paper.profile.ink,
     '--paper-safe-top': `${paper.profile.safe.top}%`,
     '--paper-safe-right': `${paper.profile.safe.right}%`,

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import {
-  decodeLetter, encodeLetter, gestureDelta, getStationery, migrateV1, newDraft, paginateText, redoDraft, reflowPages, undoDraft, upgradeDraft,
+  decodeLetter, encodeLetter, envelopes, gestureDelta, getStationery, migrateV1, newDraft, paginateText, redoDraft, reflowPages, stationery, undoDraft, upgradeDraft,
   type LetterContentV1, type LetterItem, type LetterPage,
 } from '../src/lib/letters.ts'
 
@@ -43,6 +43,9 @@ const dreamyRoundTrip = decodeLetter(JSON.stringify({ ...roundTrip, style: 'drea
 const classicRoundTrip = decodeLetter(JSON.stringify({ ...roundTrip, style: 'classic' }))
 assert.equal(dreamyRoundTrip.version === 2 ? dreamyRoundTrip.style : '', 'dreamy')
 assert.equal(classicRoundTrip.version === 2 ? classicRoundTrip.style : '', 'classic')
+assert.equal(stationery.length, 8, 'the expanded paper collection is registered')
+assert.equal(envelopes.length, 7, 'the expanded envelope collection is registered')
+assert.equal(getStationery('paper_6').profile.defaultStyle, 'dreamy')
 
 const profile = getStationery('paper_1').profile
 const largePaste = Array.from({ length: 900 }, (_, index) => `word${index}`).join(' ')
