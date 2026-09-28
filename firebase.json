@@ -1,4 +1,15 @@
 {
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Letters",
+        "supportEmail": "gurjobanpanjeta@gmail.com",
+        "authorizedRedirectUris": [
+          "https://letters-rho-dusky.vercel.app"
+        ]
+      }
+    }
+  },
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
