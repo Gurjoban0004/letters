@@ -6,5 +6,6 @@ dev-dist
 *.log
 .DS_Store
 .firebase
+.vercel
 functions/lib
 functions/node_modules

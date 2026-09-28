@@ -1,0 +1,17 @@
+ECC
+better
+design-assets
+docs
+functions
+inspo
+scripts
+tests
+vault
+*.md
+.env.example
+firestore-debug.log
+firestore.indexes.json
+firestore.rules
+firebase.json
+storage.rules
+tsconfig.tsbuildinfo
