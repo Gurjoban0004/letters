@@ -19,6 +19,9 @@ export type Profile = { name: string; edition: Edition; joinedAt?: unknown }
 export type Pairing = {
   members: string[]
   profiles: Record<string, Profile>
+  createdBy?: string
+  status?: 'waiting' | 'active'
+  acceptedAt?: unknown
   metOn?: string | null
   lastPulse?: { from: string; at: unknown } | null
 }
@@ -33,6 +36,8 @@ type Session = {
   pairingId: string | null
   inviteUrl: string | null
   joiningInvite: boolean
+  invitation: Pairing | null
+  invitationUnavailable: boolean
   signIn: (email: string, password: string) => Promise<void>
   register: (email: string, password: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
@@ -49,6 +54,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [identityReady, setIdentityReady] = useState(false)
   const [pairingReady, setPairingReady] = useState(false)
   const [pairingId, setPairingId] = useState<string | null>(null)
+  const [invitation, setInvitation] = useState<Pairing | null>(null)
+  const [invitationUnavailable, setInvitationUnavailable] = useState(false)
   const [retry, setRetry] = useState(0)
   const inviteId = new URLSearchParams(location.search).get('invite')?.match(/^[\w-]{20,80}$/)?.[0] ?? null
 
@@ -79,6 +86,29 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [user?.uid])
 
   useEffect(() => {
+    if (!user?.uid || !inviteId || pairingId) {
+      setInvitation(null)
+      setInvitationUnavailable(false)
+      return
+    }
+    let active = true
+    setInvitationUnavailable(false)
+    getDoc(doc(db, 'pairings', inviteId)).then(snap => {
+      if (!active) return
+      const data = snap.exists() ? snap.data() as Pairing : null
+      if (!data || (data.members ?? []).length !== 1) {
+        setInvitation(null)
+        setInvitationUnavailable(true)
+        return
+      }
+      setInvitation(data)
+    }).catch(() => {
+      if (active) { setInvitation(null); setInvitationUnavailable(true) }
+    })
+    return () => { active = false }
+  }, [user?.uid, inviteId, pairingId])
+
+  useEffect(() => {
     if (!user?.uid || !pairingId) { setPairing(null); setPairingReady(true); return }
     setPairingReady(false)
     return onSnapshot(
@@ -105,7 +135,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [me?.edition])
 
   const value: Session = {
-    user, pairing, me, partnerUid, partner, pairingId, inviteUrl, joiningInvite: !!inviteId && !pairingId, loading: !authReady || (!!user && (!identityReady || (!!pairingId && !pairingReady))),
+    user, pairing, me, partnerUid, partner, pairingId, inviteUrl, joiningInvite: !!inviteId && !pairingId,
+    invitation, invitationUnavailable,
+    loading: !authReady || (!!user && (!identityReady || (!!pairingId && !pairingReady))),
     signIn: async (email, password) => { await signInWithEmailAndPassword(auth, email, password) },
     register: async (email, password) => { await createUserWithEmailAndPassword(auth, email, password) },
     signInWithGoogle: async () => {
@@ -127,7 +159,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           if (!snap.exists()) throw new Error('invite-not-found')
           const members = (snap.data().members ?? []) as string[]
           if (!members.includes(user.uid) && members.length >= 2) throw new Error('invite-full')
-          transaction.update(ref, { members: Array.from(new Set([...members, user.uid])), [`profiles.${user.uid}`]: profile })
+          transaction.update(ref, {
+            members: Array.from(new Set([...members, user.uid])),
+            [`profiles.${user.uid}`]: profile,
+            status: 'active',
+            acceptedAt: serverTimestamp(),
+          })
           transaction.set(doc(db, 'users', user.uid), { pairingId: inviteId })
         })
         setPairingReady(false); setPairingId(inviteId)
@@ -135,7 +172,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         return
       }
       const id = crypto.randomUUID(), batch = writeBatch(db)
-      batch.set(doc(db, 'pairings', id), { members: [user.uid], profiles: { [user.uid]: profile }, createdAt: serverTimestamp() })
+      batch.set(doc(db, 'pairings', id), {
+        members: [user.uid],
+        profiles: { [user.uid]: profile },
+        createdBy: user.uid,
+        status: 'waiting',
+        createdAt: serverTimestamp(),
+      })
       batch.set(doc(db, 'users', user.uid), { pairingId: id })
       await batch.commit()
       setPairingReady(false); setPairingId(id)

@@ -17,7 +17,7 @@ function savePending(uid: string, ids: string[]) {
 /** Ask the free Vercel function to notify the other person after the letter exists. */
 export async function dispatchLetterNotification(memoryId: string) {
   const user = auth.currentUser
-  if (!user) return false
+  if (!user) return { sent: 0, failed: 0, reason: 'no-user', duplicate: false }
   const uid = user.uid
   savePending(uid, [...new Set([...pending(uid), memoryId])].slice(-30))
   const response = await fetch(endpoint, {
@@ -35,8 +35,10 @@ export async function dispatchLetterNotification(memoryId: string) {
     }
     throw new Error(`notification dispatch returned ${response.status}`)
   }
+  const result = await response.json().catch(() => null) as { ok?: boolean; sent?: number; failed?: number; reason?: string; duplicate?: boolean } | null
+  if (!result?.ok) throw new Error('notification dispatch returned an invalid response')
   savePending(uid, pending(uid).filter((id) => id !== memoryId))
-  return true
+  return { sent: result.sent ?? 0, failed: result.failed ?? 0, reason: result.reason, duplicate: result.duplicate === true }
 }
 
 /** A failed browser-to-server request is retried when this account returns online. */

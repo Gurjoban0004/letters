@@ -47,8 +47,18 @@ service cloud.firestore {
       // Reactions, view receipts and burning. Authorship is frozen and a burn
       // can never be undone.
       allow update: if member(resource.data.pairingId)
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                      .hasOnly(['receivedAt', 'viewedAt', 'reactions', 'isBurned', 'mediaUrl'])
+                    && request.resource.data.pairingId == resource.data.pairingId
                     && request.resource.data.senderId == resource.data.senderId
                     && request.resource.data.type == resource.data.type
+                    && (!request.resource.data.diff(resource.data).affectedKeys()
+                          .hasAny(['receivedAt', 'viewedAt', 'isBurned', 'mediaUrl'])
+                        || request.auth.uid != resource.data.senderId)
+                    && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['receivedAt'])
+                        || resource.data.get('receivedAt', null) == null)
+                    && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['viewedAt'])
+                        || resource.data.get('viewedAt', null) == null)
                     && !(resource.data.isBurned == true && request.resource.data.isBurned == false);
 
       allow delete: if false;

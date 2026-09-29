@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import {
-  decodeLetter, encodeLetter, envelopes, gestureDelta, getStationery, measuredPageBreak, migrateV1, newDraft, paginateText, redoDraft, reflowPages, stationery, undoDraft, upgradeDraft,
+  decodeLetter, deliveryState, encodeLetter, envelopes, gestureDelta, getStationery, measuredPageBreak, migrateV1, newDraft, paginateText, redoDraft, reflowPages, stationery, undoDraft, upgradeDraft,
   type LetterContentV1, type LetterItem, type LetterPage,
 } from '../src/lib/letters.ts'
 
@@ -105,6 +105,10 @@ const pinched = gestureDelta({ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 10, y: 20 },
 assert.equal(pinched.scale, 2, 'two-finger spread scales a keepsake')
 assert.equal(Math.round(pinched.rotation), 90, 'two-finger twist rotates a keepsake')
 assert.deepEqual({ x: pinched.x, y: pinched.y }, { x: -40, y: 120 }, 'two-finger movement tracks the gesture center')
+
+assert.equal(deliveryState(null, null), 'sent', 'a stored letter starts as sent')
+assert.equal(deliveryState({ seconds: 1 }, null), 'delivered', 'recipient sync produces a delivery receipt')
+assert.equal(deliveryState({ seconds: 1 }, { seconds: 2 }), 'opened', 'opening supersedes delivery')
 
 const oversized = newDraft(); oversized.pages[0].text = 'a'.repeat(850_001)
 assert.throws(() => encodeLetter(oversized), /too heavy/)

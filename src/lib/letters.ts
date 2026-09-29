@@ -19,6 +19,13 @@ export type LetterPage = { id: string; text: string; items: LetterItem[] }
 export type LetterContentV2 = { version: 2; style: LetterStyle; greeting: string; envelope: string; pages: LetterPage[] }
 export type LetterContent = LetterContentV1 | LetterContentV2
 export type Draft = LetterContentV2 & { id: string; title: string; paper: string; updated: number; unlockAt: string }
+export type DeliveryState = 'sent' | 'delivered' | 'opened'
+
+export function deliveryState(receivedAt: unknown, viewedAt: unknown): DeliveryState {
+  if (viewedAt) return 'opened'
+  if (receivedAt) return 'delivered'
+  return 'sent'
+}
 
 export type PaperProfile = {
   safe: { top: number; right: number; bottom: number; left: number }

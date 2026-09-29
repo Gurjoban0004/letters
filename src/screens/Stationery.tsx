@@ -351,7 +351,7 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
   const selectedValue = selected()
 
   return (
-    <div className="workspace-overlay composer-v2" ref={root} tabIndex={-1} role="dialog" aria-modal="true" aria-label="Write a letter">
+    <div className={`workspace-overlay composer-v2${tool ? ' has-inspector' : ''}`} ref={root} tabIndex={-1} role="dialog" aria-modal="true" aria-label="Write a letter">
       <header className="workspace-header compose-header">
         <button className="back-button" aria-label="Back to your letters" onClick={() => void close()} disabled={busy}><Icon.Back /><span>Letters</span></button>
         <div className="workspace-title-wrap"><span className="workspace-title">{phase === 'write' ? 'A quiet letter' : phase === 'preview' ? 'One last look' : phase === 'seal' ? 'Ready to seal' : 'A little closer'}</span><span className={`save-status is-${saveState}`} role="status">{saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved' : saveState === 'error' ? 'Not saved' : 'Unsaved'}</span></div>

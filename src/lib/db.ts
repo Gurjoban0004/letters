@@ -21,6 +21,7 @@ export type Memory = {
   caption?: string
   mediaPath?: string
   mediaUrl?: string
+  receivedAt?: Timestamp | null
   viewedAt?: Timestamp | null
   isBurned?: boolean
   reactions?: Record<string, string>
@@ -102,6 +103,7 @@ export async function sendLetter(opts: {
     envelope: opts.envelope ?? 'pink-post',
     unlockAt: unlock,
     isBurned: false,
+    receivedAt: null,
     viewedAt: null,
     reactions: {},
     createdAt: serverTimestamp(),
@@ -177,6 +179,11 @@ export async function burnSnap(memory: Memory) {
 
 export async function markViewed(memoryId: string) {
   await updateDoc(doc(db, 'memories', memoryId), { viewedAt: serverTimestamp() })
+}
+
+/** A delivery receipt: the recipient's app has synced this letter from Firestore. */
+export async function markReceived(memoryId: string) {
+  await updateDoc(doc(db, 'memories', memoryId), { receivedAt: serverTimestamp() })
 }
 
 export async function react(memoryId: string, uid: string, mark: string) {
