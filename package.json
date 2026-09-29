@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test": "node --experimental-strip-types tests/letters.test.ts && node --experimental-strip-types tests/push.test.ts",
+    "test": "node --experimental-strip-types tests/letters.test.ts && node --experimental-strip-types tests/push.test.ts && node --experimental-strip-types tests/join.test.ts",
     "preview": "vite preview --host",
     "typecheck:api": "tsc -p tsconfig.api.json",
     "deploy": "npm run build && firebase deploy --only hosting,firestore"

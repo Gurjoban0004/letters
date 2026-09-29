@@ -8,8 +8,9 @@ import {
   signOut as fbSignOut,
   type User,
 } from 'firebase/auth'
-import { doc, getDoc, onSnapshot, runTransaction, setDoc, serverTimestamp, updateDoc, writeBatch } from 'firebase/firestore'
+import { doc, getDoc, onSnapshot, setDoc, serverTimestamp, updateDoc, writeBatch } from 'firebase/firestore'
 import { auth, db, PAIRING_ID } from './firebase'
+import { joinPairing } from './join'
 import { disablePush } from './push'
 
 export type Edition = 'rose' | 'graphite'
@@ -85,21 +86,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     if (!user) return
     let active = true
     setIdentityReady(false)
-    ;(async () => {
-      const identity = await getDoc(doc(db, 'users', user.uid))
+    const identityRef = doc(db, 'users', user.uid)
+    const unsubscribe = onSnapshot(identityRef, async identity => {
       let id = identity.exists() ? String(identity.data().pairingId ?? '') : ''
       if (!id && PAIRING_ID) {
         try {
           const legacy = await getDoc(doc(db, 'pairings', PAIRING_ID))
           if (legacy.exists() && (legacy.data().members ?? []).includes(user.uid)) {
             id = PAIRING_ID
-            await setDoc(doc(db, 'users', user.uid), { pairingId: id }, { merge: true })
+            await setDoc(identityRef, { pairingId: id }, { merge: true })
           }
         } catch { /* A new user does not have access to the legacy pairing. */ }
       }
       if (active) { setPairingReady(!id); setPairingId(id || null); setIdentityReady(true) }
-    })().catch(() => { if (active) setIdentityReady(true) })
-    return () => { active = false }
+    }, () => { if (active) setIdentityReady(true) })
+    return () => { active = false; unsubscribe() }
   }, [user?.uid])
 
   useEffect(() => {
@@ -186,31 +187,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       if (!user) return
       const profile = { name, edition, joinedAt: Date.now() }
       if (inviteId && inviteId !== pairingId) {
-        await runTransaction(db, async transaction => {
-          const targetRef = doc(db, 'pairings', inviteId)
-          const currentRef = pairingId ? doc(db, 'pairings', pairingId) : null
-          const targetSnap = await transaction.get(targetRef)
-          const currentSnap = currentRef ? await transaction.get(currentRef) : null
-          if (!targetSnap.exists()) throw new Error('invite-not-found')
-          const target = targetSnap.data() as Pairing
-          const members = target.members ?? []
-          if (!isWaitingPairing(target)) throw new Error(members.length >= 2 ? 'invite-full' : 'invite-not-found')
-          if (!members.includes(user.uid) && members.length >= 2) throw new Error('invite-full')
-          if (currentSnap?.exists() && !isWaitingPairing(currentSnap.data() as Pairing)) {
-            throw new Error('invite-already-paired')
-          }
-          transaction.update(targetRef, {
-            members: Array.from(new Set([...members, user.uid])),
-            [`profiles.${user.uid}`]: profile,
-            status: 'active',
-            acceptedAt: serverTimestamp(),
-          })
-          if (currentRef && currentSnap?.exists()) {
-            transaction.update(currentRef, { status: 'cancelled', cancelledAt: serverTimestamp() })
-          }
-          transaction.set(doc(db, 'users', user.uid), { pairingId: inviteId })
-        })
-        setPairingReady(false); setPairingId(inviteId)
+        const joinedPairingId = await joinPairing(user, inviteId, name, edition)
+        setPairingReady(false); setPairingId(joinedPairingId)
         dismissInvite()
         return
       }
