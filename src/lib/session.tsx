@@ -20,8 +20,9 @@ export type Pairing = {
   members: string[]
   profiles: Record<string, Profile>
   createdBy?: string
-  status?: 'waiting' | 'active'
+  status?: 'waiting' | 'active' | 'cancelled'
   acceptedAt?: unknown
+  cancelledAt?: unknown
   metOn?: string | null
   lastPulse?: { from: string; at: unknown } | null
 }
@@ -38,6 +39,7 @@ type Session = {
   joiningInvite: boolean
   invitation: Pairing | null
   invitationUnavailable: boolean
+  dismissInvite: () => void
   signIn: (email: string, password: string) => Promise<void>
   register: (email: string, password: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
@@ -46,6 +48,14 @@ type Session = {
 }
 
 const Ctx = createContext<Session | null>(null)
+
+function inviteIdFromLocation() {
+  return new URLSearchParams(location.search).get('invite')?.match(/^[\w-]{20,80}$/)?.[0] ?? null
+}
+
+function isWaitingPairing(value: Pairing | null) {
+  return !!value && (value.members ?? []).length === 1 && value.status !== 'active' && value.status !== 'cancelled'
+}
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -56,8 +66,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [pairingId, setPairingId] = useState<string | null>(null)
   const [invitation, setInvitation] = useState<Pairing | null>(null)
   const [invitationUnavailable, setInvitationUnavailable] = useState(false)
+  const [invitationReady, setInvitationReady] = useState(true)
   const [retry, setRetry] = useState(0)
-  const inviteId = new URLSearchParams(location.search).get('invite')?.match(/^[\w-]{20,80}$/)?.[0] ?? null
+  const [inviteId, setInviteId] = useState(inviteIdFromLocation)
+
+  useEffect(() => {
+    const syncInvite = () => setInviteId(inviteIdFromLocation())
+    addEventListener('popstate', syncInvite)
+    return () => removeEventListener('popstate', syncInvite)
+  }, [])
 
   useEffect(() => onAuthStateChanged(auth, (u) => {
     setUser(u); setAuthReady(true); setIdentityReady(!u)
@@ -86,27 +103,38 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [user?.uid])
 
   useEffect(() => {
-    if (!user?.uid || !inviteId || pairingId) {
+    if (!user?.uid || !inviteId || inviteId === pairingId) {
       setInvitation(null)
       setInvitationUnavailable(false)
+      setInvitationReady(true)
+      return
+    }
+    if (pairingId && !pairingReady) return
+    if (pairingId && !isWaitingPairing(pairing)) {
+      setInvitation(null)
+      setInvitationUnavailable(true)
+      setInvitationReady(true)
       return
     }
     let active = true
     setInvitationUnavailable(false)
+    setInvitationReady(false)
     getDoc(doc(db, 'pairings', inviteId)).then(snap => {
       if (!active) return
       const data = snap.exists() ? snap.data() as Pairing : null
-      if (!data || (data.members ?? []).length !== 1) {
+      if (!isWaitingPairing(data)) {
         setInvitation(null)
         setInvitationUnavailable(true)
+        setInvitationReady(true)
         return
       }
       setInvitation(data)
+      setInvitationReady(true)
     }).catch(() => {
-      if (active) { setInvitation(null); setInvitationUnavailable(true) }
+      if (active) { setInvitation(null); setInvitationUnavailable(true); setInvitationReady(true) }
     })
     return () => { active = false }
-  }, [user?.uid, inviteId, pairingId])
+  }, [user?.uid, inviteId, pairingId, pairingReady, pairing])
 
   useEffect(() => {
     if (!user?.uid || !pairingId) { setPairing(null); setPairingReady(true); return }
@@ -128,6 +156,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const partnerUid = user && pairing ? (pairing.members ?? []).find((m) => m !== user.uid) ?? null : null
   const partner = partnerUid ? pairing?.profiles?.[partnerUid] ?? null : null
   const inviteUrl = pairingId ? (() => { const url = new URL(location.origin + location.pathname); url.searchParams.set('invite', pairingId); return url.toString() })() : null
+  const joiningInvite = !!inviteId && inviteId !== pairingId && (!pairingId || isWaitingPairing(pairing))
+  const dismissInvite = () => {
+    const url = new URL(location.href)
+    url.searchParams.delete('invite')
+    history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`)
+    setInviteId(null)
+  }
 
   // The whole press changes ink when you change edition.
   useEffect(() => {
@@ -135,9 +170,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [me?.edition])
 
   const value: Session = {
-    user, pairing, me, partnerUid, partner, pairingId, inviteUrl, joiningInvite: !!inviteId && !pairingId,
+    user, pairing, me, partnerUid, partner, pairingId, inviteUrl, joiningInvite,
     invitation, invitationUnavailable,
-    loading: !authReady || (!!user && (!identityReady || (!!pairingId && !pairingReady))),
+    dismissInvite,
+    loading: !authReady || (!!user && (!identityReady || (!!pairingId && !pairingReady) || (joiningInvite && !invitationReady))),
     signIn: async (email, password) => { await signInWithEmailAndPassword(auth, email, password) },
     register: async (email, password) => { await createUserWithEmailAndPassword(auth, email, password) },
     signInWithGoogle: async () => {
@@ -149,26 +185,37 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     claimSlot: async (name, edition) => {
       if (!user) return
       const profile = { name, edition, joinedAt: Date.now() }
-      if (pairingId) {
-        await updateDoc(doc(db, 'pairings', pairingId), { [`profiles.${user.uid}`]: profile })
-        return
-      }
-      if (inviteId) {
+      if (inviteId && inviteId !== pairingId) {
         await runTransaction(db, async transaction => {
-          const ref = doc(db, 'pairings', inviteId), snap = await transaction.get(ref)
-          if (!snap.exists()) throw new Error('invite-not-found')
-          const members = (snap.data().members ?? []) as string[]
+          const targetRef = doc(db, 'pairings', inviteId)
+          const currentRef = pairingId ? doc(db, 'pairings', pairingId) : null
+          const targetSnap = await transaction.get(targetRef)
+          const currentSnap = currentRef ? await transaction.get(currentRef) : null
+          if (!targetSnap.exists()) throw new Error('invite-not-found')
+          const target = targetSnap.data() as Pairing
+          const members = target.members ?? []
+          if (!isWaitingPairing(target)) throw new Error(members.length >= 2 ? 'invite-full' : 'invite-not-found')
           if (!members.includes(user.uid) && members.length >= 2) throw new Error('invite-full')
-          transaction.update(ref, {
+          if (currentSnap?.exists() && !isWaitingPairing(currentSnap.data() as Pairing)) {
+            throw new Error('invite-already-paired')
+          }
+          transaction.update(targetRef, {
             members: Array.from(new Set([...members, user.uid])),
             [`profiles.${user.uid}`]: profile,
             status: 'active',
             acceptedAt: serverTimestamp(),
           })
+          if (currentRef && currentSnap?.exists()) {
+            transaction.update(currentRef, { status: 'cancelled', cancelledAt: serverTimestamp() })
+          }
           transaction.set(doc(db, 'users', user.uid), { pairingId: inviteId })
         })
         setPairingReady(false); setPairingId(inviteId)
-        history.replaceState({}, '', location.pathname)
+        dismissInvite()
+        return
+      }
+      if (pairingId) {
+        await updateDoc(doc(db, 'pairings', pairingId), { [`profiles.${user.uid}`]: profile })
         return
       }
       const id = crypto.randomUUID(), batch = writeBatch(db)
