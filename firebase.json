@@ -14,17 +14,6 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "storage": {
-    "rules": "storage.rules"
-  },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "runtime": "nodejs20",
-      "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run build"]
-    }
-  ],
   "emulators": {
     "auth": { "port": 9099 },
     "firestore": { "port": 8080 },

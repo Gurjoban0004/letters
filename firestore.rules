@@ -73,10 +73,16 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // Device push tokens. Only Cloud Functions (admin SDK) ever read these.
+    // Device push tokens. Only the server-side Admin SDK can read these.
     match /tokens/{token} {
       allow read: if false;
-      allow create, update: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow create: if signedIn()
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.token == token;
+      allow update: if signedIn()
+                    && resource.data.uid == request.auth.uid
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.token == token;
       allow delete: if signedIn() && resource.data.uid == request.auth.uid;
     }
 

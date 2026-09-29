@@ -10,6 +10,7 @@ import {
 } from 'firebase/auth'
 import { doc, getDoc, onSnapshot, runTransaction, setDoc, serverTimestamp, updateDoc, writeBatch } from 'firebase/firestore'
 import { auth, db, PAIRING_ID } from './firebase'
+import { disablePush } from './push'
 
 export type Edition = 'rose' | 'graphite'
 
@@ -112,7 +113,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       provider.setCustomParameters({ prompt: 'select_account' })
       await signInWithPopup(auth, provider)
     },
-    signOut: async () => { await fbSignOut(auth) },
+    signOut: async () => { await disablePush(); await fbSignOut(auth) },
     claimSlot: async (name, edition) => {
       if (!user) return
       const profile = { name, edition, joinedAt: Date.now() }

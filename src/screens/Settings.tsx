@@ -16,7 +16,7 @@ export default function Settings({ open, onClose }: { open: boolean; onClose: ()
   const [motion_, setMotion] = useState(false)
   const [metOn, setMetOn] = useState(pairing?.metOn ?? '')
 
-  useEffect(() => { if (open) pushStatus().then(setStatus) }, [open])
+  useEffect(() => { if (open) pushStatus(user?.uid).then(setStatus) }, [open, user?.uid])
   useEffect(() => { setMetOn(pairing?.metOn ?? '') }, [pairing?.metOn])
 
   async function turnOnPush() {
@@ -51,7 +51,7 @@ export default function Settings({ open, onClose }: { open: boolean; onClose: ()
             <div className="col gap-xs">
               <p className="serif-body">Dispatches are on. You'll hear about letters, doodles, snaps and small ads.</p>
               <button className="btn btn-ghost" style={{ alignSelf: 'flex-start' }}
-                onClick={async () => { await disablePush(); setStatus(await pushStatus()); play('thud') }}>
+                onClick={async () => { await disablePush(); setStatus(await pushStatus(user?.uid)); play('thud') }}>
                 Turn off on this device
               </button>
             </div>

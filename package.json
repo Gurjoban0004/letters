@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test": "node --experimental-strip-types tests/letters.test.ts",
+    "test": "node --experimental-strip-types tests/letters.test.ts && node --experimental-strip-types tests/push.test.ts",
     "preview": "vite preview --host",
-    "deploy": "npm run build && firebase deploy"
+    "typecheck:api": "tsc -p tsconfig.api.json",
+    "deploy": "npm run build && firebase deploy --only hosting,firestore"
   },
   "dependencies": {
     "firebase": "^11.2.0",
+    "firebase-admin": "13.6.0",
     "motion": "^11.18.0",
     "perfect-freehand": "^1.2.2",
     "react": "^18.3.1",
@@ -21,11 +23,15 @@
     "workbox-window": "^7.4.1"
   },
   "devDependencies": {
+    "@types/node": "^26.6.3",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.7.3",
     "vite": "^6.0.7",
     "vite-plugin-pwa": "^0.21.1"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
   }
 }

@@ -134,6 +134,7 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
   const [guide, setGuide] = useState<Guide>({})
   const [historyTick, setHistoryTick] = useState(0)
   const [detailSelection, setDetailSelection] = useState<DetailAssetName[]>([])
+  const [sheetExpanded, setSheetExpanded] = useState(false)
 
   const root = usePageFocus(() => void close())
   const panel = useRef<HTMLElement>(null)
@@ -147,6 +148,7 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
   const future = useRef<Draft[]>([])
   const lastHistory = useRef({ kind: '', at: 0 })
   const pendingCaret = useRef<number | null>(null)
+  const sheetPullStart = useRef<number | null>(null)
   const [layoutTick, setLayoutTick] = useState(0)
 
   const dirty = JSON.stringify(draft) !== lastSaved.current
@@ -218,7 +220,19 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
 
   function chooseTool(name: NonNullable<typeof tool>) {
     setTool(current => current === name ? null : name)
-    if (window.matchMedia('(max-width: 800px)').matches) requestAnimationFrame(() => panel.current?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'end' }))
+    setSheetExpanded(false)
+  }
+
+  function finishSheetPull(event: PointerEvent<HTMLButtonElement>) {
+    const start = sheetPullStart.current
+    sheetPullStart.current = null
+    if (start === null) return
+    const distance = event.clientY - start
+    if (distance < -50) setSheetExpanded(true)
+    else if (distance > 75) {
+      if (sheetExpanded) setSheetExpanded(false)
+      else setTool(null)
+    } else if (Math.abs(distance) < 10) setSheetExpanded(value => !value)
   }
 
   function restoreCaret(offset: number, pages: LetterPage[]) {
@@ -285,9 +299,10 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
     commit(value => ({ ...value, pages: value.pages.map(page => {
       if (page.id !== pageId) return page
       const top = Math.max(0, ...page.items.map(item => item.z))
+      const spots = [[7, 56], [67, 55], [38, 72], [7, 73], [64, 72], [36, 54]]
       const items = detailSelection.map((detail, index): LetterItem => ({
         id: ids[index], kind: 'detail', value: detail,
-        x: 55 + (index % 3) * 7, y: 54 + (index % 4) * 6,
+        x: spots[index % spots.length][0], y: spots[index % spots.length][1],
         width: detail === 'heartFlourish' ? 38 : detail === 'lovePen' ? 18 : 25,
         rotation: [-7, 4, -2, 8][index % 4], z: top + index + 1,
       }))
@@ -381,20 +396,30 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
                   onItem={(id, update, kind) => pageUpdate(page.id, current => ({ ...current, items: current.items.map(item => item.id === id ? { ...item, ...update } : item) }), kind)}
                 />
                 {index > 0 && <span className="page-number" aria-label={`Page ${index + 1}`}>{index + 1}</span>}
+                {phase === 'write' && page.items.length > 1 && <nav className="placed-items-picker" aria-label={`Keepsakes on page ${index + 1}`}>
+                  <span>Select a keepsake</span>
+                  {page.items.map((item, itemIndex) => <button key={item.id} className={activeItem === item.id ? 'selected' : ''} aria-pressed={activeItem === item.id} onClick={() => { setActivePage(page.id); setActiveItem(item.id); setTool(null) }}>
+                    {item.kind === 'detail' ? detailChoices.find(choice => choice.id === item.value)?.label ?? 'Detail' : item.kind === 'photo' ? 'Photo' : item.kind === 'voice' ? 'Voice note' : 'Drawing'} {itemIndex + 1}
+                  </button>)}
+                </nav>}
               </div>)}
               <p className="paper-footnote">{phase === 'write' ? "Keep writing — a fresh sheet appears when you need it." : 'Everything here will be tucked inside your envelope.'}</p>
             </main>
 
-            {phase === 'write' && tool && <aside className="customization customization-v2" ref={panel} aria-label={`${tool} options`}>
+            {phase === 'write' && tool && <aside className={`customization customization-v2${sheetExpanded ? ' is-expanded' : ''}`} ref={panel} aria-label={`${tool} options`}>
+              <button type="button" className="customize-grip" aria-label={sheetExpanded ? 'Collapse customization' : 'Expand customization'} aria-expanded={sheetExpanded} onPointerDown={event => { sheetPullStart.current = event.clientY; event.currentTarget.setPointerCapture(event.pointerId) }} onPointerUp={finishSheetPull} onPointerCancel={() => { sheetPullStart.current = null }} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSheetExpanded(value => !value) } }}><span /></button>
               <div className="customize-heading"><div><h2>Make it yours.</h2><p>Quiet choices, made for this paper.</p></div><button className="inspector-close" onClick={() => setTool(null)} aria-label="Close customization"><Icon.Close /></button></div>
               <div className="customize-tabs">{(['Paper', 'Type', 'Envelope', 'Details'] as const).map(name => <button key={name} className={tool === name ? 'active' : ''} aria-pressed={tool === name} onClick={() => setTool(name)}>{name}</button>)}</div>
+              <div className="customize-scroll" key={tool}>
               {tool === 'Paper' && <div className="paper-options">{stationery.map(paper => <button key={paper.id} className={draft.paper === paper.id ? 'chosen' : ''} onClick={() => commit({ paper: paper.id }, 'paper')} aria-pressed={draft.paper === paper.id}><span className="paper-swatch"><img src={paper.url} alt="" />{draft.paper === paper.id && <b>✓</b>}</span><strong>{paper.name}</strong><small>{paper.mood}</small></button>)}</div>}
               {tool === 'Type' && <div className="font-options">{([
                 ['paper', "Paper’s choice", 'Matched to this stationery'], ['literary', 'Literary', 'Newsreader'], ['handwritten', 'Handwritten', 'Caveat'],
                 ['dreamy', 'Dreamy', 'Soft Fraunces'], ['classic', 'Classic', 'Cormorant'],
               ] as [LetterStyle, string, string][]).map(([style, label, note]) => <button key={style} aria-pressed={draft.style === style} className={draft.style === style ? 'chosen' : ''} onClick={() => commit({ style }, 'type')}><span style={{ fontFamily: fonts[style] }}>Dear you,</span><small>{label} · {note}</small></button>)}</div>}
               {tool === 'Envelope' && <div className="envelope-options">{envelopes.map(envelope => <button key={envelope.id} className={draft.envelope === envelope.id ? 'chosen' : ''} onClick={() => commit({ envelope: envelope.id }, 'envelope')} aria-pressed={draft.envelope === envelope.id}><span className="envelope-swatch"><EnvelopeSealed envelopeId={envelope.id} />{draft.envelope === envelope.id && <b>✓</b>}</span><strong>{envelope.name}</strong><small>{envelope.badge}</small></button>)}</div>}
-              {tool === 'Details' && <><p className="tool-note">Choose a little collection, then place everything together on this sheet.</p><div className="decoration-options">{detailChoices.map(detail => { const chosen = detailSelection.includes(detail.id); return <button key={detail.id} className={`detail-tile${chosen ? ' chosen' : ''}`} onClick={() => setDetailSelection(value => chosen ? value.filter(item => item !== detail.id) : [...value, detail.id])} aria-label={`${chosen ? 'Remove' : 'Select'} ${detail.label}`} aria-pressed={chosen}><DetailsAsset name={detail.id} /><span>{detail.label}</span>{chosen && <b aria-hidden>✓</b>}</button> })}</div><div className="details-selection-bar"><span>{detailSelection.length ? `${detailSelection.length} selected` : 'Pick as many as you like'}</span><button className="primary" disabled={!detailSelection.length} onClick={placeSelectedDetails}>Place keepsakes</button></div></>}
+              {tool === 'Details' && <><p className="tool-note">Choose a little collection, then place everything together on this sheet.</p><div className="decoration-options">{detailChoices.map(detail => { const chosen = detailSelection.includes(detail.id); return <button key={detail.id} className={`detail-tile${chosen ? ' chosen' : ''}`} onClick={() => setDetailSelection(value => chosen ? value.filter(item => item !== detail.id) : [...value, detail.id])} aria-label={`${chosen ? 'Remove' : 'Select'} ${detail.label}`} aria-pressed={chosen}><DetailsAsset name={detail.id} /><span>{detail.label}</span>{chosen && <b aria-hidden>✓</b>}</button> })}</div></>}
+              </div>
+              {tool === 'Details' && <div className="details-selection-bar"><span>{detailSelection.length ? `${detailSelection.length} selected` : 'Pick as many as you like'}</span><button className="primary" disabled={!detailSelection.length} onClick={placeSelectedDetails}>Place keepsakes</button></div>}
             </aside>}
 
             {phase === 'write' && selectedValue && <ObjectActions item={selectedValue.item} warning={guide.warning} onResize={width => updateSelected({ width })} onRotate={rotation => updateSelected({ rotation })} onBack={() => layerSelected(-1)} onFront={() => layerSelected(1)} onDelete={removeSelected} />}
@@ -449,12 +474,18 @@ function CanvasItem({ item, paperId, active, editable, onActivate, onGuide, onCh
 }) {
   const element = useRef<HTMLDivElement>(null)
   const pointers = useRef(new Map<number, { x: number; y: number }>())
+  const secondPointerListener = useRef<((event: globalThis.PointerEvent) => void) | null>(null)
+  const gesturePaper = useRef<{ node: HTMLElement; touchAction: string } | null>(null)
   const drag = useRef<{ x: number; y: number; left: number; top: number } | null>(null)
   const pinch = useRef<{
     ids: [number, number]; a: { x: number; y: number }; b: { x: number; y: number }
     x: number; y: number; width: number; height: number; rotation: number
   } | null>(null)
   const latest = useRef(item); latest.current = item
+  useEffect(() => () => {
+    if (secondPointerListener.current) window.removeEventListener('pointerdown', secondPointerListener.current, true)
+    if (gesturePaper.current) gesturePaper.current.node.style.touchAction = gesturePaper.current.touchAction
+  }, [])
   const profile = getStationery(paperId).profile
   function placement(x: number, y: number, width: number, height: number) {
     const maxX = Math.max(0, 100 - width), maxY = Math.max(0, 100 - height)
@@ -475,7 +506,7 @@ function CanvasItem({ item, paperId, active, editable, onActivate, onGuide, onCh
     const current = latest.current
     pinch.current = {
       ids: [firstId, secondId], a, b, x: current.x, y: current.y, width: current.width,
-      height: (element.current?.getBoundingClientRect().height ?? 0) / paper.getBoundingClientRect().height * 100,
+      height: (element.current?.offsetHeight ?? 0) / paper.getBoundingClientRect().height * 100,
       rotation: current.rotation,
     }
     drag.current = null
@@ -485,8 +516,26 @@ function CanvasItem({ item, paperId, active, editable, onActivate, onGuide, onCh
     event.preventDefault(); event.stopPropagation(); onActivate(); event.currentTarget.setPointerCapture(event.pointerId)
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY })
     const paper = element.current?.closest('.letter-sheet') as HTMLElement | null
+    if (event.pointerType === 'touch' && paper && !gesturePaper.current) {
+      gesturePaper.current = { node: paper, touchAction: paper.style.touchAction }
+      paper.style.touchAction = 'none'
+    }
     if (pointers.current.size > 1 && paper) beginPinch(paper)
-    else drag.current = { x: event.clientX, y: event.clientY, left: item.x, top: item.y }
+    else {
+      drag.current = { x: event.clientX, y: event.clientY, left: latest.current.x, top: latest.current.y }
+      if (event.pointerType === 'touch' && !secondPointerListener.current) {
+        const catchSecond = (next: globalThis.PointerEvent) => {
+          const samePaper = element.current?.closest('.letter-sheet')
+          if (next.pointerType !== 'touch' || pointers.current.size !== 1 || !samePaper?.contains(next.target as Node)) return
+          next.preventDefault(); next.stopPropagation()
+          element.current?.setPointerCapture(next.pointerId)
+          pointers.current.set(next.pointerId, { x: next.clientX, y: next.clientY })
+          beginPinch(samePaper as HTMLElement)
+        }
+        secondPointerListener.current = catchSecond
+        window.addEventListener('pointerdown', catchSecond, true)
+      }
+    }
   }
   function move(event: PointerEvent<HTMLDivElement>) {
     if (!pointers.current.has(event.pointerId)) return
@@ -508,17 +557,27 @@ function CanvasItem({ item, paperId, active, editable, onActivate, onGuide, onCh
     }
     const start = drag.current
     if (!start) return
-    const height = (element.current?.getBoundingClientRect().height ?? 0) / rect.height * 100
+    const height = (element.current?.offsetHeight ?? 0) / rect.height * 100
     const positioned = placement(start.left + (event.clientX - start.x) / rect.width * 100, start.top + (event.clientY - start.y) / rect.height * 100, latest.current.width, height)
     latest.current = { ...latest.current, ...positioned }
     onChange(positioned, 'move')
   }
   function up(event: PointerEvent<HTMLDivElement>) {
     pointers.current.delete(event.pointerId); pinch.current = null; onGuide({})
+    if (!pointers.current.size && secondPointerListener.current) {
+      window.removeEventListener('pointerdown', secondPointerListener.current, true)
+      secondPointerListener.current = null
+    }
+    if (!pointers.current.size && gesturePaper.current) {
+      gesturePaper.current.node.style.touchAction = gesturePaper.current.touchAction
+      gesturePaper.current = null
+    }
     const remaining = Array.from(pointers.current.values())[0]
     drag.current = remaining ? { x: remaining.x, y: remaining.y, left: latest.current.x, top: latest.current.y } : null
   }
-  const style = { left: `${item.x}%`, top: `${item.y}%`, width: `${item.width}%`, zIndex: item.z, '--item-rotation': `${item.rotation}deg` } as CSSProperties
+  // Paper text sits on layer 2. Keep every keepsake above it, including the
+  // first one (z=1), and lift the selected one while it is being manipulated.
+  const style = { left: `${item.x}%`, top: `${item.y}%`, width: `${item.width}%`, zIndex: active ? 1000 : Math.max(3, 100 + item.z), '--item-rotation': `${item.rotation}deg` } as CSSProperties
   return <div ref={element} className={`canvas-item-v2${active ? ' is-active' : ''}`} style={style} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onClick={event => { if (editable) { event.stopPropagation(); onActivate() } }} onKeyDown={event => {
     if (!editable) return
     const step = event.shiftKey ? 5 : 1; let update: Partial<LetterItem> | null = null
@@ -535,7 +594,7 @@ function ObjectActions({ item, warning, onResize, onRotate, onBack, onFront, onD
     {warning && <span className="placement-warning">Over the writing area</span>}
     <button onClick={() => onResize(Math.max(8, item.width - 4))} aria-label="Make smaller">−</button><span>{Math.round(item.width)}%</span><button onClick={() => onResize(Math.min(82, item.width + 4))} aria-label="Make larger">+</button>
     <button onClick={() => onRotate(item.rotation - 5)} aria-label="Rotate left">↶</button><button onClick={() => onRotate(item.rotation + 5)} aria-label="Rotate right">↷</button>
-    <button onClick={onBack}>Send back</button><button onClick={onFront}>Bring front</button><button className="danger" onClick={onDelete}><Icon.Trash /> Remove</button>
+    <button onClick={onBack} aria-label="Send behind other keepsakes">Back</button><button onClick={onFront} aria-label="Bring in front of other keepsakes">Front</button><button className="danger" onClick={onDelete} aria-label="Remove keepsake"><Icon.Trash /></button>
   </div>
 }
 

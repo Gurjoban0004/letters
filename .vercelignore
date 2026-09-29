@@ -8,6 +8,9 @@ scripts
 tests
 vault
 *.md
+.env
+.env.*
+*-firebase-adminsdk-*.json
 .env.example
 firestore-debug.log
 firestore.indexes.json

@@ -1206,3 +1206,172 @@ body{background:
 @media(max-width:400px){.composer-layout-v2 .writing-tools button{min-width:44px;font-size:8px}.composer-layout-v2 .writing-tools button svg{width:17px}.composer-layout-v2 .writing-tools hr{margin-inline:0}}
 @media(prefers-reduced-motion:reduce){.loading-envelope>.details-asset{animation:none}}
 .ritual-loading{display:grid;place-items:center;background:radial-gradient(ellipse at 50% 42%,#fff,transparent 35%),linear-gradient(145deg,#f8eeee,#e9e1f0);color:#79545e;font:28px var(--hand)}
+
+/* The phone letterbox is a compact stack of actual correspondence. */
+.mobile-heading-copy,.mobile-letter-prompt{display:none}
+.mobile-desk-subtitle,.filter-mobile-label{display:none}
+.collection-heading h2 b{font-weight:400}
+.collection-mobile-title{display:none}
+.customize-grip{display:none}
+.placed-items-picker{display:flex;align-items:center;gap:8px;margin:12px 0 0;overflow-x:auto;scrollbar-width:none}
+.placed-items-picker>span{flex:none;color:var(--muted);font-size:11px}
+.placed-items-picker button{flex:none;min-height:34px;padding:6px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:11px}
+.placed-items-picker button.selected{border-color:var(--rose);color:var(--rose)}
+
+@media(max-width:800px){
+  .customization-v2{display:flex;flex-direction:column;max-height:calc(100dvh - env(safe-area-inset-top,0px) - 12px);height:min(72dvh,620px);padding:0 16px calc(10px + env(safe-area-inset-bottom,0px));overflow:hidden;border-radius:18px 18px 0 0;box-shadow:0 -8px 24px #4e30372e}
+  .customization-v2.is-expanded{height:calc(100dvh - env(safe-area-inset-top,0px) - 12px)}
+  .customization-v2:before{display:none}
+  .customize-grip{display:grid;flex:none;width:100%;height:30px;min-height:30px;padding:0;place-items:center;touch-action:none}
+  .customize-grip span{display:block;width:38px;height:4px;border-radius:4px;background:#b697a0}
+  .customization-v2 .customize-heading{flex:none;align-items:center;gap:10px}
+  .customization-v2 .customize-heading h2{font-size:25px}
+  .customization-v2 .customize-heading p{font-size:11px}
+  .customization-v2 .customize-tabs{flex:none;gap:22px;margin:12px 0 14px;overflow-x:auto;scrollbar-width:none}
+  .customization-v2 .customize-tabs button{flex:none;min-height:40px;font-size:13px}
+  .customize-scroll{flex:1;min-height:0;padding:2px 2px 16px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+  .customization-v2 .details-selection-bar{position:relative;flex:none;bottom:auto;min-height:64px;margin:0 -16px calc(-10px - env(safe-area-inset-bottom,0px));padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));border-radius:0;box-shadow:0 -1px 0 var(--line);backdrop-filter:none}
+  .customization-v2 .details-selection-bar>span{font-size:12px}
+  .customization-v2 .details-selection-bar .primary{min-height:44px;font-size:12px}
+  .customization-v2 .envelope-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}
+  .customization-v2 .envelope-options button{min-width:0}
+  .customization-v2 .envelope-swatch{display:flex;align-items:center;justify-content:center;aspect-ratio:1.25;max-width:100%;padding:8px;overflow:hidden;border-radius:8px;background:#f5e8e8}
+  .customization-v2 .envelope-swatch>.envelope-sealed{width:100%;max-width:100%;max-height:100%;margin:auto;filter:none}
+  .customization-v2 .envelope-swatch>.envelope-sealed img{max-width:100%;max-height:100%;object-fit:contain}
+  .customization-v2 .envelope-options button>strong{white-space:normal;line-height:1.3;font-size:11px}
+  .customization-v2 .envelope-options button>small{font-size:10px}
+  .customization-v2 .decoration-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .customization-v2 .detail-tile{height:110px}
+  .customization-v2 .detail-tile .details-asset{max-height:78px}
+  .object-actions button:nth-of-type(3),.object-actions button:nth-of-type(4){display:inline-flex}
+  .object-actions button{min-width:34px;padding:6px 7px}
+  .object-actions button[aria-label^="Rotate"]{font-size:18px}
+  .object-actions>span{flex:none}
+  .paper-stack{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+}
+
+@media(max-width:600px){
+  html,body,#root{min-width:0;max-width:100%;overflow-x:hidden}
+  body,.letters-app{background:#f7eff0;background-image:none}
+  .letters-app{min-height:100dvh;overflow-x:hidden}
+  .main-area{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px));overflow:visible}
+  .topbar{height:calc(62px + env(safe-area-inset-top,0px));padding:calc(8px + env(safe-area-inset-top,0px)) 18px 8px;align-items:center;border-bottom:1px solid #e7d8dc;background:#f7eff0;backdrop-filter:none}
+  .mobile-masthead .brand{font-size:39px;line-height:1}
+  .mobile-masthead .brand span{font-size:27px}
+  .mobile-masthead small{margin-top:2px;font-size:14px;line-height:1.1}
+  .desk{display:block;padding:16px 18px 20px}
+  .desk-heading{display:block;width:100%;min-height:0;margin:0 0 15px}
+  .mobile-greeting{margin:0 0 2px;font-size:20px;line-height:1.1}
+  .desk-heading h1{max-width:none;margin:0;font-size:39px;line-height:1.05;letter-spacing:-.02em}
+  .desktop-heading-copy{display:none}
+  .mobile-heading-copy{display:inline}
+  .desk-heading .desk-subtitle,.desk-heading .mobile-hero-detail,.desk-heading .hero-botanical{display:none}
+  .mobile-letter-prompt{display:flex;position:relative;min-height:142px;margin:0 0 20px;padding:16px 130px 14px 18px;align-items:center;overflow:hidden;border:1px solid #e9ced3;border-radius:12px;background:#f5e0e2}
+  .mobile-letter-prompt>div{position:relative;z-index:1;min-width:0}
+  .mobile-prompt-note{font:600 9px/1.2 var(--sans);letter-spacing:.09em;color:#813f51}
+  .mobile-letter-prompt h2{margin:5px 0 4px;font:30px/1 var(--serif);letter-spacing:-.02em}
+  .mobile-letter-prompt p{max-width:23ch;font-size:11px;line-height:1.4;color:#704d57}
+  .mobile-letter-prompt button{min-height:28px;margin-top:5px;padding:0;color:#873e53;font-size:12px;font-weight:600;text-align:left}
+  .mobile-letter-prompt button span{margin-left:4px}
+  .mobile-letter-prompt>.envelope-sealed{position:absolute;right:-17px;bottom:0;width:157px;max-width:none;transform:rotate(-9deg);filter:drop-shadow(0 3px 4px #7d47552b);pointer-events:none}
+  .collection{margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+  .collection-heading{display:flex;margin:0 0 11px}
+  .collection-heading h2{font-size:27px;line-height:1}
+  .collection-heading h2>span{font-size:11px}
+  .sort select{font-size:11px}
+  .collection-tools{display:block;margin:0 0 6px}
+  .filter-tabs{display:flex;width:100%;gap:4px;padding:0 0 8px;overflow-x:auto;border-bottom:1px solid #e3d3d8;border-radius:0;background:none;scrollbar-width:none}
+  .filter-tabs button{width:auto;min-width:0;min-height:36px;padding:7px 12px;flex:none;border-radius:8px;color:#674b52;font-size:12px;white-space:nowrap}
+  .filter-tabs button.active{background:#ead1d6;color:#78374b}
+  .envelope-grid{display:flex;flex-direction:column;gap:0}
+  .letter-item,.letter-item.is-sent,.letter-item.is-received{display:grid;min-height:117px;padding:13px 0;grid-template-columns:104px minmax(0,1fr);grid-template-rows:auto 1fr auto;column-gap:14px;overflow:visible;border-bottom:1px solid #e3d3d8;border-radius:0;background:none;box-shadow:none}
+  .direction-label{position:static;grid-column:2;grid-row:1;width:max-content;padding:0;background:none;box-shadow:none;color:#8a5965;font-size:9px;letter-spacing:.08em}
+  .envelope-thumb{grid-column:1;grid-row:1/4;width:104px;height:88px;min-height:0;align-self:center;overflow:hidden;border-radius:4px;background:#f0dcdf}
+  .envelope-thumb>.envelope-sealed{width:100%;max-height:88px;filter:none}
+  .letter-meta{grid-column:2;grid-row:2;margin:3px 0 0;align-items:flex-start}
+  .letter-meta h3{font:24px/1.05 var(--serif);letter-spacing:-.01em}
+  .letter-meta p{margin-top:4px;font-size:11px;line-height:1.25}
+  .letter-meta p span{display:inline}
+  .letter-state{grid-column:2;grid-row:3;margin:3px 0 0;font-size:10px}
+  .keep{min-width:31px;min-height:31px}
+  .writing-prompt,.desk-footer{display:none}
+  .empty-state{width:100%;margin:14px 0;padding:24px 18px;border:1px solid #e9d6d9;border-radius:10px;background:#fff9f7;box-shadow:none}
+  .empty-art{height:115px}
+  .empty-state h3{font-size:30px}
+  .empty-state>.primary{width:auto;min-height:44px;padding:10px 18px;font-size:13px}
+  .mobile-nav{right:0;bottom:0;left:0;height:calc(62px + env(safe-area-inset-bottom,0px));padding:4px 9px env(safe-area-inset-bottom,0px);border-top:1px solid #dfcbd0;border-radius:0;background:#fff8f7;box-shadow:none}
+  .mobile-nav button{min-height:54px;border-radius:8px;font-size:10px}
+  .mobile-nav button svg{width:21px;height:21px}
+  .mobile-nav button.selected{background:#f1dadd;color:#853d51}
+  .paper-stack{padding-top:12px}
+  .paper-stack .paper-overline{margin-bottom:-11px}
+  .paper-footnote{font-size:15px}
+  .customization-v2 .decoration-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:375px){
+  .mobile-letter-prompt{padding-right:113px}
+  .mobile-letter-prompt>.envelope-sealed{right:-28px;width:145px}
+  .letter-item,.letter-item.is-sent,.letter-item.is-received{grid-template-columns:92px minmax(0,1fr);column-gap:11px}
+  .envelope-thumb{width:92px}
+  .letter-meta h3{font-size:22px}
+  .filter-tabs button{padding-inline:10px}
+}
+
+/* The mobile letterbox: a mountain morning and a small paper keepsake. */
+@media(max-width:600px){
+  body,.letters-app{background:#f7f0ed}
+  .main-area{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+  .topbar{display:none}
+  .desk{padding:calc(70px + env(safe-area-inset-top,0px)) 20px 28px}
+  .desk-letters{isolation:isolate}
+  .desk-letters:before{content:'';position:absolute;z-index:-1;top:0;right:0;left:0;height:570px;background-image:linear-gradient(180deg,transparent 0%,transparent 58%,#f7f0ed 97%),url('/art/letterbox-mountains.jpg');background-position:center top,center top;background-size:100% 100%,100% auto;background-repeat:no-repeat;pointer-events:none}
+  .desk-heading{min-height:148px;margin:0}
+  .mobile-greeting{margin:0 0 9px;font-size:23px;line-height:1.12;color:#633940}
+  .desk-heading h1{max-width:none;margin:0;font-size:clamp(43px,12vw,55px);line-height:.96;letter-spacing:-.035em;color:#59353a}
+  .mobile-desk-subtitle{display:block;max-width:26ch;margin:13px 0 0;color:#78565c;font:14px/1.42 var(--sans)}
+  .desk-heading .mobile-hero-detail{display:block;position:absolute;z-index:-1;top:-42px;right:-5px;width:58px;height:58px;padding:8px;border-radius:50%;background:#fff7f0b8;box-shadow:0 4px 10px #70475221;transform:rotate(11deg);opacity:.85}
+  .desk-heading .hero-botanical{display:none}
+  .mobile-letter-prompt{display:block;min-height:248px;margin:0 0 27px;padding:23px 18px 19px;isolation:isolate;overflow:hidden;border:1px solid #f9efeb;border-radius:24px;background-color:#f8e9e4;background-image:linear-gradient(90deg,#f9eee9f2 0%,#f9eee9c9 58%,#f9eee934 100%),url('/stationery/paper_1_botanical/paper_1.webp');background-position:center,center;background-size:cover;box-shadow:0 12px 25px #69414a1c}
+  .mobile-letter-prompt>.mobile-prompt-copy{position:relative;z-index:2;max-width:66%}
+  .mobile-prompt-note{color:#bd777f;font-size:10px;letter-spacing:.19em}
+  .mobile-letter-prompt h2{margin:12px 0 7px;font:clamp(31px,8.4vw,39px)/.98 var(--serif);letter-spacing:-.025em;color:#603b41}
+  .mobile-letter-prompt p{max-width:23ch;color:#7f6064;font-size:12px;line-height:1.38}
+  .mobile-letter-prompt button{display:inline-flex;min-width:104px;min-height:40px;margin-top:16px;padding:0 16px;align-items:center;justify-content:space-between;gap:18px;border-radius:999px;background:#e9bfc2;color:#783e4c;font-size:13px;box-shadow:0 3px 7px #763f4917}
+  .mobile-letter-prompt button:disabled{opacity:.5}
+  .mobile-letter-prompt button span{margin:0;font-size:19px;font-weight:400;line-height:1}
+  .mobile-prompt-art{position:absolute;z-index:1;inset:0;pointer-events:none}
+  .mobile-prompt-art .prompt-birds{position:absolute;right:-22px;bottom:16px;width:60%;max-width:215px;filter:drop-shadow(0 5px 6px #8c61702b)}
+  .mobile-prompt-art .prompt-flowers{position:absolute;right:-13px;bottom:-35px;width:80px;transform:rotate(19deg);opacity:.88}
+  .mobile-prompt-art .prompt-charm{position:absolute;top:11px;right:20px;width:29px;transform:rotate(14deg);opacity:.75}
+  .collection-heading{margin:0 0 14px;align-items:center}
+  .collection-desktop-title{display:none}
+  .collection-mobile-title{display:inline}
+  .collection-heading h2{font-size:34px;line-height:1;color:#603b41}
+  .collection-heading h2>span{display:inline-grid;min-width:25px;height:25px;margin-left:7px;padding:2px 6px;place-items:center;border-radius:50%;background:#f0cbd0;color:#713e49;font:12px var(--sans);vertical-align:middle}
+  .sort select{font-size:11px;color:#75545a}
+  .collection-tools{position:relative;margin:0 0 24px}
+  .filter-tabs{gap:2px;padding:0;border:0;justify-content:space-between}
+  .filter-tabs button{min-height:37px;padding:7px 9px;font-size:11px}
+  .filter-tabs button.active{border-radius:9px;background:#ecd4d7;color:#793e4d}
+  .filter-desktop-label{display:none}
+  .filter-mobile-label{display:inline}
+  .collection-tools:after{content:'';display:block;width:54px;height:27px;margin:8px auto 0;background:url('/art/bow-divider.svg') center/contain no-repeat;opacity:.8}
+  .letter-item,.letter-item.is-sent,.letter-item.is-received{min-height:116px;margin:0 0 14px;padding:0 0 16px;border:0}
+  .letter-item:not(:last-child):after{content:'';position:absolute;left:50%;bottom:-15px;width:34px;height:17px;background:url('/art/bow-divider.svg') center/contain no-repeat;transform:translateX(-50%);opacity:.5}
+  .direction-label{font-size:9px;letter-spacing:.12em;color:#af6d78}
+  .envelope-thumb{box-shadow:0 5px 12px #73464e26}
+  .letter-meta h3{font-size:24px}
+  .letter-state{display:inline-flex;width:max-content;max-width:100%;padding:3px 8px;border-radius:999px;background:#f1e5e4;color:#74565c}
+  .mobile-nav{right:12px;bottom:calc(8px + env(safe-area-inset-bottom,0px));left:12px;height:72px;padding:6px;border:1px solid #ebd9d8;border-radius:22px;background:#fffaf8ef;box-shadow:0 7px 18px #5a343b21;backdrop-filter:blur(14px)}
+  .mobile-nav button{min-height:58px;border-radius:16px;font-size:10px}
+  .mobile-nav button.selected{background:#f0dadd}
+}
+@media(max-width:375px){
+  .desk{padding-right:17px;padding-left:17px}
+  .desk-heading h1{font-size:43px}
+  .mobile-letter-prompt{padding-left:15px}
+  .mobile-letter-prompt h2{font-size:31px}
+  .mobile-prompt-art .prompt-birds{right:-31px;width:58%}
+  .collection-heading h2{font-size:30px}
+  .filter-tabs button{padding-inline:7px;font-size:10px}
+}
