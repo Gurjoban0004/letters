@@ -12,6 +12,7 @@ import { doc, getDoc, onSnapshot, setDoc, serverTimestamp, updateDoc, writeBatch
 import { auth, db, PAIRING_ID } from './firebase'
 import { joinPairing } from './join'
 import { disablePush } from './push'
+import { firstName } from './names'
 
 export type Edition = 'rose' | 'graphite'
 
@@ -153,9 +154,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     )
   }, [user?.uid, pairingId, retry])
 
-  const me = user && pairing?.profiles?.[user.uid] ? pairing.profiles[user.uid] : null
+  const displayPairing = pairing ? {
+    ...pairing,
+    profiles: Object.fromEntries(Object.entries(pairing.profiles ?? {}).map(([uid, profile]) => [uid, { ...profile, name: firstName(profile.name) || 'Friend' }])),
+  } : null
+  const me = user && displayPairing?.profiles?.[user.uid] ? displayPairing.profiles[user.uid] : null
   const partnerUid = user && pairing ? (pairing.members ?? []).find((m) => m !== user.uid) ?? null : null
-  const partner = partnerUid ? pairing?.profiles?.[partnerUid] ?? null : null
+  const partner = partnerUid ? displayPairing?.profiles?.[partnerUid] ?? null : null
   const inviteUrl = pairingId ? (() => { const url = new URL(location.origin + location.pathname); url.searchParams.set('invite', pairingId); return url.toString() })() : null
   const joiningInvite = !!inviteId && inviteId !== pairingId && (!pairingId || isWaitingPairing(pairing))
   const dismissInvite = () => {
@@ -171,7 +176,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [me?.edition])
 
   const value: Session = {
-    user, pairing, me, partnerUid, partner, pairingId, inviteUrl, joiningInvite,
+    user, pairing: displayPairing, me, partnerUid, partner, pairingId, inviteUrl, joiningInvite,
     invitation, invitationUnavailable,
     dismissInvite,
     loading: !authReady || (!!user && (!identityReady || (!!pairingId && !pairingReady) || (joiningInvite && !invitationReady))),
@@ -185,7 +190,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     signOut: async () => { await disablePush(); await fbSignOut(auth) },
     claimSlot: async (name, edition) => {
       if (!user) return
-      const profile = { name, edition, joinedAt: Date.now() }
+      const profile = { name: firstName(name) || 'Friend', edition, joinedAt: Date.now() }
       if (inviteId && inviteId !== pairingId) {
         const joinedPairingId = await joinPairing(user, inviteId, name, edition)
         setPairingReady(false); setPairingId(joinedPairingId)

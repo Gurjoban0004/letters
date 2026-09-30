@@ -96,6 +96,6 @@ export async function onForegroundPush(handler: (title: string, body: string) =>
   if (!(await isSupported().catch(() => false))) return () => {}
   return onMessage(getMessaging(app), (payload) => {
     const d = payload.data ?? {}
-    handler(d.title ?? 'Letters', d.body ?? '')
+    handler(d.title ?? 'Someone wrote to you', d.body ?? '')
   })
 }

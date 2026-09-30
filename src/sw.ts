@@ -44,7 +44,7 @@ onBackgroundMessage(messaging, (payload) => {
     actions: [{ action: 'open', title: 'Open letter' }],
     data: { url: d.url || '/' },
   }
-  return self.registration.showNotification(d.title || 'A letter arrived', options)
+  return self.registration.showNotification(d.title || 'Someone wrote to you', options)
 })
 
 self.addEventListener('notificationclick', (event) => {

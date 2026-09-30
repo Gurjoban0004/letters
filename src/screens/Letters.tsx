@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Timestamp } from 'firebase/firestore'
+import { IOSTabBar, type IOSTabBarItem } from '@noorddev/vlak-react/components/ios-tab-bar'
 import { useSession } from '../lib/session'
 import { useMemories, isSealed, markReceived, sendLetter, type Memory } from '../lib/db'
 import { loadDrafts, saveDrafts, newDraft, encodeLetter, draftPreview, getStationery, paginateText, deliveryState, type Draft, type LetterContentV2 } from '../lib/letters'
@@ -9,6 +10,7 @@ import { EnvelopeSealed } from '../components/EnvelopeSealed'
 import { DetailsAsset } from '../components/DetailsAsset'
 import { enablePush, disablePush, onForegroundPush, pushEnabledFor, shouldRestorePush } from '../lib/push'
 import { dispatchLetterNotification, retryPendingLetterNotifications } from '../lib/notify'
+import { firstName } from '../lib/names'
 const Composer = lazy(() => import('./Stationery').then(module => ({ default: module.Composer })))
 const Reader = lazy(() => import('./Stationery').then(module => ({ default: module.Reader })))
 
@@ -47,7 +49,7 @@ export default function Letters({ demo, onExitDemo }: { demo: boolean; onExitDem
   const [online, setOnline] = useState(navigator.onLine)
   const receiptAttempts = useRef(new Set<string>())
   const deliveryNotice = useRef('')
-  const myName = demo ? 'You' : me?.name ?? 'You', theirName = demo ? 'Your person' : partner?.name ?? 'Your person'
+  const myName = demo ? 'You' : firstName(me?.name) || 'You', theirName = demo ? 'Your person' : firstName(partner?.name) || 'Your person'
   const connected = demo || Boolean(partner)
   const greeting = new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 18 ? 'Good afternoon' : 'Good evening'
   const all = (demo ? samples : cloud ?? []).filter(m => m.type === 'letter')
@@ -117,15 +119,14 @@ export default function Letters({ demo, onExitDemo }: { demo: boolean; onExitDem
     } else {
       if (!partner) throw new Error('Invite your person before sending. Your draft is safe here.')
       if (!navigator.onLine) throw new Error('You’re offline. Your draft is safe here; send it when you’re connected.')
-      const memoryId = await sendLetter({ senderId: owner, title: draft.title, body, paper: draft.paper, envelope: draft.envelope, unlockAt: draft.unlockAt ? new Date(draft.unlockAt) : null, pairingId: pairingId! })
+      const memoryId = await sendLetter({ senderId: owner, title: draft.title, body, paper: draft.paper, envelope: draft.envelope, unlockAt: draft.unlockAt ? new Date(draft.unlockAt) : null, pairingId: pairingId!, clientMessageId: draft.id })
       deliveryNotice.current = `Your letter is safely in ${theirName}’s letterbox.`
-      try {
-        const result = await dispatchLetterNotification(memoryId)
+      void dispatchLetterNotification(memoryId).then(result => {
         if (!result.sent && result.reason === 'no-devices') deliveryNotice.current = `Letter delivered. ${theirName} hasn’t turned on notifications yet, but it is waiting in their letterbox.`
         else if (!result.sent && result.failed) deliveryNotice.current = `Letter delivered. The notification didn’t go through, but it is waiting safely for ${theirName}.`
-      } catch {
+      }).catch(() => {
         deliveryNotice.current = `Letter delivered. The notification didn’t go through, but it is waiting safely for ${theirName}.`
-      }
+      })
     }
     try { await removeDraft(draft.id) } catch { setNotice('Letter sent. The draft could not be removed from this device.') }
   }
@@ -148,7 +149,7 @@ export default function Letters({ demo, onExitDemo }: { demo: boolean; onExitDem
   const visible = useMemo(() => {
     return all.filter(m => (filter !== 'Received' || m.senderId !== owner) && (filter !== 'Sent' || m.senderId === owner) && (filter !== 'Unopened' || (m.senderId !== owner && !m.viewedAt)) && (m.title ?? '').toLowerCase().includes(search.toLowerCase())).sort((a,b) => (sort === 'Newest first' ? -1 : 1) * ((a.createdAt?.toMillis() ?? 0) - (b.createdAt?.toMillis() ?? 0)))
   }, [all, owner, filter, search, sort])
-  const sender = (m: Memory) => m.senderId === owner ? myName : demo ? theirName : pairing?.profiles?.[m.senderId]?.name ?? theirName
+  const sender = (m: Memory) => m.senderId === owner ? myName : demo ? theirName : firstName(pairing?.profiles?.[m.senderId]?.name) || theirName
   const receiptLabel = (m: Memory) => {
     if (m.senderId !== owner) return isSealed(m) ? `Opens ${m.unlockAt?.toDate().toLocaleDateString()}` : !m.viewedAt ? 'Waiting to be opened' : 'Opened & treasured'
     const state = deliveryState(m.receivedAt, m.viewedAt)
@@ -163,6 +164,13 @@ export default function Letters({ demo, onExitDemo }: { demo: boolean; onExitDem
     if (draftsReady) { setWriting(newDraft()); play('rustle') }
   }
   const readerClose = () => setReading(null)
+  const mobileTabs: IOSTabBarItem[] = [
+    { id: 'Letters', label: 'Letters', icon: <span className="tab-icon-wrap"><Icon.Letter />{unread > 0 && <b className="tab-badge">{Math.min(unread, 9)}</b>}</span> },
+    { id: 'Write', label: connected ? 'Write' : 'Invite', icon: connected ? <Icon.Nib /> : <Icon.Letter />, disabled: connected && !draftsReady },
+    { id: 'Drafts', label: 'Drafts', icon: <span className="tab-icon-wrap"><Icon.Archive />{drafts.length > 0 && <b className="tab-badge">{Math.min(drafts.length, 9)}</b>}</span>, disabled: !connected },
+    { id: 'Settings', label: 'Settings', icon: <Icon.Gear /> },
+  ]
+  const activeTab = view === 'Letters' ? 0 : view === 'Drafts' ? 2 : 3
   return <div className="letters-app">
     <aside className="sidebar"><button className="brand" onClick={() => { setView('Letters'); setFilter('All letters') }}>letters<span>♡</span></button><div className="brand-caption">a little closer, always</div>
       <button className="primary compose-button" onClick={connected ? compose : () => void shareInvite()} disabled={connected && !draftsReady} aria-busy={connected && !draftsReady}>{connected ? <><Icon.Nib />{draftsReady ? 'Write a letter' : 'Preparing paper…'}</> : <><Icon.Letter />Invite your person</>}</button>
@@ -184,7 +192,10 @@ export default function Letters({ demo, onExitDemo }: { demo: boolean; onExitDem
       </section><aside className="writing-prompt"><span>✧</span><div><span>A LITTLE INSPIRATION</span><p>What’s one small thing about them that makes your day better?</p></div><button onClick={compose} aria-label="Write a letter inspired by this prompt">↗</button></aside><footer className="desk-footer">No rush. No read-reply-repeat. Just a little more us. <span>♡</span><button className="footer-settings" onClick={() => setView('Settings')} aria-label="Settings"><Icon.Gear /> Our little space</button></footer>
     </main>}
     </div>
-    <nav className="mobile-nav" aria-label="Mobile navigation"><button className={view === 'Letters' ? 'selected' : ''} onClick={() => setView('Letters')}><Icon.Letter /><span>Letters</span></button><button onClick={connected ? compose : () => void shareInvite()} disabled={connected && !draftsReady}>{connected ? <Icon.Nib /> : <Icon.Letter />}<span>{connected ? 'Write' : 'Invite'}</span></button><button className={view === 'Drafts' ? 'selected' : ''} onClick={() => setView('Drafts')} disabled={!connected}><Icon.Archive /><span>Drafts</span></button><button className={view === 'Settings' ? 'selected' : ''} onClick={() => setView('Settings')}><Icon.Gear /><span>Settings</span></button></nav>
+    <IOSTabBar className="mobile-nav" data-active-index={activeTab} items={mobileTabs} value={view} label="App navigation" onValueChange={next => {
+      if (next === 'Write') { if (connected) compose(); else void shareInvite(); return }
+      setView(next as View); setFilter('All letters'); setSearch('')
+    }} />
     {writing && <Suspense fallback={<div className="workspace-overlay ritual-loading" role="status">Preparing your paper…</div>}><Composer initial={writing} recipient={theirName} sender={myName} demo={demo} onSave={persistDraft} onSend={deliver} onClose={() => setWriting(null)} onSent={() => { setWriting(null); setView('Letters'); setFilter('Sent'); setNotice(demo ? 'Sample letter sent. It is now in your shared letters.' : deliveryNotice.current || `Your letter is safely in ${theirName}’s letterbox.`); deliveryNotice.current = '' }} /></Suspense>}
     {reading && <Suspense fallback={<div className="workspace-overlay ritual-loading" role="status">Bringing your letter closer…</div>}><Reader memory={reading} sender={sender(reading)} demo={demo} sampleBody={sampleBodies[reading.id]} kept={kept.includes(reading.id)} onKeep={() => toggleKept(reading.id)} onClose={readerClose} onOpened={() => { if (demo) setSamples(items => items.map(m => m.id === reading.id ? { ...m, viewedAt: Timestamp.now() } : m)) }} onReply={() => { readerClose(); compose() }} /></Suspense>}
     {notice && <div className="notice" role="status">{notice}<button onClick={() => setNotice('')} aria-label="Dismiss message">×</button></div>}

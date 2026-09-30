@@ -28,8 +28,9 @@ export default defineConfig({
       manifest: {
         name: 'Letters',
         short_name: 'Letters',
+        id: '/',
         description: 'A little closer, always. Private letters for the two of you.',
-        start_url: '/',
+        start_url: '/?source=pwa',
         scope: '/',
         display: 'standalone',
         orientation: 'portrait',

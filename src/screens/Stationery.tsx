@@ -57,8 +57,7 @@ function usePageFocus(onClose: () => void) {
       if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
     }
     document.addEventListener('keydown', handler)
-    const old = document.body.style.overflow; document.body.style.overflow = 'hidden'
-    return () => { document.removeEventListener('keydown', handler); document.body.style.overflow = old; previous?.focus() }
+    return () => { document.removeEventListener('keydown', handler); previous?.focus() }
   }, [])
   return root
 }
@@ -136,7 +135,7 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
   const [detailSelection, setDetailSelection] = useState<DetailAssetName[]>([])
   const [sheetExpanded, setSheetExpanded] = useState(false)
 
-  const root = usePageFocus(() => void close())
+  const root = usePageFocus(() => void back())
   const panel = useRef<HTMLElement>(null)
   const upload = useRef<HTMLInputElement>(null)
   const currentDraft = useRef(draft); currentDraft.current = draft
@@ -216,6 +215,14 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
     if (busy) { setError('Finish the current action before closing your letter.'); return }
     if (JSON.stringify(currentDraft.current) !== lastSaved.current) await persist(currentDraft.current)
     onClose()
+  }
+
+  async function back() {
+    if (busy) { setError('Finish the current action before going back.'); return }
+    if (phase === 'seal') { setPhase('preview'); return }
+    if (phase === 'preview') { setPhase('write'); return }
+    if (phase === 'sent') { onSent(); return }
+    await close()
   }
 
   function chooseTool(name: NonNullable<typeof tool>) {
@@ -353,7 +360,7 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
   return (
     <div className={`workspace-overlay composer-v2${tool ? ' has-inspector' : ''}`} ref={root} tabIndex={-1} role="dialog" aria-modal="true" aria-label="Write a letter">
       <header className="workspace-header compose-header">
-        <button className="back-button" aria-label="Back to your letters" onClick={() => void close()} disabled={busy}><Icon.Back /><span>Letters</span></button>
+        <button className="back-button" aria-label={phase === 'write' ? 'Back to your letters' : phase === 'preview' ? 'Back to writing' : phase === 'seal' ? 'Back to preview' : 'Back to your letters'} onClick={() => void back()} disabled={busy}><Icon.Back /><span>{phase === 'write' || phase === 'sent' ? 'Letters' : phase === 'preview' ? 'Writing' : 'Preview'}</span></button>
         <div className="workspace-title-wrap"><span className="workspace-title">{phase === 'write' ? 'A quiet letter' : phase === 'preview' ? 'One last look' : phase === 'seal' ? 'Ready to seal' : 'A little closer'}</span><span className={`save-status is-${saveState}`} role="status">{saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved' : saveState === 'error' ? 'Not saved' : 'Unsaved'}</span></div>
         <div className="compose-actions">
           {phase === 'write' && <><button className="icon-action" onClick={undo} disabled={!past.current.length} aria-label="Undo"><Icon.Undo /></button><button className="icon-action" onClick={redo} disabled={!future.current.length} aria-label="Redo"><Icon.Redo /></button><button className="primary" onClick={preview} disabled={busy}>Preview <span>→</span></button></>}
@@ -429,9 +436,11 @@ export function Composer({ initial, sender, recipient, demo, onSave, onSend, onC
             <DetailsAsset name="roseTeaCup" className="sealing-teacup" />
             <span className="little-label">THE LAST LITTLE RITUAL</span><h1>Tuck it in with care.</h1><p>From {sender}, held safely for {recipient}.</p>
             <div className="seal-ritual-art"><EnvelopeSealed envelopeId={draft.envelope} state="open" className="seal-envelope" /><div className="seal-paper-peek"><span>{draft.title || 'Just for you'}</span><small>{draft.pages.length} {draft.pages.length === 1 ? 'sheet' : 'sheets'}</small></div></div>
-            <div className="delivery-card"><label className="delivery-label"><span>When can they open it?</span><input type="datetime-local" value={draft.unlockAt} onChange={event => commit({ unlockAt: event.target.value }, 'unlock')} /></label><p>{draft.unlockAt ? 'Until then, the envelope stays quietly sealed.' : 'Leave this empty and it arrives ready to open.'}</p></div>
-            <HapticButton className="primary send-ritual" label={demo ? 'Send sample letter' : 'Send this letter'} onPress={() => void send()} disabled={busy}>{busy ? 'Sending your letter…' : demo ? 'Send sample letter ↗' : 'Seal & send with love ↗'}</HapticButton>
-            {demo && <small>Preview only. This won't be sent to anyone.</small>}
+            <div className="delivery-actions">
+              <div className="delivery-card"><label className="delivery-label"><span>When can they open it?</span><input type="datetime-local" value={draft.unlockAt} onChange={event => commit({ unlockAt: event.target.value }, 'unlock')} /></label><p>{draft.unlockAt ? 'Until then, the envelope stays quietly sealed.' : 'Leave this empty and it arrives ready to open.'}</p></div>
+              <HapticButton className="primary send-ritual" label={demo ? 'Send sample letter' : 'Send this letter'} onPress={() => void send()} disabled={busy}>{busy ? 'Sending your letter…' : demo ? 'Send sample letter ↗' : 'Seal & send with love ↗'}</HapticButton>
+              {demo && <small>Preview only. This won't be sent to anyone.</small>}
+            </div>
           </motion.section>
         ) : <motion.section key="sent" className="sent-stage" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><DetailsAsset name="strawberryRibbon" className="sent-flourish" /><span className="sent-heart">♡</span><h1>Off it goes, softly.</h1><p>{demo ? 'Your sample letter is resting in the shared correspondence.' : `Your letter is on its way to ${recipient}.`}</p><button className="primary" onClick={onSent}>See all letters →</button></motion.section>}
       </AnimatePresence>

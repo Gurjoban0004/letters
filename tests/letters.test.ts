@@ -43,9 +43,10 @@ const dreamyRoundTrip = decodeLetter(JSON.stringify({ ...roundTrip, style: 'drea
 const classicRoundTrip = decodeLetter(JSON.stringify({ ...roundTrip, style: 'classic' }))
 assert.equal(dreamyRoundTrip.version === 2 ? dreamyRoundTrip.style : '', 'dreamy')
 assert.equal(classicRoundTrip.version === 2 ? classicRoundTrip.style : '', 'classic')
-assert.equal(stationery.length, 10, 'the expanded paper collection is registered')
-assert.equal(envelopes.length, 9, 'the expanded envelope collection is registered')
+assert.equal(stationery.length, 12, 'the expanded paper collection is registered')
+assert.equal(envelopes.length, 11, 'the expanded envelope collection is registered')
 assert.equal(getStationery('paper_6').profile.defaultStyle, 'dreamy')
+assert.equal(getStationery('paper_11').name, 'Pink Cloud Peonies')
 
 const profile = getStationery('paper_1').profile
 const largePaste = Array.from({ length: 900 }, (_, index) => `word${index}`).join(' ')

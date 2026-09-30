@@ -234,7 +234,7 @@ export function LetterReader({ memory, onClose }: { memory: Memory; onClose: () 
           {phase !== 'open' ? (
             <motion.div key="envelope" className="col center gap-lg grow"
               exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.35 } }}
-              style={{ justifyContent: 'center', minHeight: '58vh' }}>
+              style={{ justifyContent: 'center', flex: '1 1 auto', minHeight: 0 }}>
 
               <motion.button
                 onClick={crack} disabled={sealedByTime}

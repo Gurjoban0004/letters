@@ -62,6 +62,11 @@ function retryable(code?: string) {
     code === 'messaging/unknown-error'
 }
 
+function pushTitle(name?: string) {
+  const first = (name ?? '').trim().split(/\s+/u)[0]?.slice(0, 7) || 'Someone'
+  return `${first} wrote to you`
+}
+
 function classify(response: BatchResponse, tokens: string[]) {
   const dead: string[] = []
   const retry: string[] = []
@@ -158,9 +163,9 @@ export default async function handler(req: Request, res: Response) {
 
       const profile = pairingData?.profiles?.[decoded.uid] as { name?: string } | undefined
       const result = await sendWithRetry(tokens, {
-        title: `A little letter from ${profile?.name ?? 'Your person'}`,
-        body: 'It’s waiting quietly in your letterbox.',
-        tag: `memory-${memoryId}`,
+        title: pushTitle(profile?.name),
+        body: 'A little letter is waiting quietly in your letterbox, whenever you have a moment.',
+        tag: 'letters-inbox',
         url: `/?open=${encodeURIComponent(memoryId)}`,
       })
 

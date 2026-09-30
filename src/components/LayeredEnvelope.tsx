@@ -109,8 +109,8 @@ export function LayeredEnvelope({
             top: currentTop,
             scale: unfolded ? 1.05 : dragDelta > 0 ? 1 + dragDelta / 2000 : 1,
             clipPath: unfolded
-              ? 'inset(-100vh -100vw 0% -100vw)'
-              : `inset(-100vh -100vw ${tuckedClip} -100vw)`,
+              ? 'inset(-10000px -10000px 0% -10000px)'
+              : `inset(-10000px -10000px ${tuckedClip} -10000px)`,
           }}
           transition={dragDelta > 0 ? { duration: 0 } : { duration: 0.68, ease: [0.16, 1, 0.3, 1] }}
           style={{ left: '50%', width: `${envelope.defaultScale * 100}%`, aspectRatio: paper.aspect, x: '-50%', touchAction: 'none' }}

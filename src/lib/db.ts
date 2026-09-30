@@ -88,11 +88,13 @@ export function isSealed(m: Memory, now = Date.now()) {
 
 export async function sendLetter(opts: {
   senderId: string; title: string; body: string
-  paper: string; envelope?: string; unlockAt: Date | null; pairingId?: string
+  paper: string; envelope?: string; unlockAt: Date | null; pairingId?: string; clientMessageId?: string
 }) {
   const pairingId = opts.pairingId ?? PAIRING_ID
   const unlock = opts.unlockAt ? Timestamp.fromDate(opts.unlockAt) : null
-  const memory = doc(memoriesCol())
+  const memory = opts.clientMessageId && /^[A-Za-z0-9_-]{16,80}$/.test(opts.clientMessageId)
+    ? doc(memoriesCol(), opts.clientMessageId)
+    : doc(memoriesCol())
   const batch = writeBatch(db)
   batch.set(memory, {
     pairingId,

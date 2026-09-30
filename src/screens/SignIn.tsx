@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useSession, type Edition } from '../lib/session'
 import { play } from '../lib/sound'
+import { firstName } from '../lib/names'
 import { Icon } from '../components/ui'
 
 const EDITIONS: { id: Edition; name: string; note: string; ink: string; paper: string }[] = [
@@ -39,7 +40,7 @@ export default function SignIn() {
     e.preventDefault()
     if (!name.trim()) return
     setBusy(true)
-    try { await claimSlot(name.trim(), edition); play('stamp') }
+    try { await claimSlot(firstName(name), edition); play('stamp') }
     catch (err) { setError(readableError(err)) }
     finally { setBusy(false) }
   }
@@ -106,8 +107,8 @@ export default function SignIn() {
             >
               <label className="col gap-xs">
                 <span className="kicker">Your byline</span>
-                <input className="field" required maxLength={24} value={name} autoFocus
-                  onChange={(e) => setName(e.target.value)} placeholder="what your friend calls you" />
+                <input className="field" required maxLength={18} value={name} autoFocus autoComplete="given-name"
+                  onChange={(e) => setName(firstName(e.target.value))} placeholder="what your friend calls you" />
               </label>
 
               <div className="col gap-sm">

@@ -11,6 +11,15 @@ setGlobalOptions({ region: 'us-central1', maxInstances: 3 })
 
 const db = getFirestore()
 
+function firstName(value?: string, maxLength = 18) {
+  const first = (value ?? '').trim().split(/\s+/u)[0] ?? ''
+  return first.slice(0, maxLength)
+}
+
+function pushTitle(value?: string) {
+  return `${firstName(value, 7) || 'Someone'} wrote to you`
+}
+
 /* ------------------------------------------------------------------ */
 /* Push                                                                */
 /* ------------------------------------------------------------------ */
@@ -64,7 +73,7 @@ async function pairingFacts(pairingId: string, actor: string) {
   const profiles = (data.profiles ?? {}) as Record<string, { name?: string }>
   return {
     recipient: members.find((m) => m !== actor) ?? null,
-    name: profiles[actor]?.name ?? 'Your friend',
+    name: firstName(profiles[actor]?.name) || 'Someone',
   }
 }
 
@@ -81,20 +90,20 @@ export const onMemoryCreated = onDocumentCreated('memories/{memoryId}', async (e
 
   const sealed = m.unlockAt ? m.unlockAt.toDate() : null
 
-  const copy: Record<string, { title: string; body: string }> = {
+  const copy: Record<string, { body: string }> = {
     letter: sealed
-      ? { title: `A sealed letter from ${name}`, body: `It will be ready for you on ${sealed.toLocaleDateString()}.` }
-      : { title: `A little letter from ${name}`, body: 'It’s waiting quietly in your letterbox.' },
-    doodle: { title: 'A new illustration', body: `${name} drew you something.` },
-    snap: { title: 'Something brief', body: `${name} sent a view-once snap. It won't wait forever.` },
-    scrapbook: { title: 'A photograph', body: `${name} filed a picture in the archive.` },
-    classified: { title: 'A small ad appeared', body: `${name}: ${String(m.caption ?? '').slice(0, 90)}` },
+      ? { body: `A sealed letter is waiting for you. It will be ready on ${sealed.toLocaleDateString()}.` }
+      : { body: 'A little letter is waiting quietly in your letterbox, whenever you have a moment.' },
+    doodle: { body: 'They drew you a little something to keep.' },
+    snap: { body: 'A view-once moment is waiting for you. Open it when you’re ready.' },
+    scrapbook: { body: 'A new photograph has been tucked into your shared keepsakes.' },
+    classified: { body: `A new little note appeared: ${String(m.caption ?? '').slice(0, 90)}` },
   }
 
   const chosen = copy[m.type as string]
   if (!chosen) return
 
-  await notify(to, { ...chosen, tag: `memory-${event.params.memoryId}`, url: `/?open=${encodeURIComponent(event.params.memoryId)}` })
+  await notify(to, { title: pushTitle(name), ...chosen, tag: 'letters-inbox', url: `/?open=${encodeURIComponent(event.params.memoryId)}` })
 })
 
 /* ------------------------------------------------------------------ */
@@ -105,14 +114,10 @@ export const onAlertCreated = onDocumentCreated('alerts/{alertId}', async (event
   const a = event.data?.data()
   if (!a) return
 
-  const { recipient: to } = await pairingFacts(String(a.pairingId ?? ''), String(a.from ?? ''))
+  const { recipient: to, name } = await pairingFacts(String(a.pairingId ?? ''), String(a.from ?? ''))
   if (!to) return
 
-  const title = a.type === 'screenshot' ? 'Stop press'
-    : a.type === 'pulse' ? 'A signal'
-    : 'A notice'
-
-  await notify(to, { title, body: String(a.message ?? ''), tag: `alert-${a.type}` })
+  await notify(to, { title: pushTitle(name), body: String(a.message ?? ''), tag: 'letters-alert' })
 })
 
 /* ------------------------------------------------------------------ */
