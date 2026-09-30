@@ -166,11 +166,10 @@ export default function Letters({ demo, onExitDemo }: { demo: boolean; onExitDem
   const readerClose = () => setReading(null)
   const mobileTabs: IOSTabBarItem[] = [
     { id: 'Letters', label: 'Letters', icon: <span className="tab-icon-wrap"><Icon.Letter />{unread > 0 && <b className="tab-badge">{Math.min(unread, 9)}</b>}</span> },
-    { id: 'Write', label: connected ? 'Write' : 'Invite', icon: connected ? <Icon.Nib /> : <Icon.Letter />, disabled: connected && !draftsReady },
     { id: 'Drafts', label: 'Drafts', icon: <span className="tab-icon-wrap"><Icon.Archive />{drafts.length > 0 && <b className="tab-badge">{Math.min(drafts.length, 9)}</b>}</span>, disabled: !connected },
     { id: 'Settings', label: 'Settings', icon: <Icon.Gear /> },
   ]
-  const activeTab = view === 'Letters' ? 0 : view === 'Drafts' ? 2 : 3
+  const activeTab = view === 'Letters' ? 0 : view === 'Drafts' ? 1 : 2
   return <div className="letters-app">
     <aside className="sidebar"><button className="brand" onClick={() => { setView('Letters'); setFilter('All letters') }}>letters<span>♡</span></button><div className="brand-caption">a little closer, always</div>
       <button className="primary compose-button" onClick={connected ? compose : () => void shareInvite()} disabled={connected && !draftsReady} aria-busy={connected && !draftsReady}>{connected ? <><Icon.Nib />{draftsReady ? 'Write a letter' : 'Preparing paper…'}</> : <><Icon.Letter />Invite your person</>}</button>
@@ -193,7 +192,6 @@ export default function Letters({ demo, onExitDemo }: { demo: boolean; onExitDem
     </main>}
     </div>
     <IOSTabBar className="mobile-nav" data-active-index={activeTab} items={mobileTabs} value={view} label="App navigation" onValueChange={next => {
-      if (next === 'Write') { if (connected) compose(); else void shareInvite(); return }
       setView(next as View); setFilter('All letters'); setSearch('')
     }} />
     {writing && <Suspense fallback={<div className="workspace-overlay ritual-loading" role="status">Preparing your paper…</div>}><Composer initial={writing} recipient={theirName} sender={myName} demo={demo} onSave={persistDraft} onSend={deliver} onClose={() => setWriting(null)} onSent={() => { setWriting(null); setView('Letters'); setFilter('Sent'); setNotice(demo ? 'Sample letter sent. It is now in your shared letters.' : deliveryNotice.current || `Your letter is safely in ${theirName}’s letterbox.`); deliveryNotice.current = '' }} /></Suspense>}
