@@ -25,39 +25,19 @@ Gate: the current Letters screen must remain readable and functional at iPhone w
 
 ## Phase 0 — lock the contracts
 
+Phase status: approved on September 30, 2026 — the implementation gate has passed.
+
 Create and approve these documents before bouquet runtime code:
 
-- [ ] `BOUQUET_SPEC.md`: Home, Flowers, Arrange, Decorate, Message, Send, Receive, and My Bouquets screens.
-- [ ] `BOUQUET_ASSET_MANIFEST.md`: every flower, greenery, wrapping, ribbon, envelope, note, and background asset.
-- [ ] `BOUQUET_DATA_MODEL.md`: versioned draft, published bouquet, share record, and migration rules.
-- [ ] Confirm navigation: `/bloom`, `/bloom/create/*`, `/bloom/mine`, and recipient route `/b/:shareId`.
-- [ ] Confirm access: owners edit; the paired recipient can keep; public share links expose only a sanitized published payload through a high-entropy token.
-- [ ] Confirm product decisions: bouquets are standalone keepsakes beside Letters, and received bouquets are view-only.
+- [x] `BOUQUET_SPEC.md`: Home, Flowers, Arrange, Decorate, Message, Send, Receive, and My Bouquets screens.
+- [x] `BOUQUET_ASSET_MANIFEST.md`: every flower, greenery, wrapping, ribbon, envelope, note, and background asset.
+- [x] `BOUQUET_DATA_MODEL.md`: versioned draft, published bouquet, share record, and migration rules.
+- [x] Define navigation: `/bloom`, `/bloom/create/*`, `/bloom/mine`, and recipient route `/b/:shareId`.
+- [x] Define access: owners edit; the paired recipient can keep; public share links expose only a sanitized published payload through a high-entropy token.
+- [x] Define product decisions: bouquets are standalone keepsakes beside Letters, and received bouquets are view-only.
+- [x] User approves the three contracts and closes the Phase 0 gate.
 
-Proposed composition contract:
-
-```ts
-type BouquetDraftV1 = {
-  version: 1
-  id: string
-  ownerId: string
-  items: Array<{
-    id: string
-    assetId: string
-    x: number
-    y: number
-    scale: number
-    rotation: number
-    flipX: boolean
-    z: number
-  }>
-  wrapId: string | null
-  ribbonId: string | null
-  note: { to: string; body: string; from: string }
-  status: 'draft' | 'sent'
-  updatedAt: number
-}
-```
+The authoritative composition, persistence, and access contract now lives in `BOUQUET_DATA_MODEL.md`; this checklist intentionally does not duplicate the schema.
 
 Gate: all contracts are reviewed and approved before dependencies, routes, storage collections, or UI are added.
 
@@ -152,4 +132,3 @@ Gate: the complete device checklist passes without lost drafts, blocked controls
 - [ ] Keep push notifications, seasonal packs, public Explore, and extra flower variants on the post-v1 backlog.
 
 Gate: production passes the same end-to-end iPhone send/receive test as Phase 5, with security rules verified.
-
