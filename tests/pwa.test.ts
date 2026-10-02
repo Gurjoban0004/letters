@@ -7,6 +7,7 @@ const worker = readFileSync(new URL('src/sw.ts', root), 'utf8')
 const app = readFileSync(new URL('src/App.tsx', root), 'utf8')
 const firebase = readFileSync(new URL('src/lib/firebase.ts', root), 'utf8')
 const session = readFileSync(new URL('src/lib/session.tsx', root), 'utf8')
+const vercel = readFileSync(new URL('vercel.json', root), 'utf8')
 
 function expect(condition: unknown, message: string) {
   if (!condition) throw new Error(message)
@@ -25,6 +26,8 @@ expect(worker.includes('clientsClaim()'), 'An activated update must immediately 
 expect(app.includes('(loading || sessionIssue) && !demo') && app.includes('<UpdateNotice update={applyUpdate} />'), 'The one-tap update action must remain available while startup is loading or recovering.')
 expect(app.includes('Bouquet bundle timed out') && app.includes('BouquetErrorBoundary'), 'Bloom must recover from stale or missing lazy chunks.')
 expect(firebase.includes('indexedDBLocalPersistence') && firebase.includes('browserLocalPersistence') && firebase.includes('browserSessionPersistence'), 'Auth must use durable iOS-safe persistence fallbacks.')
+expect(firebase.includes("isStandaloneApp() ? location.host") && session.includes('signInWithRedirect') && session.includes('getRedirectResult') && session.includes('redirectReady'), 'The installed iOS PWA must complete same-origin redirect auth before deciding the user is signed out.')
+expect(vercel.includes('/__/auth/:path*') && vercel.includes('codeclass-ed1b4.firebaseapp.com/__/auth/:path*'), 'Vercel must proxy Firebase auth helpers through the app origin.')
 expect(session.includes('sessionIssue') && session.includes('retrySession'), 'A dropped session listener must offer recovery instead of loading forever.')
 
 console.log('PASS: PWA manifest, update recovery, durable auth, offline shell, artwork cache, and bouquet push action')

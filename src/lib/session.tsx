@@ -3,13 +3,15 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  getRedirectResult,
   signInWithPopup,
+  signInWithRedirect,
   GoogleAuthProvider,
   signOut as fbSignOut,
   type User,
 } from 'firebase/auth'
 import { doc, getDoc, onSnapshot, setDoc, serverTimestamp, updateDoc, writeBatch } from 'firebase/firestore'
-import { auth, db, PAIRING_ID } from './firebase'
+import { auth, db, isStandaloneApp, PAIRING_ID } from './firebase'
 import { joinPairing } from './join'
 import { disablePush } from './push'
 import { firstName } from './names'
@@ -65,6 +67,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [pairing, setPairing] = useState<Pairing | null>(null)
   const [authReady, setAuthReady] = useState(false)
+  const [redirectReady, setRedirectReady] = useState(() => !isStandaloneApp())
   const [identityReady, setIdentityReady] = useState(false)
   const [pairingReady, setPairingReady] = useState(false)
   const [pairingId, setPairingId] = useState<string | null>(null)
@@ -79,6 +82,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const syncInvite = () => setInviteId(inviteIdFromLocation())
     addEventListener('popstate', syncInvite)
     return () => removeEventListener('popstate', syncInvite)
+  }, [])
+
+  useEffect(() => {
+    if (!isStandaloneApp()) return
+    let active = true
+    getRedirectResult(auth).then(async result => {
+      if (result) await result.user.getIdToken()
+    }).catch(error => {
+      console.warn('auth redirect could not complete:', (error as { code?: string }).code ?? (error as Error).message)
+      if (active) setSessionIssue('Your sign-in could not return to the app. Please try once more.')
+    }).finally(() => { if (active) setRedirectReady(true) })
+    return () => { active = false }
   }, [])
 
   useEffect(() => {
@@ -205,12 +220,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     user, pairing: displayPairing, me, partnerUid, partner, pairingId, inviteUrl, joiningInvite,
     invitation, invitationUnavailable, sessionIssue,
     dismissInvite, retrySession,
-    loading: !authReady || (!!user && (!identityReady || (!!pairingId && !pairingReady) || (joiningInvite && !invitationReady))),
+    loading: !redirectReady || !authReady || (!!user && (!identityReady || (!!pairingId && !pairingReady) || (joiningInvite && !invitationReady))),
     signIn: async (email, password) => { await signInWithEmailAndPassword(auth, email, password) },
     register: async (email, password) => { await createUserWithEmailAndPassword(auth, email, password) },
     signInWithGoogle: async () => {
       const provider = new GoogleAuthProvider()
       provider.setCustomParameters({ prompt: 'select_account' })
+      if (isStandaloneApp()) {
+        setRedirectReady(false)
+        try { await signInWithRedirect(auth, provider) }
+        catch (error) { setRedirectReady(true); throw error }
+        return
+      }
       const result = await signInWithPopup(auth, provider)
       await result.user.getIdToken()
     },

@@ -34,6 +34,14 @@
     { "source": "/api/join", "destination": "/api/join" },
     { "source": "/api/notify", "destination": "/api/notify" },
     {
+      "source": "/__/auth/:path*",
+      "destination": "https://codeclass-ed1b4.firebaseapp.com/__/auth/:path*"
+    },
+    {
+      "source": "/__/firebase/init.json",
+      "destination": "https://codeclass-ed1b4.firebaseapp.com/__/firebase/init.json"
+    },
+    {
       "source": "/((?!api/|__/|assets/|sw\\.js|manifest\\.webmanifest).*)",
       "destination": "/index.html"
     }

@@ -14,11 +14,19 @@ import { getStorage, connectStorageEmulator } from 'firebase/storage'
 
 const config = {
   apiKey: import.meta.env.VITE_FB_API_KEY,
-  authDomain: import.meta.env.VITE_FB_AUTH_DOMAIN,
+  // An installed iOS PWA needs the redirect helper to stay on the app's own
+  // origin. Vercel proxies /__/auth to Firebase in production (vercel.json).
+  // Browser tabs keep the existing Firebase domain and popup flow.
+  authDomain: import.meta.env.PROD && isStandaloneApp() ? location.host : import.meta.env.VITE_FB_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FB_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FB_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FB_MSG_SENDER_ID,
   appId: import.meta.env.VITE_FB_APP_ID,
+}
+
+export function isStandaloneApp() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+    (navigator as Navigator & { standalone?: boolean }).standalone === true
 }
 
 export const app = initializeApp(config)
