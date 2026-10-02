@@ -1,6 +1,9 @@
 /// <reference lib="webworker" />
 import { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
+import { CacheFirst } from 'workbox-strategies'
+import { ExpirationPlugin } from 'workbox-expiration'
+import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 import { initializeApp } from 'firebase/app'
 import { getMessaging, onBackgroundMessage } from 'firebase/messaging/sw'
 
@@ -13,6 +16,20 @@ precacheAndRoute(self.__WB_MANIFEST)
 registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html'), {
   denylist: [/^\/__/, /\/[^/?]+\.[^/]+$/],
 }))
+
+// Keep the install small, then retain only artwork the couple actually uses.
+// This gives browser and standalone PWA the same offline behavior without
+// downloading the entire stationery library up front.
+registerRoute(
+  ({ request, url }) => url.origin === self.location.origin && request.destination === 'image',
+  new CacheFirst({
+    cacheName: 'letters-artwork-v1',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 160, maxAgeSeconds: 60 * 60 * 24 * 30, purgeOnQuotaError: true }),
+    ],
+  }),
+)
 
 self.addEventListener('message', (e) => {
   if ((e.data as { type?: string })?.type === 'SKIP_WAITING') self.skipWaiting()
@@ -41,7 +58,7 @@ onBackgroundMessage(messaging, (payload) => {
     renotify: true,
     timestamp: Date.now(),
     vibrate: [45, 35, 75],
-    actions: [{ action: 'open', title: 'Open letter' }],
+    actions: [{ action: 'open', title: d.tag === 'letters-bouquet' ? 'Open bouquet' : 'Open letter' }],
     data: { url: d.url || '/' },
   }
   return self.registration.showNotification(d.title || 'Someone wrote to you', options)

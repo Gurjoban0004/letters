@@ -15,12 +15,9 @@ export default defineConfig({
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,webp,woff2,ttf}'],
         globIgnores: [
-          'stationery/env_*/*.png',
-          'stationery/paper_*/*.png',
-          'stationery/env_*/*_open.webp',
-          'stationery/env_*/*_open_front.webp',
-          'stationery/env_*/*_open_back*.webp',
-          'stationery/paper_*/paper_[1-5].webp',
+          // Stationery is cached on first use by the service worker. Preloading
+          // the full catalog made installation needlessly download tens of MB.
+          'stationery/**/*',
         ],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       },
@@ -40,6 +37,11 @@ export default defineConfig({
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: '/icons/icon-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+        shortcuts: [
+          { name: 'Open Letters', short_name: 'Letters', url: '/', icons: [{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }] },
+          { name: 'Open Bloom', short_name: 'Bloom', url: '/bloom', icons: [{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }] },
+          { name: 'Make a bouquet', short_name: 'New bouquet', url: '/bloom/create', icons: [{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }] },
         ],
       },
     }),

@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test": "node --experimental-strip-types tests/letters.test.ts && node --experimental-strip-types tests/push.test.ts && node --experimental-strip-types tests/join.test.ts",
+    "test": "node --experimental-strip-types tests/letters.test.ts && node --experimental-strip-types tests/push.test.ts && node --experimental-strip-types tests/join.test.ts && node --experimental-strip-types tests/bouquet-studio.test.ts && node --experimental-strip-types tests/pwa.test.ts",
+    "test:rules": "FIREBASE_CLI_DISABLE_UPDATE_CHECK=1 firebase emulators:exec --only firestore \"node --experimental-strip-types tests/bouquet-rules.test.ts\"",
+    "test:release": "npm test && npm run test:rules && npm run build",
     "preview": "vite preview --host",
     "typecheck:api": "tsc -p tsconfig.api.json",
     "deploy": "npm run build && firebase deploy --only hosting,firestore"
@@ -24,6 +26,7 @@
     "workbox-window": "^7.4.1"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
     "@types/node": "^26.6.3",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",

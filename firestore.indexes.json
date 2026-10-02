@@ -7,6 +7,14 @@
         { "fieldPath": "pairingId", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "bouquets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "pairingId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

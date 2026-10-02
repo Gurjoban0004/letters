@@ -175,7 +175,7 @@ function Corrections({ a, b, onDismiss }: { a?: string; b?: string; onDismiss: (
       initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       style={{ overflow: 'hidden', marginBottom: '1.6rem' }}>
-      <div className="clipping" style={{ padding: '1.1rem 1.15rem', borderLeft: '3px solid var(--accent)' }}>
+      <div className="clipping" style={{ padding: '1.1rem 1.15rem', border: '1px solid var(--rule)', borderRadius: '1rem' }}>
         <div className="row between" style={{ alignItems: 'baseline' }}>
           <span className="kicker">Corrections &amp; clarifications</span>
           <button className="btn-ghost" onClick={onDismiss} style={{ padding: '0.2rem' }} aria-label="Dismiss"><Icon.Close /></button>
