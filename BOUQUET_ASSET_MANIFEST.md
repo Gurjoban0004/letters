@@ -1,6 +1,6 @@
 # Digital Bouquet — asset manifest and style bible
 
-Status: Phase 0 contract, ready for approval. No production bouquet assets have been created yet.
+Status: Phase 2 implementation complete. The approved rose, tulip, and daisy pilots anchor a complete 12-flower and five-greenery watercolor family, a registered four-color wrap/ribbon system, and the full recipient-experience artwork set.
 
 ## 1. Shared botanical style bible
 
@@ -54,13 +54,19 @@ Anchor coordinates are normalized from 0 to 1 and identify the stem base where w
 | ID | Display name | Role | Relative height | Pilot | Popular |
 | --- | --- | --- | ---: | --- | --- |
 | `flower_rose_blush` | Rose | focal | 1.00 | yes | yes |
+| `flower_rose_ivory` | Ivory Rose | focal | 1.00 | no | yes |
+| `flower_rose_crimson` | Crimson Rose | focal | 1.00 | no | yes |
 | `flower_peony_pink` | Peony | focal | 0.96 | no | yes |
+| `flower_peony_coral` | Coral Peony | focal | 0.96 | no | yes |
 | `flower_tulip_rose` | Tulip | line | 1.02 | yes | yes |
+| `flower_tulip_lavender` | Lavender Tulip | line | 1.02 | no | yes |
 | `flower_daisy_cream` | Daisy | accent | 0.88 | yes | yes |
 | `flower_sunflower_butter` | Sunflower | focal | 1.08 | no | yes |
 | `flower_lily_blush` | Lily | focal | 1.10 | no | no |
 | `flower_dahlia_rose` | Dahlia | focal | 0.94 | no | no |
 | `flower_hydrangea_lilac` | Hydrangea | volume | 0.90 | no | no |
+| `flower_hydrangea_blue` | Blue Hydrangea | volume | 0.90 | no | no |
+| `flower_anemone_ivory` | Ivory Anemone | accent | 1.00 | no | no |
 | `flower_ranunculus_peach` | Ranunculus | accent | 0.92 | no | no |
 | `flower_cosmos_pink` | Cosmos | accent | 1.00 | no | no |
 | `flower_lavender` | Lavender | line/filler | 1.12 | no | yes |
@@ -145,3 +151,20 @@ Do not manufacture hero or botanical illustrations from CSS shapes or decorative
 
 Phase 2 cannot pass while any required asset lacks a valid manifest entry or QA result.
 
+## 9. Phase 2 production record
+
+The exact built-in generation prompts are recorded in `BOUQUET_ASSET_PROMPTS.md`. Normalized runtime metadata for all 23 botanicals, the registered wrap/ribbon variants, and the seven experience assets lives in `src/bouquet/assets/manifest.json`. `scripts/process_bouquet_asset.py` is the repeatable botanical alpha validation, trim, registration, resize, WebP, thumbnail, and budget step; `scripts/process_bouquet_support_asset.py` creates the aligned wrap plates and ribbon recolors; `scripts/process_bouquet_experience_assets.py` normalizes reveal artwork and composes the hero and corner directly from the approved botanical family.
+
+| Asset | Full export | Thumbnail | Anchor | QA |
+| --- | ---: | ---: | --- | --- |
+| Rose | 99,068 B · 768×1024 | 8,224 B · 192×192 | 0.50, 0.94 | Alpha, crop, scale, and budget pass |
+| Tulip | 69,756 B · 768×1024 | 7,100 B · 192×192 | 0.50, 0.94 | Alpha, crop, scale, and budget pass |
+| Daisy | 112,438 B · 768×1024 | 9,524 B · 192×192 | 0.50, 0.94 | Alpha, crop, scale, and budget pass |
+
+The approved catalog now contains 18 flowers and five greenery pieces. Every full export uses a 768×1024 transparent registration canvas with a shared stem anchor at 0.50, 0.94; every full asset is below 150 KB and every 192×192 thumbnail is below 15 KB. Baby’s Breath uses a 0.78 default scale to retain its airy filler role and meet the edge-heavy watercolor budget without changing its shared canvas.
+
+The wrap system now has four registered back/front plate pairs (blush, parchment, lavender, and sage), and the ribbon system has four color variants (rose, peach, lavender, and sage). The studio renderer sandwiches stems between the wrap plates and places the bow above the closure.
+
+The recipient-experience set contains closed and open envelopes, an isolated heart seal, blank note paper, a composed hero bouquet, a composed botanical corner, and a soft opaque paper texture. Transparent assets were validated for real alpha and every output is recorded with dimensions, byte size, and provenance in the JSON manifest.
+
+Open gate: review the complete set together in the private kitchen sink and approve Phase 2 before beginning the interactive builder core.

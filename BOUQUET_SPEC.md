@@ -1,6 +1,6 @@
 # Digital Bouquet — product and experience specification
 
-Status: Phase 0 contract, ready for approval.
+Status: Phase 0 contract, approved and revised on October 1, 2026 for the unified studio architecture.
 
 Visual authority: `bouquet.png`, extended through the established tactile, private, blush-paper world of Letters.
 
@@ -15,10 +15,11 @@ The product-specific truth is the same as Letters: one person makes something sl
 - Bouquets are standalone keepsakes beside Letters, not attachments inside a letter.
 - Existing private pairings remain the primary relationship and default destination.
 - A received bouquet is view-only. The recipient can keep and revisit it but cannot alter the original.
-- Public share links are optional, read-only, revocable, and expose a sanitized published payload through a server endpoint.
+- Bouquets stay inside the existing private two-person pairing. There are no public links or external share actions in v1.
 - There is no public Explore gallery in v1. Curated starter bouquets provide inspiration without moderation or privacy scope.
-- Drafts remain editable JSON. Preview images are derived artifacts and never replace composition data.
-- The bouquet reference establishes the visual hierarchy, flower catalog, five-step flow, wrapping, note, send state, and cinematic receive state.
+- Drafts remain editable JSON, and sent bouquets keep an immutable composition snapshot rendered by the same in-app artwork system.
+- The bouquet reference establishes the visual hierarchy, flower catalog, unified studio, wrapping, note, send state, and cinematic receive state.
+- Bouquet creation is one persistent workspace. Progress may change what the tray emphasizes, but it must never navigate through five separate builder pages or remount the bouquet canvas.
 
 ## 3. Navigation and routes
 
@@ -27,13 +28,9 @@ The current application has no route library. Phase 1 should introduce the small
 | Route | Surface | Purpose |
 | --- | --- | --- |
 | `/bloom` | Bouquet home | Start a bouquet, resume a draft, or open My Bouquets |
-| `/bloom/create/flowers` | Step 1 | Choose flowers and greenery |
-| `/bloom/create/arrange` | Step 2 | Position, size, rotate, and layer stems |
-| `/bloom/create/decorate` | Step 3 | Choose wrapping and ribbon |
-| `/bloom/create/message` | Step 4 | Write the accompanying note |
-| `/bloom/create/send` | Step 5 | Review, select destination, and send/share |
+| `/bloom/create` | Unified bouquet studio | Choose, arrange, decorate, write, review, and send without leaving the canvas |
 | `/bloom/mine` | My Bouquets | Reopen drafts and revisit sent bouquets |
-| `/b/:shareId` | Recipient reveal | Open a published bouquet from a private share link |
+| `/bloom/bouquet/:bouquetId` | Recipient reveal | Open a bouquet from the shared in-app garden |
 
 Mobile bouquet navigation follows the reference: Home / Create / Bouquets. This navigation belongs only to the bouquet area; it must not replace the existing Letters / Drafts / Settings control.
 
@@ -47,13 +44,27 @@ States:
 
 - first visit with no drafts;
 - returning visit with a draft;
-- signed-out public visitor, who may view a shared bouquet but cannot create until signed in;
+- signed-out visitor, who returns to the existing Letters sign-in flow;
 - offline with a local draft available;
 - offline without a cached shell.
 
-### Step 1 — Flowers
+### Unified bouquet studio
 
-The sender chooses from Flowers, Greenery, Popular, and Filler categories. Desktop uses a left catalog with a compact “Your Bouquet” list. Mobile uses a bottom sheet that preserves the full bouquet canvas above it.
+The builder is one immersive, viewport-locked workspace. Its stable reading order is header, bouquet canvas, docked tool tray, then the bouquet-area bottom navigation. The bouquet remains mounted and visually dominant while the sender chooses, arranges, decorates, writes, reviews, and sends.
+
+The header contains a back action, a truly centered “Your Bouquet” title, and a compact `n / 5` progress counter. The counter communicates overall completion inside the same workspace; it is not a page number and never maps to a separate route.
+
+The docked tray overlaps the canvas and contains:
+
+- Flowers / Greenery / Decor / Wrapping tool tabs;
+- one horizontally scrolling row of compact assets;
+- one full-width Continue action.
+
+Continue advances the studio’s completion state or brings the next incomplete requirement into the tray. It may replace the tray body with the note or review controls, but the header, canvas, selection, and bottom navigation stay spatially fixed.
+
+Expanding the tray dims only the canvas region. A bounded sheet rises above the persistent bottom navigation with a drag handle, current tool title, close action, the same tool tabs, and a four-column vertically scrolling asset grid. Closing it restores the docked tray without changing the bouquet or scroll position.
+
+The sender chooses from Flowers, Greenery, Decor, and Wrapping categories. Popular and Filler remain asset metadata or secondary filters inside Flowers rather than top-level studio modes.
 
 Rules:
 
@@ -65,21 +76,21 @@ Rules:
 
 States: loading thumbnails, failed asset, no search results, selected, disabled at item limit, and restored local draft.
 
-### Step 2 — Arrange
+### Arrangement behavior
 
-The canvas is the dominant surface. A selected stem exposes drag, rotate, resize, delete, move forward, and move backward actions. Undo and redo remain available throughout the builder.
+The canvas is the dominant surface. A selected stem exposes drag, rotate, resize, delete, move forward, and move backward actions. Undo and redo remain available throughout the builder. A persistent thumbnail strip provides a guaranteed selection path for every stem, including flowers hidden by overlapping blooms. The sender may rebalance the same stems into Classic, Meadow, or Garden silhouettes without leaving the studio.
 
-Desktop uses the reference three-part composition: catalog/list, canvas, selection inspector. Mobile uses floating undo/delete controls plus a compact action strip. Touching an item manipulates the item; it does not scroll the page. A non-gesture control must exist for every transform.
+Desktop may widen the tray or selection controls, but it keeps the same persistent studio and single `/bloom/create` route. Mobile uses floating undo/delete controls over the canvas. Touching an item manipulates the item; it does not scroll the page. A non-gesture control must exist for every transform.
 
-### Step 3 — Decorate
+### Decoration and wrapping
 
 The sender chooses one wrapping style and one ribbon. Wrapping renders in two layers: a back layer behind the stems and a front layer above the stem bases. This overlap is mandatory because it is what makes the result read as a bouquet rather than a sticker collage.
 
-The initial catalog contains four wrap colors and four matching ribbon colors from the reference. None is selected until the sender enters this step; the recommended blush pairing is visibly suggested.
+The initial catalog contains four wrap colors and four matching ribbon colors from the reference. The recommended blush pairing is visibly suggested without forcing the sender out of the canvas.
 
-### Step 4 — Message
+### Message tray
 
-The note uses the reference’s paper-card presentation with three fields:
+Continue can bring the note into the same docked/expanded tray. The note uses the reference’s paper-card presentation with three fields:
 
 - To: 1–60 characters;
 - Message: 1–500 characters;
@@ -87,9 +98,9 @@ The note uses the reference’s paper-card presentation with three fields:
 
 The paired recipient and sender names prefill when available but remain editable for the published note. Validation must preserve the draft and move focus to the first invalid field. Keyboard opening must not hide the focused field or Continue action.
 
-### Step 5 — Send
+### Review and send tray
 
-The final review uses the same renderer and geometry as the editor. It shows bouquet, wrapping, ribbon, note, recipient, and a single Send Bouquet action. Copy Link and Web Share appear only after publication succeeds.
+The final review remains inside the persistent studio and uses the same renderer and geometry as the editor. It shows bouquet, wrapping, ribbon, note, recipient, and a single Send Bouquet action. A successful send places the bouquet in the pair's private Sent and Received collections.
 
 Sending is explicit and idempotent. While publishing, controls are disabled and progress copy explains the active step. A retry must reuse the same client publication ID so a network interruption cannot create duplicates.
 
@@ -101,30 +112,29 @@ After reveal, the recipient can:
 
 - read the full note;
 - view the full bouquet;
-- keep it in the paired account when signed in;
-- revisit the same link;
-- copy or share the link when the sender allowed public sharing.
+- keep it in the paired account;
+- revisit it from My Bouquets.
 
-Invalid, revoked, unavailable, and expired links receive distinct recovery copy and never reveal recipient or sender identity from a failed lookup.
+Missing bouquets and bouquets outside the current pairing receive generic unavailable copy and never reveal recipient or sender identity.
 
 ### My Bouquets
 
-Three quiet groups: Drafts, Sent, and Kept. Draft actions are Continue, Duplicate, Rename, and Delete. Sent bouquets are immutable; actions are View, Duplicate as Draft, Copy Link when active, and Revoke Link. Kept bouquets are received, view-only compositions that can be revisited or removed from the device-local keepsake list. Deletion uses confirmation and applies only to local drafts in v1; sent bouquet records are retained.
+Three quiet groups: Drafts, Received, and Sent. Draft actions are Continue, Duplicate, Rename, and Delete. Received bouquets are view-only and can be revisited or remixed as a new draft without altering the original. Sent bouquets are immutable; actions are View and Duplicate as Draft. Deletion uses confirmation and applies only to local drafts in v1; sent and received bouquet records are retained.
 
 ## 5. Responsive structure
 
 ### Desktop
 
 - Top navigation follows the reference: Create and My Bouquets; Explore is replaced by Starters.
-- Builder uses catalog / canvas / inspector columns.
+- Builder remains a single persistent studio; the docked tray may widen into a side dock when that gives the canvas more usable space.
 - Canvas stays visually central and never shrinks below a usable manipulation area.
-- Note and send steps may narrow to a centered paper column but retain the step indicator.
+- Note and review controls occupy the tray or an adjacent inspector without replacing the canvas.
 
 ### Mobile and installed PWA
 
-- One explicit scrolling region per screen.
+- The builder itself does not document-scroll. Docked assets scroll horizontally; the expanded grid scrolls vertically.
 - Respect `100dvh`, safe-area insets, visual viewport changes, and the home indicator.
-- Canvas remains above the flower bottom sheet.
+- Canvas remains above the docked tray and behind the bounded expanded sheet.
 - Sheets have a visible handle, title, close action, bounded height, and contained scrolling.
 - Primary progression is never hidden behind the bouquet-area bottom navigation or keyboard.
 - Minimum touch target: 44×44 CSS pixels.
@@ -156,6 +166,7 @@ Three quiet groups: Drafts, Sent, and Kept. Draft actions are Continue, Duplicat
 - Recipient remixing of the original bouquet.
 - Seasonal packs, push campaigns, scheduling, or expiring bouquets.
 - Arbitrary uploaded flower cutouts.
+- Public bouquet URLs, WhatsApp/iMessage sharing, Web Share, and social distribution.
 
 ## Approval gate
 

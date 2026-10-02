@@ -106,6 +106,21 @@ export const onMemoryCreated = onDocumentCreated('memories/{memoryId}', async (e
   await notify(to, { title: pushTitle(name), ...chosen, tag: 'letters-inbox', url: `/?open=${encodeURIComponent(event.params.memoryId)}` })
 })
 
+export const onBouquetCreated = onDocumentCreated('bouquets/{bouquetId}', async (event) => {
+  const bouquet = event.data?.data()
+  if (!bouquet) return
+
+  const { recipient: to, name } = await pairingFacts(String(bouquet.pairingId ?? ''), String(bouquet.senderId ?? ''))
+  if (!to || to !== bouquet.recipientId) return
+
+  await notify(to, {
+    title: `${name} gathered flowers for you`,
+    body: 'A private bouquet is waiting in your shared garden.',
+    tag: 'letters-bouquet',
+    url: `/bloom/bouquet/${encodeURIComponent(event.params.bouquetId)}`,
+  })
+})
+
 /* ------------------------------------------------------------------ */
 /* Alerts: the "looked away" notice and the heart pulse                */
 /* ------------------------------------------------------------------ */

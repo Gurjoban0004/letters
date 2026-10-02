@@ -504,6 +504,11 @@ body,.letters-app{background-color:#f8e9e7;background-image:radial-gradient(circ
 .sidebar nav{gap:18px;padding-top:26px;border-top:1px solid #8d626736}
 .sidebar nav button,.sidebar-bottom>button{padding:14px 7px;border-radius:7px;font-size:15px;color:#6f454b}
 .sidebar nav .selected,.sidebar-bottom>button.selected{background:transparent;color:#a13f55}
+.sidebar-bouquet-link{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:0 10px;margin-top:16px;padding:12px 9px;border-radius:16px;background:#f2dbda8f;color:#7b414c;text-align:left;box-shadow:inset 0 0 0 1px #e5c7c99c}
+.sidebar-bouquet-link svg{grid-row:1/3;width:23px;height:23px}
+.sidebar-bouquet-link span{font-size:14px;font-weight:650}
+.sidebar-bouquet-link small{font-size:9px;color:#916a71}
+.sidebar-bouquet-link:hover{background:#edcecf;color:#983d55}
 .sidebar-note{position:relative;margin:auto 0 22px;min-height:145px;padding:28px 0;color:#8c555f;transform:rotate(-4deg)}
 .sidebar-note>.handwritten{font-size:26px}
 .sidebar-note>.details-asset{position:absolute;right:6px;bottom:-10px;width:58px}
@@ -1348,6 +1353,11 @@ body{background:
   .mobile-prompt-art .prompt-birds{position:absolute;right:-22px;bottom:16px;width:60%;max-width:215px;filter:drop-shadow(0 5px 6px #8c61702b)}
   .mobile-prompt-art .prompt-flowers{position:absolute;right:-13px;bottom:-35px;width:80px;transform:rotate(19deg);opacity:.88}
   .mobile-prompt-art .prompt-charm{position:absolute;top:11px;right:20px;width:29px;transform:rotate(14deg);opacity:.75}
+  .mobile-prompt-actions{display:flex!important;align-items:center;gap:7px;margin-top:15px}
+  .mobile-letter-prompt .mobile-prompt-actions>button{margin-top:0}
+  .mobile-letter-prompt .mobile-bouquet-button{min-width:92px;padding-inline:12px;justify-content:center;gap:6px;border:1px solid #debcc1;background:rgba(255,250,248,.76);color:#7d4150;box-shadow:none}
+  .mobile-letter-prompt .mobile-bouquet-button svg{width:18px;height:18px}
+  .mobile-letter-prompt .mobile-bouquet-button span{font-size:11px;font-weight:700}
   .collection-heading{margin:0 0 14px;align-items:center}
   .collection-desktop-title{display:none}
   .collection-mobile-title{display:inline}
@@ -1773,3 +1783,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @keyframes glassScaleLeft{0%,100%{scale:1 1}50%{scale:1.1 1}}
 @keyframes glassScaleCenter{0%,100%{scale:1 1}50%{scale:1.2 1}}
 @keyframes glassScaleRight{0%,100%{scale:1 1}50%{scale:1.1 1}}
+
+/* Release hardening: controls remain comfortable on both touch-first PWA
+   surfaces and narrow browser windows without changing the desktop rhythm. */
+.filter-tabs button,.sort select,.search input,.keep,.letter-meta>button:first-child,.mobile-letter-prompt button{min-width:44px;min-height:44px}
+.notice button,.update-notice button{min-width:44px;min-height:44px}
+@media(max-width:950px){
+  .sort select,.search input{font-size:16px}
+}

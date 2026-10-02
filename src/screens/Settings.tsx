@@ -152,7 +152,7 @@ function InstallGuide() {
   const ios = isIOS()
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-      className="clipping" style={{ padding: '1.1rem', borderLeft: '3px solid var(--accent)' }}>
+      className="clipping" style={{ padding: '1.1rem', border: '1px solid var(--rule)', borderRadius: '1rem' }}>
       <div className="kicker">One step first</div>
       <p className="serif-body" style={{ marginTop: '0.5rem', lineHeight: 1.6 }}>
         {ios

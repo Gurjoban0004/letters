@@ -79,6 +79,61 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Bouquets follow the same private, two-person delivery model as letters.
+    // Their composition is immutable; only the recipient can add receipts.
+    match /bouquets/{bouquetId} {
+      allow read: if member(resource.data.pairingId);
+
+      allow create: if member(request.resource.data.pairingId)
+                    && request.resource.data.keys().hasOnly([
+                      'version', 'pairingId', 'senderId', 'recipientId', 'title',
+                      'itemCount', 'composition', 'createdAt', 'receivedAt', 'viewedAt'
+                    ])
+                    && request.resource.data.version == 1
+                    && request.resource.data.senderId == request.auth.uid
+                    && request.resource.data.recipientId != request.auth.uid
+                    && request.resource.data.recipientId in get(/databases/$(database)/documents/pairings/$(request.resource.data.pairingId)).data.members
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() <= 80
+                    && request.resource.data.itemCount >= 3
+                    && request.resource.data.itemCount <= 30
+                    && request.resource.data.composition is map
+                    && request.resource.data.composition.version == 1
+                    && request.resource.data.composition.items is list
+                    && request.resource.data.composition.items.size() == request.resource.data.itemCount
+                    && request.resource.data.composition.wrapId is string
+                    && request.resource.data.composition.ribbonId is string
+                    && request.resource.data.composition.bouquetStyle in ['classic', 'meadow', 'tall']
+                    && request.resource.data.composition.note is map
+                    && request.resource.data.composition.note.to is string
+                    && request.resource.data.composition.note.to.size() >= 1
+                    && request.resource.data.composition.note.to.size() <= 60
+                    && request.resource.data.composition.note.body is string
+                    && request.resource.data.composition.note.body.size() >= 1
+                    && request.resource.data.composition.note.body.size() <= 500
+                    && request.resource.data.composition.note.from is string
+                    && request.resource.data.composition.note.from.size() >= 1
+                    && request.resource.data.composition.note.from.size() <= 60
+                    && request.resource.data.receivedAt == null
+                    && request.resource.data.viewedAt == null;
+
+      allow update: if member(resource.data.pairingId)
+                    && (request.resource.data == resource.data
+                        || (request.auth.uid == resource.data.recipientId
+                            && request.resource.data.diff(resource.data).affectedKeys()
+                              .hasOnly(['receivedAt', 'viewedAt'])
+                            && request.resource.data.pairingId == resource.data.pairingId
+                            && request.resource.data.senderId == resource.data.senderId
+                            && request.resource.data.recipientId == resource.data.recipientId
+                            && request.resource.data.composition == resource.data.composition
+                            && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['receivedAt'])
+                                || resource.data.get('receivedAt', null) == null)
+                            && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['viewedAt'])
+                                || resource.data.get('viewedAt', null) == null)));
+
+      allow delete: if false;
+    }
+
     // Device push tokens. Only the server-side Admin SDK can read these.
     match /tokens/{token} {
       allow read: if false;
