@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ButtonHTMLAttributes, type InputHTMLA
 import './bouquet.css'
 import assetManifest from './assets/manifest.json'
 import { useSession } from '../lib/session'
+import { navigateView, subscribeToViewNavigation, type ViewDirection } from '../lib/viewTransitions'
 import { loadDemoBouquets, markBouquetReceived, markBouquetViewed, sendBouquet, sendDemoBouquet, useBouquets } from './bouquetDb'
 import { MAX_BOUQUET_ITEMS, NOTE_LIMITS, arrangeBouquet, bouquetStemPose, clamp, createDraftStorage, gatheredStemBase, makeGuidedItem, moveLayer, normalizeLayers, prepareBouquetLayout, type BouquetCompositionV1, type BouquetDraftV1, type BouquetItemV1, type BouquetNoteV1, type BouquetStudioMode, type BouquetStyle, type BouquetTool, type PublishedBouquetV1 } from './studioModel'
 
@@ -33,18 +34,15 @@ function BloomIcon({ name, size = 22 }: { name: IconName; size?: number }) {
 }
 
 function useBouquetRoute() {
-  const [path, setPath] = useState(location.pathname)
-  useEffect(() => {
-    const update = () => setPath(location.pathname)
-    addEventListener('popstate', update)
-    return () => removeEventListener('popstate', update)
-  }, [])
+  const [route, setRoute] = useState(`${location.pathname}${location.search}`)
+  const path = route.split('?')[0]
+  useEffect(() => subscribeToViewNavigation(() => setRoute(`${location.pathname}${location.search}`)), [])
   const navigate = (next: string) => {
     const target = new URL(next, location.origin)
     if (new URLSearchParams(location.search).get('demo') === '1' && !target.searchParams.has('demo')) target.searchParams.set('demo', '1')
-    history.pushState(null, '', `${target.pathname}${target.search}`)
-    setPath(target.pathname)
-    scrollTo({ top: 0, behavior: 'smooth' })
+    const depth = (value: string) => value.startsWith('/bloom/create') || value.startsWith('/bloom/bouquet/') ? 1 : 0
+    const direction: ViewDirection = depth(target.pathname) > depth(path) ? 'forward' : depth(target.pathname) < depth(path) ? 'back' : 'fade'
+    void navigateView(`${target.pathname}${target.search}`, direction).then(() => scrollTo({ top: 0, behavior: 'auto' }))
   }
   return { path, navigate }
 }
@@ -187,7 +185,7 @@ function StudioSheet({ open, category, selected, itemCount, bouquetStyle, countA
 }
 
 function BloomBrand() {
-  return <button className="bloom-brand" onClick={() => location.assign(new URLSearchParams(location.search).get('demo') === '1' ? '/?demo=1' : '/')} aria-label="Return to Letters">
+  return <button className="bloom-brand" onClick={() => { void navigateView(new URLSearchParams(location.search).get('demo') === '1' ? '/?demo=1' : '/', 'back') }} aria-label="Return to Letters">
     <span>Bloom</span><small>from Letters</small>
   </button>
 }

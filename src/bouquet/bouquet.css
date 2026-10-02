@@ -273,6 +273,10 @@
 .bloom-sheet-grid .bloom-compact-flower{width:100%;min-width:0;min-height:102px}
 .bloom-sheet-grid .bloom-catalog-botanical{width:68px;height:68px;margin-block:-4px}
 @keyframes bloom-sheet-in{from{transform:translate(-50%,35%);opacity:.6}to{transform:translate(-50%,0);opacity:1}}
+.bloom-create-studio[data-mode="compose"]>.bloom-studio-tray,
+.bloom-create-studio[data-mode="message"]>.bloom-note-tray,
+.bloom-create-studio[data-mode="review"]>.bloom-review-tray{animation:bloom-mode-tray-in 320ms var(--bloom-ease) both}
+@keyframes bloom-mode-tray-in{from{opacity:0;transform:translate3d(0,18px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 @media(max-width:800px){
   .bloom-topbar{display:flex;min-height:66px;padding:calc(9px + var(--safe-top)) max(20px,var(--safe-right)) 9px max(20px,var(--safe-left))}
   .bloom-topbar>nav,.bloom-topbar>.bloom-button{display:none}
