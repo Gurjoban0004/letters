@@ -1,5 +1,12 @@
 import { initializeApp } from 'firebase/app'
-import { getAuth, connectAuthEmulator } from 'firebase/auth'
+import {
+  browserLocalPersistence,
+  browserPopupRedirectResolver,
+  browserSessionPersistence,
+  connectAuthEmulator,
+  indexedDBLocalPersistence,
+  initializeAuth,
+} from 'firebase/auth'
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator,
 } from 'firebase/firestore'
@@ -15,7 +22,14 @@ const config = {
 }
 
 export const app = initializeApp(config)
-export const auth = getAuth(app)
+// Be explicit about the persistence fallbacks. iOS can make IndexedDB
+// temporarily unavailable while returning from Google's popup; Firebase can
+// then fall back to localStorage (or, lastly, the current browser session)
+// instead of appearing to sign in and immediately forgetting the account.
+export const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence],
+  popupRedirectResolver: browserPopupRedirectResolver,
+})
 export const storage = getStorage(app)
 
 // Offline persistence: letters stay readable on the subway.

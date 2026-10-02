@@ -4,6 +4,7 @@ import { NavigationRoute, registerRoute } from 'workbox-routing'
 import { CacheFirst } from 'workbox-strategies'
 import { ExpirationPlugin } from 'workbox-expiration'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
+import { clientsClaim } from 'workbox-core'
 import { initializeApp } from 'firebase/app'
 import { getMessaging, onBackgroundMessage } from 'firebase/messaging/sw'
 
@@ -11,6 +12,7 @@ declare let self: ServiceWorkerGlobalScope
 
 cleanupOutdatedCaches()
 precacheAndRoute(self.__WB_MANIFEST)
+clientsClaim()
 
 // SPA: every navigation resolves to the shell, so the app opens offline.
 registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html'), {

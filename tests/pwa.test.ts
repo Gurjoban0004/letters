@@ -4,6 +4,9 @@ const root = new URL('../', import.meta.url)
 const html = readFileSync(new URL('index.html', root), 'utf8')
 const vite = readFileSync(new URL('vite.config.ts', root), 'utf8')
 const worker = readFileSync(new URL('src/sw.ts', root), 'utf8')
+const app = readFileSync(new URL('src/App.tsx', root), 'utf8')
+const firebase = readFileSync(new URL('src/lib/firebase.ts', root), 'utf8')
+const session = readFileSync(new URL('src/lib/session.tsx', root), 'utf8')
 
 function expect(condition: unknown, message: string) {
   if (!condition) throw new Error(message)
@@ -18,5 +21,10 @@ expect(vite.includes("url: '/bloom'"), 'The manifest must expose the Bloom short
 expect(worker.includes("createHandlerBoundToURL('index.html')"), 'Offline navigation must fall back to the app shell.')
 expect(worker.includes("cacheName: 'letters-artwork-v1'"), 'Used artwork must be cached for offline reopening.')
 expect(worker.includes("d.tag === 'letters-bouquet' ? 'Open bouquet' : 'Open letter'"), 'Push actions must name the correct keepsake.')
+expect(worker.includes('clientsClaim()'), 'An activated update must immediately control the open PWA.')
+expect(app.includes('(loading || sessionIssue) && !demo') && app.includes('<UpdateNotice update={applyUpdate} />'), 'The one-tap update action must remain available while startup is loading or recovering.')
+expect(app.includes('Bouquet bundle timed out') && app.includes('BouquetErrorBoundary'), 'Bloom must recover from stale or missing lazy chunks.')
+expect(firebase.includes('indexedDBLocalPersistence') && firebase.includes('browserLocalPersistence') && firebase.includes('browserSessionPersistence'), 'Auth must use durable iOS-safe persistence fallbacks.')
+expect(session.includes('sessionIssue') && session.includes('retrySession'), 'A dropped session listener must offer recovery instead of loading forever.')
 
-console.log('PASS: PWA manifest, safe areas, local fonts, offline shell, artwork cache, and bouquet push action')
+console.log('PASS: PWA manifest, update recovery, durable auth, offline shell, artwork cache, and bouquet push action')

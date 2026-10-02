@@ -41,7 +41,9 @@ type Session = {
   joiningInvite: boolean
   invitation: Pairing | null
   invitationUnavailable: boolean
+  sessionIssue: string | null
   dismissInvite: () => void
+  retrySession: () => void
   signIn: (email: string, password: string) => Promise<void>
   register: (email: string, password: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
@@ -69,6 +71,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [invitation, setInvitation] = useState<Pairing | null>(null)
   const [invitationUnavailable, setInvitationUnavailable] = useState(false)
   const [invitationReady, setInvitationReady] = useState(true)
+  const [sessionIssue, setSessionIssue] = useState<string | null>(null)
   const [retry, setRetry] = useState(0)
   const [inviteId, setInviteId] = useState(inviteIdFromLocation)
 
@@ -78,10 +81,17 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return () => removeEventListener('popstate', syncInvite)
   }, [])
 
-  useEffect(() => onAuthStateChanged(auth, (u) => {
-    setUser(u); setAuthReady(true); setIdentityReady(!u)
-    if (!u) { setPairingId(null); setPairing(null); setPairingReady(true) }
-  }), [])
+  useEffect(() => {
+    setAuthReady(false)
+    return onAuthStateChanged(auth, (u) => {
+      setUser(u); setAuthReady(true); setIdentityReady(!u); setSessionIssue(null)
+      if (!u) { setPairingId(null); setPairing(null); setPairingReady(true) }
+    }, (error) => {
+      console.warn('auth listener dropped:', (error as { code?: string }).code ?? error.message)
+      setAuthReady(true)
+      setSessionIssue('We couldn’t restore your sign-in yet.')
+    })
+  }, [retry])
 
   useEffect(() => {
     if (!user) return
@@ -99,10 +109,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           }
         } catch { /* A new user does not have access to the legacy pairing. */ }
       }
-      if (active) { setPairingReady(!id); setPairingId(id || null); setIdentityReady(true) }
-    }, () => { if (active) setIdentityReady(true) })
+      if (active) { setPairingReady(!id); setPairingId(id || null); setIdentityReady(true); setSessionIssue(null) }
+    }, (error) => {
+      if (active) {
+        console.warn('identity listener dropped:', error.code)
+        setIdentityReady(false)
+        setSessionIssue('We couldn’t open your private letterbox yet.')
+      }
+    })
     return () => { active = false; unsubscribe() }
-  }, [user?.uid])
+  }, [user?.uid, retry])
 
   useEffect(() => {
     if (!user?.uid || !inviteId || inviteId === pairingId) {
@@ -141,17 +157,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user?.uid || !pairingId) { setPairing(null); setPairingReady(true); return }
     setPairingReady(false)
-    return onSnapshot(
+    let retryTimer: ReturnType<typeof setTimeout> | undefined
+    const unsubscribe = onSnapshot(
       doc(db, 'pairings', pairingId),
-      (snap) => { setPairing(snap.exists() ? (snap.data() as Pairing) : null); setPairingReady(true) },
+      (snap) => { setPairing(snap.exists() ? (snap.data() as Pairing) : null); setPairingReady(true); setSessionIssue(null) },
       (err) => {
         // Firestore tears a listener down permanently on error, including the
-        // brief permission gap right after signing in as someone else. Without
-        // re-attaching, the app stays blank until a manual reload.
+        // brief permission gap right after signing in as someone else. Keep a
+        // visible recovery action while the automatic retry re-attaches it.
         console.warn('pairing listener dropped:', err.code)
-        setTimeout(() => setRetry((n) => n + 1), 1500)
+        setSessionIssue('We couldn’t open your private letterbox yet.')
+        retryTimer = setTimeout(() => setRetry((n) => n + 1), 1500)
       },
     )
+    return () => { unsubscribe(); if (retryTimer) clearTimeout(retryTimer) }
   }, [user?.uid, pairingId, retry])
 
   const displayPairing = pairing ? {
@@ -169,6 +188,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`)
     setInviteId(null)
   }
+  const retrySession = () => {
+    setSessionIssue(null)
+    setAuthReady(false)
+    if (user) setIdentityReady(false)
+    if (pairingId) setPairingReady(false)
+    setRetry((n) => n + 1)
+  }
 
   // The whole press changes ink when you change edition.
   useEffect(() => {
@@ -177,15 +203,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const value: Session = {
     user, pairing: displayPairing, me, partnerUid, partner, pairingId, inviteUrl, joiningInvite,
-    invitation, invitationUnavailable,
-    dismissInvite,
+    invitation, invitationUnavailable, sessionIssue,
+    dismissInvite, retrySession,
     loading: !authReady || (!!user && (!identityReady || (!!pairingId && !pairingReady) || (joiningInvite && !invitationReady))),
     signIn: async (email, password) => { await signInWithEmailAndPassword(auth, email, password) },
     register: async (email, password) => { await createUserWithEmailAndPassword(auth, email, password) },
     signInWithGoogle: async () => {
       const provider = new GoogleAuthProvider()
       provider.setCustomParameters({ prompt: 'select_account' })
-      await signInWithPopup(auth, provider)
+      const result = await signInWithPopup(auth, provider)
+      await result.user.getIdToken()
     },
     signOut: async () => { await disablePush(); await fbSignOut(auth) },
     claimSlot: async (name, edition) => {
