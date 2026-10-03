@@ -1800,7 +1800,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .letters-app:not(.has-fullscreen-view)>.mobile-nav{view-transition-name:letters-bottom-nav}
 
 /* Bouquets share the Letters shell, collection, and draft shelf. */
-.bouquet-tab{max-width:1180px;margin:0 auto;padding:48px 42px 34px}
+.bouquet-tab{width:100%;margin:0;padding:0}
 .bouquet-thumb{position:relative;display:block;width:100%;height:170px;overflow:hidden;padding:0;border-radius:12px;background:#fbf4ef}
 .bouquet-thumb .bloom-bouquet-miniature{height:100%;min-height:0}
 .bouquet-thumb .bloom-bouquet-scene{transform:scale(.82);transform-origin:50% 58%}
@@ -1810,7 +1810,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .bouquet-draft-card p{color:#8d5967}
 
 @media(max-width:600px){
-  .bouquet-tab{padding:24px 14px calc(94px + var(--safe-bottom))}
+  .bouquet-tab{padding:0}
   .bouquet-thumb{grid-row:1/-1;width:104px;height:92px;border-radius:12px}
   .bouquet-letter-item .letter-meta{grid-column:2;grid-row:2}
   .bouquet-letter-item .letter-state{grid-column:2;grid-row:3}
@@ -1828,70 +1828,66 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   .mobile-nav .rs-ios-tab-bar-symbol,.mobile-nav svg{width:23px!important;height:23px!important}
 }
 
-/* The desk is the inbox: envelope and message lead, metadata recedes. */
-.desk-letters{padding-top:54px;background:linear-gradient(180deg,#fffaf7 0%,#fbf1ee 100%)!important}
-.desk-letters::before{content:none!important}
-.desk-letters .collection{padding:0;background:transparent;border-radius:0;box-shadow:none}
-.desk-letters .collection-heading{align-items:center;margin-bottom:30px}
-.desk-letters .collection-heading h2{color:#5d1830;font:500 clamp(48px,5.2vw,76px)/.95 var(--serif);letter-spacing:-.035em}
-.desk-letters .sort{display:flex;min-height:58px;align-items:center;gap:10px;padding:7px 14px 7px 8px;border-radius:999px;background:rgba(255,251,249,.92);box-shadow:0 14px 34px -26px rgba(91,42,57,.35)}
-.desk-letters .desk-count{display:grid;width:44px;height:44px;place-items:center;border-radius:50%;background:#f3d6d8;color:#7b2f44;font:500 18px/1 var(--serif);font-variant-numeric:tabular-nums}
-.desk-letters .sort select{min-height:44px;padding:8px 34px 8px 4px;background:transparent;color:#5f3542;font-size:14px;font-weight:560}
-.desk-letters .collection-tools{display:block;margin-bottom:36px}
-.desk-letters .filter-tabs{display:grid;width:100%;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:8px;border:0;border-radius:24px;background:rgba(245,222,222,.64)}
-.desk-letters .filter-tabs button{min-height:52px;padding:10px 12px;border:0;border-radius:18px;color:#704250;font:500 15px/1 var(--sans)}
-.desk-letters .filter-tabs button.active{background:#c9787e;color:#fff;box-shadow:0 12px 24px -18px rgba(117,44,58,.65)}
-.desk-letters .envelope-grid{display:grid;grid-template-columns:1fr;gap:22px}
-.desk-letters .letter-item,.desk-letters .letter-item.is-sent,.desk-letters .letter-item.is-received{position:relative;display:block;min-height:0;padding:0;overflow:hidden;border:0;border-radius:22px;background:rgba(255,251,249,.84);box-shadow:0 18px 42px -32px rgba(93,47,58,.34)}
-.desk-letters .letter-card-main{position:relative;display:grid;width:100%;min-height:220px;grid-template-columns:minmax(230px,31%) minmax(0,1fr);align-items:center;gap:34px;padding:24px 30px 24px 24px;text-align:left}
-.desk-letters .direction-label{position:absolute;z-index:3;top:24px;right:24px;left:auto!important;padding:9px 14px;border-radius:14px;background:#fae9e9;color:#8f304c;font:600 13px/1 var(--serif);letter-spacing:0;text-transform:none}
+/* Letter cards follow the supplied stationery reference without replacing the home. */
+.desk-letters .collection{max-width:1020px}
+.desk-letters .collection-heading{align-items:center}
+.desk-letters .collection-heading h2{color:#603b41;font-weight:400}
+.desk-letters .sort{display:flex;min-height:48px;align-items:center;gap:8px;padding:5px 11px 5px 6px;border-radius:999px;background:rgba(255,251,249,.9);box-shadow:0 10px 28px -23px rgba(91,42,57,.42)}
+.desk-letters .desk-count{display:grid;width:36px;height:36px;place-items:center;border-radius:50%;background:#f1d1d3;color:#773b49;font:500 15px/1 var(--serif);font-variant-numeric:tabular-nums}
+.desk-letters .sort select{min-height:36px;padding:7px 28px 7px 2px;background:transparent;color:#65404a;font-size:12px;font-weight:560}
+.desk-letters .collection-tools{display:block}
+.desk-letters .filter-tabs{display:grid;width:100%;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:6px;border:0;border-radius:20px;background:rgba(245,222,222,.62)}
+.desk-letters .filter-tabs button{min-width:0;min-height:46px;padding:9px 8px;border:0;border-radius:15px;color:#704250;font-size:13px;font-weight:560}
+.desk-letters .filter-tabs button.active{background:#c9787e;color:#fff;box-shadow:none}
+.desk-letters .envelope-grid{display:grid;grid-template-columns:1fr;gap:18px}
+.desk-letters .letter-item,.desk-letters .letter-item.is-sent,.desk-letters .letter-item.is-received{position:relative;display:block;min-height:0;padding:0;overflow:hidden;border:0;border-radius:20px;background:rgba(255,251,249,.86);box-shadow:0 16px 42px -32px rgba(93,47,58,.35)}
+.desk-letters .letter-card-main{position:relative;display:grid;width:100%;min-height:196px;grid-template-columns:240px minmax(0,1fr);align-items:center;gap:30px;padding:20px 26px 20px 20px;text-align:left}
+.desk-letters .direction-label{position:absolute;z-index:3;top:20px;right:22px;left:auto;padding:8px 12px;border-radius:12px;background:#fae7e7;color:#91364f;font:600 12px/1 var(--serif);letter-spacing:0;text-transform:none;box-shadow:none}
 .desk-letters .is-received .direction-label{background:#faeee6;color:#765044}
-.desk-letters .envelope-thumb,.desk-letters .bouquet-thumb{display:block;width:100%;height:172px;padding:0;overflow:hidden;border-radius:16px;background:#fae9e7;box-shadow:none;transition:transform .28s var(--ease)}
-.desk-letters .letter-card-main:hover .envelope-thumb,.desk-letters .letter-card-main:hover .bouquet-thumb{transform:translateY(-2px)}
+.desk-letters .envelope-thumb,.desk-letters .bouquet-thumb{display:block;width:240px;height:156px;min-height:0;padding:0;overflow:hidden;border-radius:15px;background:#fae9e7;box-shadow:none}
+.desk-letters .envelope-thumb>.envelope-sealed{width:100%;max-height:none;filter:none}
 .desk-letters .envelope-thumb img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
 .desk-letters .bouquet-thumb .bloom-bouquet-miniature{height:100%;min-height:0}
-.desk-letters .bouquet-thumb .bloom-bouquet-scene{transform:scale(.8);transform-origin:50% 58%}
-.desk-letters .letter-card-content{display:grid;min-width:0;align-content:center;justify-items:start;gap:8px;padding-top:30px}
-.desk-letters .message-preview{display:-webkit-box;max-width:100%;overflow:hidden;color:#6b4658;font:500 clamp(26px,2.5vw,36px)/1.08 var(--serif);letter-spacing:-.018em;-webkit-box-orient:vertical;-webkit-line-clamp:2}
-.desk-letters .correspondent{color:#715266;font:500 clamp(19px,1.8vw,27px)/1.15 var(--serif)}
-.desk-letters .letter-status{display:flex;min-height:44px;align-items:center;gap:9px;margin-top:8px;padding:9px 15px;border-radius:15px;background:#f8e5e4;color:#6f3042;font-size:12px;font-weight:560;font-variant-numeric:tabular-nums}
-.desk-letters .letter-status svg{width:19px;height:19px;flex:0 0 auto;stroke-width:1.65}
-.desk-letters .letter-status i{font-style:normal;opacity:.55}
+.desk-letters .bouquet-thumb .bloom-bouquet-scene{transform:scale(.78);transform-origin:50% 58%}
+.desk-letters .letter-card-content{display:grid;min-width:0;align-content:center;justify-items:start;gap:7px;padding-top:26px}
+.desk-letters .message-preview{display:-webkit-box;max-width:100%;overflow:hidden;color:#654758;font:500 29px/1.08 var(--serif);letter-spacing:-.018em;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.desk-letters .correspondent{color:#715266;font:500 21px/1.15 var(--serif)}
+.desk-letters .letter-status{display:flex;min-height:40px;align-items:center;gap:8px;margin-top:5px;padding:8px 13px;border-radius:13px;background:#f8e5e4;color:#6f3042;font-size:11px;font-weight:560;font-variant-numeric:tabular-nums}
+.desk-letters .letter-status svg{width:18px;height:18px;flex:0 0 auto;stroke-width:1.65}
+.desk-letters .letter-status i{font-style:normal;opacity:.5}
 .desk-letters .letter-status time{white-space:nowrap}
-.desk-letters .unopened-dot{top:10px;right:10px}
 .draft-total{display:grid;min-width:31px;height:31px;place-items:center;padding-inline:8px;border-radius:999px;background:var(--rose-light);color:var(--rose);font-size:11px;font-weight:700}
 
 @media(max-width:600px){
-  .desk-letters{padding:30px 18px calc(116px + var(--safe-bottom))}
-  .desk-letters .collection-heading{margin-bottom:24px}
-  .desk-letters .collection-heading{gap:10px}
-  .desk-letters .collection-heading h2{font-size:38px;white-space:nowrap}
-  .desk-letters .sort{min-height:50px;padding:5px 10px 5px 6px;gap:7px}
-  .desk-letters .desk-count{width:38px;height:38px;font-size:16px}
-  .desk-letters .sort select{min-height:38px;max-width:118px;padding-right:24px;font-size:11px}
-  .desk-letters .collection-tools{margin-bottom:28px}
+  .desk-letters .collection{padding:17px 13px 14px}
+  .desk-letters .collection-heading{gap:8px;margin-bottom:13px;padding-inline:2px}
+  .desk-letters .collection-heading h2{font-size:30px;line-height:1;white-space:nowrap}
+  .desk-letters .sort{min-height:42px;padding:3px 8px 3px 4px;gap:5px}
+  .desk-letters .desk-count{width:34px;height:34px;font-size:14px}
+  .desk-letters .sort select{min-height:34px;max-width:104px;padding-right:21px;font-size:10px}
+  .desk-letters .collection-tools{margin-bottom:14px}
   .desk-letters .filter-tabs{padding:5px;border-radius:19px}
-  .desk-letters .filter-tabs button{min-height:44px;padding:8px 4px;border-radius:15px;font-size:11px}
-  .desk-letters .envelope-grid{display:grid;gap:18px}
-  .desk-letters .letter-item,.desk-letters .letter-item.is-sent,.desk-letters .letter-item.is-received{min-height:0;border:0;border-radius:18px;box-shadow:0 16px 34px -27px rgba(93,47,58,.4)}
-  .desk-letters .letter-card-main{min-height:154px;grid-template-columns:126px minmax(0,1fr);grid-template-rows:auto;gap:15px;padding:14px}
-  .desk-letters .direction-label{top:14px;right:14px;padding:7px 10px;border-radius:12px;font-size:11px}
-  .desk-letters .envelope-thumb,.desk-letters .bouquet-thumb{grid-row:auto;width:126px;height:116px;border-radius:14px}
-  .desk-letters .letter-card-content{grid-column:2;grid-row:1;padding-top:28px;gap:5px}
-  .desk-letters .message-preview{font-size:23px;line-height:1.05}
-  .desk-letters .correspondent{font-size:17px}
-  .desk-letters .letter-status{min-height:36px;max-width:100%;gap:6px;margin-top:5px;padding:7px 9px;border-radius:12px;font-size:9.5px;white-space:nowrap}
-  .desk-letters .letter-status svg{width:16px;height:16px}
+  .desk-letters .filter-tabs button{min-height:42px;padding:7px 2px;border-radius:15px;font-size:10px}
+  .desk-letters .envelope-grid{gap:10px}
+  .desk-letters .letter-item,.desk-letters .letter-item.is-sent,.desk-letters .letter-item.is-received{min-height:0;border:0;border-radius:18px;background:rgba(255,250,248,.78);box-shadow:0 9px 24px -20px rgba(93,47,58,.45)}
+  .desk-letters .letter-card-main{min-height:132px;grid-template-columns:108px minmax(0,1fr);gap:12px;padding:12px}
+  .desk-letters .direction-label{top:11px;right:11px;padding:6px 9px;border-radius:10px;font-size:10px}
+  .desk-letters .envelope-thumb,.desk-letters .bouquet-thumb{width:108px;height:106px;border-radius:13px}
+  .desk-letters .letter-card-content{padding-top:24px;gap:4px}
+  .desk-letters .message-preview{font-size:19px;line-height:1.08}
+  .desk-letters .correspondent{font-size:15px}
+  .desk-letters .letter-status{min-height:32px;max-width:100%;gap:5px;margin-top:4px;padding:6px 8px;border-radius:10px;font-size:8.5px;white-space:nowrap}
+  .desk-letters .letter-status svg{width:15px;height:15px}
   .desk-letters .bouquet-thumb .bloom-bouquet-scene{transform:scale(.74)}
 }
 
 @media(max-width:370px){
-  .desk-letters{padding-inline:13px}
-  .desk-letters .collection-heading h2{font-size:43px}
-  .desk-letters .letter-card-main{grid-template-columns:108px minmax(0,1fr);gap:12px;padding:12px}
-  .desk-letters .envelope-thumb,.desk-letters .bouquet-thumb{width:108px;height:104px}
-  .desk-letters .message-preview{font-size:20px}
-  .desk-letters .letter-status{font-size:8.5px}
+  .desk-letters .collection{padding-inline:10px}
+  .desk-letters .collection-heading h2{font-size:27px}
+  .desk-letters .letter-card-main{grid-template-columns:96px minmax(0,1fr);gap:10px;padding:10px}
+  .desk-letters .envelope-thumb,.desk-letters .bouquet-thumb{width:96px;height:96px}
+  .desk-letters .message-preview{font-size:18px}
+  .desk-letters .letter-status{font-size:8px}
 }
 .bloom-topbar{view-transition-name:bloom-topbar}
 .bloom-mobile-nav{view-transition-name:bloom-bottom-nav}

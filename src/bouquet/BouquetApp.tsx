@@ -193,21 +193,28 @@ export function BouquetHomePanel({ navigate }: { navigate: (path: string) => voi
     draftStorage.save(draft)
     navigate(`/bloom/create?draft=${encodeURIComponent(draft.id)}`)
   }
-  return <section className="bloom-home-panel">
-    <div className="bloom-hero bloom-hero--compact">
+  return <section className="bloom-home bloom-home-panel">
+    <section className="bloom-hero">
       <div className="bloom-hero-copy">
-        <h1>A little garden, from you.</h1>
-        <p>Gather, arrange, and send flowers to your person.</p>
+        <h1>Gather something beautiful for them.</h1>
+        <p>Choose every stem, arrange it with care, and send a bouquet they can keep.</p>
         <div className="bloom-actions"><BloomButton icon="arrow" onClick={() => navigate('/bloom/create')}>Make a bouquet</BloomButton></div>
       </div>
-      <div className="bloom-home-bouquet" aria-hidden="true">
-        <BouquetMiniature composition={starterPresets[0].composition} />
+      <div className="bloom-note-preview" aria-label="A preview of the bouquet note">
+        <BloomIcon name="flower" size={30} />
+        <p>“A little garden,<br />just for you.”</p>
+        <span>Made with care in Letters</span>
       </div>
-    </div>
-    <div className="bloom-quick-starts" aria-label="Bouquet starting points">
-      <span>Or begin with</span>
-      {starterPresets.map(preset => <button key={preset.id} onClick={() => startPreset(preset)}>{preset.name}</button>)}
-    </div>
+    </section>
+    <section className="bloom-home-promise" aria-label="How bouquets work">
+      <p><strong>Choose</strong><span>Pick the flowers that feel like them.</span></p>
+      <p><strong>Arrange</strong><span>Shape every stem by hand.</span></p>
+      <p><strong>Send</strong><span>Share a private keepsake.</span></p>
+    </section>
+    <section className="bloom-starters" aria-labelledby="bloom-starters-heading">
+      <div className="bloom-section-heading"><div><h2 id="bloom-starters-heading">Begin with a garden</h2><p>Choose a starting point, then make every stem your own.</p></div><BloomButton tone="ghost" onClick={() => navigate('/bloom/create')}>Start from scratch</BloomButton></div>
+      <div className="bloom-starter-row">{starterPresets.map(preset => <article className="bloom-starter" key={preset.id}><BouquetMiniature composition={preset.composition} /><div><h3>{preset.name}</h3><p>{preset.description}</p><BloomButton tone="secondary" onClick={() => startPreset(preset)}>Remix this bouquet</BloomButton></div></article>)}</div>
+    </section>
   </section>
 }
 
@@ -599,21 +606,21 @@ function CreateFoundation({ navigate }: { navigate: (path: string) => void }) {
     <header className="bloom-builder-header">
       <button className="bloom-studio-control" onClick={goBack} aria-label={studioMode === 'compose' ? 'Back to Bloom home' : `Back to ${studioMode === 'review' ? 'message' : 'bouquet editing'}`}><BloomIcon name="back" /></button>
       <h1>Your Bouquet</h1>
-      <span>{items.length} {items.length === 1 ? 'stem' : 'stems'}</span>
+      <span aria-label={`Progress ${progress} of 5`}>{progress} / 5</span>
     </header>
     <section className="bloom-studio-canvas" aria-label="Bouquet arrangement canvas">
-      {studioMode === 'compose' && <div className="bloom-canvas-toolbar">
-        <div className="bloom-zoom-controls" role="group" aria-label="Canvas zoom"><button className="bloom-studio-control" onClick={() => setZoom(value => clamp(value - .1, .8, 1.25))} disabled={zoom <= .8} aria-label="Zoom out"><BloomIcon name="minus" /></button><span>{Math.round(zoom * 100)}%</span><button className="bloom-studio-control" onClick={() => setZoom(value => clamp(value + .1, .8, 1.25))} disabled={zoom >= 1.25} aria-label="Zoom in"><BloomIcon name="plus" /></button></div>
-        <div className="bloom-canvas-actions"><button className="bloom-studio-control" onClick={undo} disabled={!past.length} aria-label="Undo last change"><BloomIcon name="undo" /></button><button className="bloom-studio-control" onClick={redo} disabled={!future.length} aria-label="Redo last change"><BloomIcon name="redo" /></button><button className="bloom-studio-control" onClick={removeSelected} disabled={!selectedItem} aria-label="Delete selected item"><BloomIcon name="trash" /></button></div>
-      </div>}
       <BouquetPreview items={items} selectedId={studioMode === 'compose' ? selectedId : null} zoom={zoom} wrap={selectedWrap} ribbon={selectedRibbon} bouquetStyle={bouquetStyle} interactive={studioMode === 'compose'} previewRef={previewRef} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onKeyDown={onStemKeyDown} />
-      {studioMode === 'compose' && items.length > 0 && <details className="bloom-layer-drawer"><summary><span>Layers</span><b>{selectedItem ? botanical(selectedItem.assetId)?.displayName : `${items.length} stems`}</b></summary><StemSelector items={items} selectedId={selectedId} onSelect={selectStem} />{selectedItem && <div className="bloom-transform-controls" role="toolbar" aria-label={`Adjust ${botanical(selectedItem.assetId)?.displayName ?? 'selected stem'}`}>
-          <button onClick={() => commitItems(arrangeBouquet(items, bouquetStyle), 'Bouquet gathered into its selected shape.')} aria-label="Gather and balance bouquet"><BloomIcon name="bouquet" size={18} /></button>
-          <button onClick={() => changeSelected({ scale: clamp(selectedItem.scale - .06, .35, .82) }, 'Stem made smaller.')} aria-label="Make selected stem smaller"><BloomIcon name="minus" size={18} /></button>
-          <button onClick={() => changeSelected(placeStem(selectedItem, selectedItem.x - .025, selectedItem.y), 'Stem fanned left.')} aria-label="Fan selected stem left"><BloomIcon name="rotateLeft" size={18} /></button>
-          <button onClick={() => changeSelected(placeStem(selectedItem, selectedItem.x + .025, selectedItem.y), 'Stem fanned right.')} aria-label="Fan selected stem right"><BloomIcon name="rotateRight" size={18} /></button>
-          <button onClick={() => changeSelected({ scale: clamp(selectedItem.scale + .06, .35, .82) }, 'Stem made larger.')} aria-label="Make selected stem larger"><BloomIcon name="plus" size={18} /></button>
-        </div>}</details>}
+      <span className="bloom-canvas-count">{studioMode === 'compose' ? `${items.length} ${items.length === 1 ? 'stem' : 'stems'}` : studioMode === 'message' ? 'Your note' : 'Final preview'}</span>
+      <div className="bloom-zoom-controls" role="group" aria-label="Canvas zoom"><button className="bloom-studio-control" onClick={() => setZoom(value => clamp(value - .1, .8, 1.25))} disabled={zoom <= .8} aria-label="Zoom out"><BloomIcon name="minus" /></button><span>{Math.round(zoom * 100)}%</span><button className="bloom-studio-control" onClick={() => setZoom(value => clamp(value + .1, .8, 1.25))} disabled={zoom >= 1.25} aria-label="Zoom in"><BloomIcon name="plus" /></button></div>
+      {studioMode === 'compose' && <div className="bloom-canvas-actions"><button className="bloom-studio-control" onClick={undo} disabled={!past.length} aria-label="Undo last change"><BloomIcon name="undo" /></button><button className="bloom-studio-control" onClick={redo} disabled={!future.length} aria-label="Redo last change"><BloomIcon name="redo" /></button><button className="bloom-studio-control" onClick={removeSelected} disabled={!selectedItem} aria-label="Delete selected item"><BloomIcon name="trash" /></button></div>}
+      {studioMode === 'compose' && items.length > 0 && <StemSelector items={items} selectedId={selectedId} onSelect={selectStem} />}
+      {studioMode === 'compose' && selectedItem && <div className="bloom-transform-controls" role="toolbar" aria-label={`Adjust ${botanical(selectedItem.assetId)?.displayName ?? 'selected stem'}`}>
+        <button onClick={() => commitItems(arrangeBouquet(items, bouquetStyle), 'Bouquet gathered into its selected shape.')} aria-label="Gather and balance bouquet"><BloomIcon name="bouquet" size={18} /></button>
+        <button onClick={() => changeSelected({ scale: clamp(selectedItem.scale - .06, .35, .82) }, 'Stem made smaller.')} aria-label="Make selected stem smaller"><BloomIcon name="minus" size={18} /></button>
+        <button onClick={() => changeSelected(placeStem(selectedItem, selectedItem.x - .025, selectedItem.y), 'Stem fanned left.')} aria-label="Fan selected stem left"><BloomIcon name="rotateLeft" size={18} /></button>
+        <button onClick={() => changeSelected(placeStem(selectedItem, selectedItem.x + .025, selectedItem.y), 'Stem fanned right.')} aria-label="Fan selected stem right"><BloomIcon name="rotateRight" size={18} /></button>
+        <button onClick={() => changeSelected({ scale: clamp(selectedItem.scale + .06, .35, .82) }, 'Stem made larger.')} aria-label="Make selected stem larger"><BloomIcon name="plus" size={18} /></button>
+      </div>}
       <p className="bloom-sr-only" aria-live="polite">{notice}</p>
       {studioMode === 'compose' && sheetOpen && <button className="bloom-canvas-scrim" onClick={() => setSheetOpen(false)} aria-label="Close expanded picker" />}
     </section>
