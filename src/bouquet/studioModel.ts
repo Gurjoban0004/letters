@@ -38,7 +38,7 @@ export type BouquetCompositionV1 = {
   version: 1
   items: BouquetItemV1[]
   wrapId: string
-  ribbonId: string
+  ribbonId: string | null
   bouquetStyle: BouquetStyle
   note: BouquetNoteV1
 }
@@ -387,7 +387,7 @@ export function decodeDraft(value: unknown, ownerId: string, validAssetIds: Read
 
 export function compositionFromDraft(draft: BouquetDraftV1): BouquetCompositionV1 {
   if (draft.items.length < 3 || draft.items.length > MAX_BOUQUET_ITEMS) throw new Error('Add at least three flowers before sending.')
-  if (!draft.wrapId || !draft.ribbonId) throw new Error('Choose wrapping and a ribbon before sending.')
+  if (!draft.wrapId) throw new Error('Choose wrapping before sending.')
   const note = { to: draft.note.to.trim(), body: draft.note.body.trim(), from: draft.note.from.trim() }
   if (!note.to || !note.body || !note.from) throw new Error('Finish the note before sending.')
   const composition = { version: 1 as const, items: normalizeLayers(draft.items), wrapId: draft.wrapId, ribbonId: draft.ribbonId, bouquetStyle: draft.bouquetStyle ?? 'classic', note }

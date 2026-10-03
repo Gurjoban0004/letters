@@ -56,6 +56,10 @@ try {
   const bouquetRef = doc(sender, 'bouquets', 'bouquet-a')
 
   await assertSucceeds(setDoc(bouquetRef, bouquet))
+  await assertSucceeds(setDoc(doc(sender, 'bouquets', 'bouquet-without-ribbon'), {
+    ...bouquet,
+    composition: { ...composition, ribbonId: null },
+  }))
   await assertSucceeds(getDoc(doc(recipient, 'bouquets', 'bouquet-a')))
   await assertFails(getDoc(doc(outsider, 'bouquets', 'bouquet-a')))
   await assertFails(getDoc(doc(anonymous, 'bouquets', 'bouquet-a')))

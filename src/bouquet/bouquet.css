@@ -415,3 +415,61 @@ html[data-keyboard=open] .bloom-mobile-nav{opacity:0;pointer-events:none;transfo
 html[data-keyboard=open] .bloom-app{height:var(--vv-height,100dvh);min-height:0}
 html[data-keyboard=open] .bloom-kitchen{padding-bottom:calc(28px + var(--kb-inset))}
 @media(prefers-reduced-motion:reduce){.bloom-app *,.bloom-app *::before,.bloom-app *::after{scroll-behavior:auto!important;animation:none!important;transition-duration:.01ms!important}.bloom-received-keepsake{animation:bloom-keepsake-fade .16s ease-out both!important}}
+
+/* Integrated Bloom: the shared Letters shell owns navigation and libraries. */
+.bloom-app--embedded{height:auto;min-height:100%;overflow:visible;background:transparent}
+.bloom-home-panel{display:grid;gap:20px}
+.bloom-hero--compact{min-height:430px;padding:clamp(32px,5vw,62px);grid-template-columns:minmax(0,.8fr) minmax(260px,.72fr);gap:clamp(24px,6vw,84px);overflow:hidden;border-radius:16px;background:linear-gradient(145deg,#fff8f5,#f7e8e8);box-shadow:0 22px 50px -42px rgba(92,49,60,.48)}
+.bloom-hero--compact .bloom-hero-copy{align-self:center}
+.bloom-hero--compact .bloom-hero-copy{position:relative;z-index:2}
+.bloom-hero--compact h1{max-width:9ch;font-size:clamp(48px,6vw,76px)}
+.bloom-hero--compact .bloom-hero-copy>p{max-width:34ch;margin-top:18px}
+.bloom-hero--compact .bloom-actions{margin-top:26px}
+.bloom-home-bouquet{min-height:320px;align-self:stretch}
+.bloom-home-bouquet .bloom-bouquet-miniature{height:100%;min-height:320px;background:transparent;overflow:visible}
+.bloom-home-bouquet .bloom-bouquet-scene{transform:scale(1.08);transform-origin:50% 57%}
+.bloom-quick-starts{display:flex;align-items:center;gap:8px;overflow-x:auto;padding:2px;scrollbar-width:none}
+.bloom-quick-starts::-webkit-scrollbar{display:none}
+.bloom-quick-starts>span{flex:0 0 auto;margin-right:4px;color:var(--bloom-muted);font-size:11px}
+.bloom-quick-starts button{flex:0 0 auto;min-height:44px;padding:9px 14px;border-radius:999px;background:var(--bloom-paper);color:var(--bloom-berry);font-size:11px;font-weight:700;box-shadow:inset 0 0 0 1px var(--bloom-line)}
+
+.bloom-canvas-toolbar{position:absolute;z-index:120;top:14px;left:max(14px,var(--safe-left));right:max(14px,var(--safe-right));display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+.bloom-canvas-toolbar>*{pointer-events:auto}
+.bloom-canvas-toolbar .bloom-zoom-controls,.bloom-canvas-toolbar .bloom-canvas-actions{position:static}
+.bloom-canvas-toolbar .bloom-canvas-actions{display:flex;gap:2px;padding:4px;border-radius:999px;background:rgba(255,253,249,.9);box-shadow:0 8px 22px -18px rgba(72,41,49,.62)}
+.bloom-canvas-toolbar .bloom-canvas-actions .bloom-studio-control{background:transparent;box-shadow:none}
+.bloom-layer-drawer{position:absolute;z-index:122;right:max(14px,var(--safe-right));bottom:14px;width:min(430px,calc(100% - 28px));overflow:hidden;border-radius:16px;background:rgba(255,253,249,.96);box-shadow:0 14px 34px -24px rgba(72,41,49,.62)}
+.bloom-layer-drawer>summary{display:flex;min-height:44px;align-items:center;justify-content:space-between;gap:12px;padding:9px 14px;cursor:pointer;list-style:none;color:var(--bloom-berry);font-size:11px;font-weight:750}
+.bloom-layer-drawer>summary::-webkit-details-marker{display:none}
+.bloom-layer-drawer>summary b{max-width:70%;overflow:hidden;color:var(--bloom-muted);font-size:10px;font-weight:650;text-overflow:ellipsis;white-space:nowrap}
+.bloom-layer-drawer[open]{padding-bottom:6px}
+.bloom-layer-drawer .bloom-stem-selector,.bloom-layer-drawer .bloom-transform-controls{position:static;width:auto;min-height:0;margin:0 6px;transform:none;box-shadow:none;background:var(--bloom-canvas)}
+.bloom-layer-drawer .bloom-stem-selector{border-radius:12px}
+.bloom-layer-drawer .bloom-transform-controls{display:grid;margin-top:5px;grid-template-columns:repeat(5,1fr);border-radius:12px}
+.bloom-create-studio[data-mode="compose"]>.bloom-studio-tray{grid-template-rows:24px 42px auto auto auto;margin-top:-14px;padding-bottom:12px}
+.bloom-create-studio[data-mode="compose"] .bloom-tray-handle{min-height:24px}
+.bloom-create-studio[data-mode="compose"] .bloom-tray-handle>span{height:3px}
+.bloom-create-studio[data-mode="compose"] .bloom-studio-row{padding-block:8px}
+.bloom-create-studio[data-mode="compose"] .bloom-compact-flower{min-height:76px}
+.bloom-create-studio[data-mode="compose"] .bloom-catalog-botanical{width:43px;height:43px}
+
+@media(max-width:600px){
+  .bloom-hero--compact{min-height:calc(100dvh - 214px);padding:30px 22px 20px;grid-template-columns:1fr;grid-template-rows:auto minmax(210px,1fr);gap:8px}
+  .bloom-hero--compact h1{font-size:52px}
+  .bloom-hero--compact .bloom-hero-copy>p{margin-top:12px;font-size:14px}
+  .bloom-hero--compact .bloom-actions{margin-top:20px}
+  .bloom-home-bouquet{min-height:220px}
+  .bloom-home-bouquet .bloom-bouquet-miniature{min-height:220px}
+  .bloom-home-bouquet .bloom-bouquet-scene{transform:scale(.98);transform-origin:50% 56%}
+  .bloom-quick-starts{margin-inline:-2px}
+  .bloom-studio-canvas{padding-top:64px;padding-bottom:18px}
+  .bloom-bouquet-preview{top:47%;width:min(48vh,360px);height:min(55vh,430px)}
+  .bloom-layer-drawer{right:max(10px,var(--safe-right));bottom:10px;width:min(352px,calc(100% - 20px))}
+  .bloom-create-studio[data-mode="compose"]>.bloom-studio-tray{grid-template-rows:18px 40px auto auto auto;margin-top:-10px;padding-bottom:9px}
+  .bloom-create-studio[data-mode="compose"] .bloom-tray-handle{min-height:18px}
+  .bloom-create-studio[data-mode="compose"] .bloom-style-switcher{margin-top:5px}
+  .bloom-create-studio[data-mode="compose"] .bloom-studio-row{padding-block:6px}
+  .bloom-create-studio[data-mode="compose"] .bloom-compact-flower{flex-basis:70px;min-height:68px;padding-block:4px}
+  .bloom-create-studio[data-mode="compose"] .bloom-catalog-botanical{width:38px;height:38px}
+  .bloom-create-studio[data-mode="compose"] .bloom-studio-continue{min-height:44px}
+}

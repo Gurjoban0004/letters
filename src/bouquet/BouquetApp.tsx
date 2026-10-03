@@ -184,33 +184,7 @@ function StudioSheet({ open, category, selected, itemCount, bouquetStyle, countA
   </section>
 }
 
-function BloomBrand() {
-  return <button className="bloom-brand" onClick={() => { void navigateView(new URLSearchParams(location.search).get('demo') === '1' ? '/?demo=1' : '/', 'back') }} aria-label="Return to Letters">
-    <span>Bloom</span><small>from Letters</small>
-  </button>
-}
-
-function navItems(path: string) {
-  return [
-    { label: 'Home', icon: 'home' as const, href: '/bloom', active: path === '/bloom' || path === '/bloom/' },
-    { label: 'Create', icon: 'flower' as const, href: '/bloom/create', active: path.startsWith('/bloom/create') },
-    { label: 'Bouquets', icon: 'bouquet' as const, href: '/bloom/mine', active: path === '/bloom/mine' || path.startsWith('/bloom/bouquet/') },
-  ]
-}
-
-function BloomTopbar({ path, navigate }: { path: string; navigate: (path: string) => void }) {
-  return <header className="bloom-topbar">
-      <BloomBrand />
-      <nav aria-label="Bouquet navigation">{navItems(path).map(item => <button key={item.label} className={item.active ? 'is-active' : ''} onClick={() => navigate(item.href)}>{item.label}</button>)}</nav>
-      <BloomButton tone="secondary" onClick={() => navigate('/bloom/create')}>Start a bouquet</BloomButton>
-    </header>
-}
-
-function BloomMobileNav({ path, navigate }: { path: string; navigate: (path: string) => void }) {
-  return <nav className="bloom-mobile-nav" aria-label="Bouquet navigation">{navItems(path).map(item => <button key={item.label} className={item.active ? 'is-active' : ''} onClick={() => navigate(item.href)}><BloomIcon name={item.icon} /><span>{item.label}</span></button>)}</nav>
-}
-
-function BloomHome({ navigate }: { navigate: (path: string) => void }) {
+export function BouquetHomePanel({ navigate }: { navigate: (path: string) => void }) {
   const { user, pairingId, me, partner } = useSession()
   const demo = new URLSearchParams(location.search).get('demo') === '1'
   const ownerId = demo ? 'sample' : user?.uid ?? 'guest'
@@ -219,29 +193,22 @@ function BloomHome({ navigate }: { navigate: (path: string) => void }) {
     draftStorage.save(draft)
     navigate(`/bloom/create?draft=${encodeURIComponent(draft.id)}`)
   }
-  return <main className="bloom-home">
-    <section className="bloom-hero">
+  return <section className="bloom-home-panel">
+    <div className="bloom-hero bloom-hero--compact">
       <div className="bloom-hero-copy">
-        <h1>Gather something beautiful for them.</h1>
-        <p>Choose every stem, arrange it with care, and send a bouquet they can keep.</p>
-        <div className="bloom-actions"><BloomButton icon="arrow" onClick={() => navigate('/bloom/create')}>Make a bouquet</BloomButton><BloomButton tone="ghost" onClick={() => navigate('/bloom/mine')}>See my bouquets</BloomButton></div>
+        <h1>A little garden, from you.</h1>
+        <p>Gather, arrange, and send flowers to your person.</p>
+        <div className="bloom-actions"><BloomButton icon="arrow" onClick={() => navigate('/bloom/create')}>Make a bouquet</BloomButton></div>
       </div>
-      <div className="bloom-note-preview" aria-label="A preview of the bouquet note">
-        <BloomIcon name="flower" size={30} />
-        <p>“A little garden,<br />just for you.”</p>
-        <span>Made with care in Bloom</span>
+      <div className="bloom-home-bouquet" aria-hidden="true">
+        <BouquetMiniature composition={starterPresets[0].composition} />
       </div>
-    </section>
-    <section className="bloom-home-promise" aria-label="How Bloom works">
-      <p><strong>Choose</strong><span>Pick the flowers that feel like them.</span></p>
-      <p><strong>Arrange</strong><span>Shape every stem by hand.</span></p>
-      <p><strong>Send</strong><span>Share a private keepsake.</span></p>
-    </section>
-    <section className="bloom-starters" aria-labelledby="bloom-starters-heading">
-      <div className="bloom-section-heading"><div><h2 id="bloom-starters-heading">Begin with a garden</h2><p>Choose a starting point, then make every stem your own.</p></div><BloomButton tone="ghost" onClick={() => navigate('/bloom/create')}>Start from scratch</BloomButton></div>
-      <div className="bloom-starter-row">{starterPresets.map(preset => <article className="bloom-starter" key={preset.id}><BouquetMiniature composition={preset.composition} /><div><h3>{preset.name}</h3><p>{preset.description}</p><BloomButton tone="secondary" onClick={() => startPreset(preset)}>Remix this bouquet</BloomButton></div></article>)}</div>
-    </section>
-  </main>
+    </div>
+    <div className="bloom-quick-starts" aria-label="Bouquet starting points">
+      <span>Or begin with</span>
+      {starterPresets.map(preset => <button key={preset.id} onClick={() => startPreset(preset)}>{preset.name}</button>)}
+    </div>
+  </section>
 }
 
 const defaultWrap = assetManifest.wraps[0]
@@ -341,7 +308,7 @@ function BouquetArtwork({ items, wrap, ribbon, bouquetStyle = 'classic', selecte
   </>
 }
 
-function BouquetMiniature({ composition }: { composition: BouquetDisplayComposition }) {
+export function BouquetMiniature({ composition }: { composition: BouquetDisplayComposition }) {
   const wrap = wrapById.get(composition.wrapId) ?? defaultWrap
   const ribbon = composition.ribbonId ? ribbonById.get(composition.ribbonId) ?? null : null
   return <div className="bloom-bouquet-miniature" aria-hidden="true"><div className="bloom-bouquet-scene"><BouquetArtwork items={composition.items} wrap={wrap} ribbon={ribbon} bouquetStyle={composition.bouquetStyle ?? 'classic'} /></div></div>
@@ -601,7 +568,7 @@ function CreateFoundation({ navigate }: { navigate: (path: string) => void }) {
     if (sheetOpen) { setSheetOpen(false); return }
     if (studioMode === 'review') { setStudioMode('message'); return }
     if (studioMode === 'message') { setStudioMode('compose'); setSelectedId(items.at(-1)?.id ?? null); return }
-    navigate('/bloom')
+    navigate('/?view=Bouquets')
   }
 
   const publishBouquet = async () => {
@@ -621,7 +588,7 @@ function CreateFoundation({ navigate }: { navigate: (path: string) => void }) {
       if (demo) sendDemoBouquet(draft)
       else await sendBouquet(draft, user!.uid, partnerUid!, pairingId!)
       draftStorage.remove(ownerId, draftId)
-      navigate('/bloom/mine')
+      navigate('/?view=Letters')
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'The bouquet could not be sent. Please try again.')
       setSending(false)
@@ -632,21 +599,21 @@ function CreateFoundation({ navigate }: { navigate: (path: string) => void }) {
     <header className="bloom-builder-header">
       <button className="bloom-studio-control" onClick={goBack} aria-label={studioMode === 'compose' ? 'Back to Bloom home' : `Back to ${studioMode === 'review' ? 'message' : 'bouquet editing'}`}><BloomIcon name="back" /></button>
       <h1>Your Bouquet</h1>
-      <span aria-label={`Progress ${progress} of 5`}>{progress} / 5</span>
+      <span>{items.length} {items.length === 1 ? 'stem' : 'stems'}</span>
     </header>
     <section className="bloom-studio-canvas" aria-label="Bouquet arrangement canvas">
-      <BouquetPreview items={items} selectedId={studioMode === 'compose' ? selectedId : null} zoom={zoom} wrap={selectedWrap} ribbon={selectedRibbon} bouquetStyle={bouquetStyle} interactive={studioMode === 'compose'} previewRef={previewRef} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onKeyDown={onStemKeyDown} />
-      <span className="bloom-canvas-count">{studioMode === 'compose' ? `${items.length} ${items.length === 1 ? 'stem' : 'stems'}` : studioMode === 'message' ? 'Your note' : 'Final preview'}</span>
-      <div className="bloom-zoom-controls" role="group" aria-label="Canvas zoom"><button className="bloom-studio-control" onClick={() => setZoom(value => clamp(value - .1, .8, 1.25))} disabled={zoom <= .8} aria-label="Zoom out"><BloomIcon name="minus" /></button><span>{Math.round(zoom * 100)}%</span><button className="bloom-studio-control" onClick={() => setZoom(value => clamp(value + .1, .8, 1.25))} disabled={zoom >= 1.25} aria-label="Zoom in"><BloomIcon name="plus" /></button></div>
-      {studioMode === 'compose' && <div className="bloom-canvas-actions"><button className="bloom-studio-control" onClick={undo} disabled={!past.length} aria-label="Undo last change"><BloomIcon name="undo" /></button><button className="bloom-studio-control" onClick={redo} disabled={!future.length} aria-label="Redo last change"><BloomIcon name="redo" /></button><button className="bloom-studio-control" onClick={removeSelected} disabled={!selectedItem} aria-label="Delete selected item"><BloomIcon name="trash" /></button></div>}
-      {studioMode === 'compose' && items.length > 0 && <StemSelector items={items} selectedId={selectedId} onSelect={selectStem} />}
-      {studioMode === 'compose' && selectedItem && <div className="bloom-transform-controls" role="toolbar" aria-label={`Adjust ${botanical(selectedItem.assetId)?.displayName ?? 'selected stem'}`}>
-        <button onClick={() => commitItems(arrangeBouquet(items, bouquetStyle), 'Bouquet gathered into its selected shape.')} aria-label="Gather and balance bouquet"><BloomIcon name="bouquet" size={18} /></button>
-        <button onClick={() => changeSelected({ scale: clamp(selectedItem.scale - .06, .35, .82) }, 'Stem made smaller.')} aria-label="Make selected stem smaller"><BloomIcon name="minus" size={18} /></button>
-        <button onClick={() => changeSelected(placeStem(selectedItem, selectedItem.x - .025, selectedItem.y), 'Stem fanned left.')} aria-label="Fan selected stem left"><BloomIcon name="rotateLeft" size={18} /></button>
-        <button onClick={() => changeSelected(placeStem(selectedItem, selectedItem.x + .025, selectedItem.y), 'Stem fanned right.')} aria-label="Fan selected stem right"><BloomIcon name="rotateRight" size={18} /></button>
-        <button onClick={() => changeSelected({ scale: clamp(selectedItem.scale + .06, .35, .82) }, 'Stem made larger.')} aria-label="Make selected stem larger"><BloomIcon name="plus" size={18} /></button>
+      {studioMode === 'compose' && <div className="bloom-canvas-toolbar">
+        <div className="bloom-zoom-controls" role="group" aria-label="Canvas zoom"><button className="bloom-studio-control" onClick={() => setZoom(value => clamp(value - .1, .8, 1.25))} disabled={zoom <= .8} aria-label="Zoom out"><BloomIcon name="minus" /></button><span>{Math.round(zoom * 100)}%</span><button className="bloom-studio-control" onClick={() => setZoom(value => clamp(value + .1, .8, 1.25))} disabled={zoom >= 1.25} aria-label="Zoom in"><BloomIcon name="plus" /></button></div>
+        <div className="bloom-canvas-actions"><button className="bloom-studio-control" onClick={undo} disabled={!past.length} aria-label="Undo last change"><BloomIcon name="undo" /></button><button className="bloom-studio-control" onClick={redo} disabled={!future.length} aria-label="Redo last change"><BloomIcon name="redo" /></button><button className="bloom-studio-control" onClick={removeSelected} disabled={!selectedItem} aria-label="Delete selected item"><BloomIcon name="trash" /></button></div>
       </div>}
+      <BouquetPreview items={items} selectedId={studioMode === 'compose' ? selectedId : null} zoom={zoom} wrap={selectedWrap} ribbon={selectedRibbon} bouquetStyle={bouquetStyle} interactive={studioMode === 'compose'} previewRef={previewRef} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onKeyDown={onStemKeyDown} />
+      {studioMode === 'compose' && items.length > 0 && <details className="bloom-layer-drawer"><summary><span>Layers</span><b>{selectedItem ? botanical(selectedItem.assetId)?.displayName : `${items.length} stems`}</b></summary><StemSelector items={items} selectedId={selectedId} onSelect={selectStem} />{selectedItem && <div className="bloom-transform-controls" role="toolbar" aria-label={`Adjust ${botanical(selectedItem.assetId)?.displayName ?? 'selected stem'}`}>
+          <button onClick={() => commitItems(arrangeBouquet(items, bouquetStyle), 'Bouquet gathered into its selected shape.')} aria-label="Gather and balance bouquet"><BloomIcon name="bouquet" size={18} /></button>
+          <button onClick={() => changeSelected({ scale: clamp(selectedItem.scale - .06, .35, .82) }, 'Stem made smaller.')} aria-label="Make selected stem smaller"><BloomIcon name="minus" size={18} /></button>
+          <button onClick={() => changeSelected(placeStem(selectedItem, selectedItem.x - .025, selectedItem.y), 'Stem fanned left.')} aria-label="Fan selected stem left"><BloomIcon name="rotateLeft" size={18} /></button>
+          <button onClick={() => changeSelected(placeStem(selectedItem, selectedItem.x + .025, selectedItem.y), 'Stem fanned right.')} aria-label="Fan selected stem right"><BloomIcon name="rotateRight" size={18} /></button>
+          <button onClick={() => changeSelected({ scale: clamp(selectedItem.scale + .06, .35, .82) }, 'Stem made larger.')} aria-label="Make selected stem larger"><BloomIcon name="plus" size={18} /></button>
+        </div>}</details>}
       <p className="bloom-sr-only" aria-live="polite">{notice}</p>
       {studioMode === 'compose' && sheetOpen && <button className="bloom-canvas-scrim" onClick={() => setSheetOpen(false)} aria-label="Close expanded picker" />}
     </section>
@@ -680,72 +647,6 @@ function CreateFoundation({ navigate }: { navigate: (path: string) => void }) {
   </main>
 }
 
-function BouquetLibraryCard({ composition, title, meta, children }: { composition: BouquetDisplayComposition; title: string; meta: string; children: ReactNode }) {
-  return <article className="bloom-library-card"><BouquetMiniature composition={composition} /><div className="bloom-library-card-copy"><p>{meta}</p><h3>{title}</h3><div className="bloom-library-actions">{children}</div></div></article>
-}
-
-function MyBouquets({ navigate }: { navigate: (path: string) => void }) {
-  const { user, pairingId, partner } = useSession()
-  const demo = new URLSearchParams(location.search).get('demo') === '1'
-  const ownerId = demo ? 'sample' : user?.uid ?? 'guest'
-  const selfId = demo ? 'sample-self' : user?.uid ?? ''
-  const { bouquets: cloudBouquets, error } = useBouquets(demo ? null : user?.uid ?? null, demo ? null : pairingId)
-  const [drafts, setDrafts] = useState(() => draftStorage.list(ownerId))
-  const [renamingId, setRenamingId] = useState<string | null>(null)
-  const [renameValue, setRenameValue] = useState('')
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
-  const published = demo ? [sampleReceivedBouquet, ...loadDemoBouquets()] : cloudBouquets ?? []
-  const sent = published.filter(item => item.senderId === selfId)
-  const received = published.filter(item => item.recipientId === selfId)
-  const loading = !demo && cloudBouquets === null
-
-  useEffect(() => {
-    if (demo) return
-    received.filter(item => !item.receivedAt).forEach(item => { void markBouquetReceived(item.id).catch(() => undefined) })
-  }, [demo, received.map(item => `${item.id}:${Boolean(item.receivedAt)}`).join('|')])
-
-  const refreshDrafts = () => setDrafts(draftStorage.list(ownerId))
-  const duplicateDraft = (id: string) => {
-    const copy = draftStorage.duplicate(ownerId, id, crypto.randomUUID())
-    refreshDrafts()
-    if (copy) navigate(`/bloom/create?draft=${encodeURIComponent(copy.id)}`)
-  }
-  const duplicatePublished = (bouquet: PublishedBouquetV1) => {
-    const draft = draftFromComposition(ownerId, demo ? 'sample' : pairingId ?? '', `${bouquet.title} copy`, bouquet.composition, bouquet.composition.note.to, bouquet.composition.note.from)
-    draftStorage.save(draft)
-    navigate(`/bloom/create?draft=${encodeURIComponent(draft.id)}`)
-  }
-  const saveRename = (draft: BouquetDraftV1) => {
-    draftStorage.rename(ownerId, draft.id, renameValue || draft.title || 'Untitled bouquet')
-    setRenamingId(null)
-    refreshDrafts()
-  }
-
-  return <main className="bloom-mine">
-    <header className="bloom-library-header"><div><h1>Your bouquets</h1><p>Drafts and flowers shared privately between you and {demo ? 'your person' : partner?.name ?? 'your person'}.</p></div><BloomButton icon="arrow" onClick={() => navigate('/bloom/create')}>New bouquet</BloomButton></header>
-    {error && <p className="bloom-library-error" role="status">{error}</p>}
-    <section className="bloom-library-section" aria-labelledby="draft-bouquets-heading"><div className="bloom-library-title"><h2 id="draft-bouquets-heading">Drafts</h2><span>{drafts.length}</span></div>
-      {drafts.length ? <div className="bloom-library-grid">{drafts.map(draft => {
-        const composition: BouquetDisplayComposition = { version: 1, items: draft.items, wrapId: draft.wrapId ?? defaultWrap.id, ribbonId: draft.ribbonId, bouquetStyle: draft.bouquetStyle, note: draft.note }
-        return <BouquetLibraryCard key={draft.id} composition={composition} title={draft.title || (draft.note.to ? `For ${draft.note.to}` : 'Untitled bouquet')} meta={`Draft · ${draft.items.length} stems`}>
-          {renamingId === draft.id ? <span className="bloom-inline-rename"><input value={renameValue} maxLength={80} aria-label="Bouquet name" onChange={event => setRenameValue(event.target.value)} /><button onClick={() => saveRename(draft)}>Save</button><button onClick={() => setRenamingId(null)}>Cancel</button></span> : <>
-            <button onClick={() => navigate(`/bloom/create?draft=${encodeURIComponent(draft.id)}`)}>Continue</button>
-            <button onClick={() => duplicateDraft(draft.id)}>Duplicate</button>
-            <button onClick={() => { setRenamingId(draft.id); setRenameValue(draft.title) }}>Rename</button>
-            {confirmDelete === draft.id ? <><button className="is-danger" onClick={() => { draftStorage.remove(ownerId, draft.id); setConfirmDelete(null); refreshDrafts() }}>Delete now</button><button onClick={() => setConfirmDelete(null)}>Keep</button></> : <button onClick={() => setConfirmDelete(draft.id)}>Delete</button>}
-          </>}
-        </BouquetLibraryCard>
-      })}</div> : <div className="bloom-library-empty"><p>No drafts are waiting.</p><button onClick={() => navigate('/bloom/create')}>Gather a new bouquet</button></div>}
-    </section>
-    <section className="bloom-library-section" aria-labelledby="received-bouquets-heading"><div className="bloom-library-title"><h2 id="received-bouquets-heading">Received</h2><span>{received.length}</span></div>
-      {loading ? <div className="bloom-library-loading" aria-label="Loading received bouquets"><span /><span /></div> : received.length ? <div className="bloom-library-grid">{received.map(bouquet => <BouquetLibraryCard key={bouquet.id} composition={bouquet.composition} title={bouquet.title} meta={`${bouquet.viewedAt ? 'Opened' : 'Waiting for you'} · ${bouquetDate(bouquet.createdAt)}`}><button onClick={() => navigate(`/bloom/bouquet/${encodeURIComponent(bouquet.id)}`)}>{bouquet.viewedAt ? 'View again' : 'Open bouquet'}</button><button onClick={() => duplicatePublished(bouquet)}>Remix</button></BouquetLibraryCard>)}</div> : <div className="bloom-library-empty"><p>Bouquets from your person will arrive here.</p></div>}
-    </section>
-    <section className="bloom-library-section" aria-labelledby="sent-bouquets-heading"><div className="bloom-library-title"><h2 id="sent-bouquets-heading">Sent</h2><span>{sent.length}</span></div>
-      {loading ? <div className="bloom-library-loading" aria-label="Loading sent bouquets"><span /><span /></div> : sent.length ? <div className="bloom-library-grid">{sent.map(bouquet => <BouquetLibraryCard key={bouquet.id} composition={bouquet.composition} title={bouquet.title} meta={`${bouquet.viewedAt ? 'Opened' : bouquet.receivedAt ? 'Delivered' : 'Sent'} · ${bouquetDate(bouquet.createdAt)}`}><button onClick={() => navigate(`/bloom/bouquet/${encodeURIComponent(bouquet.id)}`)}>View</button><button onClick={() => duplicatePublished(bouquet)}>Duplicate as draft</button></BouquetLibraryCard>)}</div> : <div className="bloom-library-empty"><p>The bouquets you send will rest here.</p></div>}
-    </section>
-  </main>
-}
-
 function BouquetDetail({ id, navigate }: { id: string; navigate: (path: string) => void }) {
   const { user, pairingId, me, partner } = useSession()
   const demo = new URLSearchParams(location.search).get('demo') === '1'
@@ -762,14 +663,14 @@ function BouquetDetail({ id, navigate }: { id: string; navigate: (path: string) 
   }, [bouquet?.id, bouquet?.receivedAt, demo, incoming])
 
   if (bouquets === null) return <main className="bloom-receive bloom-receive--loading"><p>Gathering the bouquet…</p></main>
-  if (!bouquet) return <main className="bloom-receive bloom-receive--missing"><BloomIcon name="bouquet" size={38} /><h1>{error ? 'This bouquet could not load.' : 'This bouquet isn’t available.'}</h1><p>{error ? 'Check your connection and try again from your bouquets.' : 'It may belong to another shared garden.'}</p><BloomButton onClick={() => navigate('/bloom/mine')}>Back to your bouquets</BloomButton></main>
+  if (!bouquet) return <main className="bloom-receive bloom-receive--missing"><BloomIcon name="bouquet" size={38} /><h1>{error ? 'This bouquet could not load.' : 'This bouquet isn’t available.'}</h1><p>{error ? 'Check your connection and try again from your letterbox.' : 'It may belong to another shared garden.'}</p><BloomButton onClick={() => navigate('/?view=Letters')}>Back to your letterbox</BloomButton></main>
   const senderName = bouquet.senderId === selfId ? me?.name ?? 'You' : demo ? 'Your person' : partner?.name ?? 'Your person'
   const openBouquet = () => {
     setOpenedId(bouquet.id)
     if (!demo && incoming && !bouquet.viewedAt) void markBouquetViewed(bouquet.id).catch(() => undefined)
   }
-  if (!opened) return <main className="bloom-receive bloom-receive--sealed"><button className="bloom-receive-back" onClick={() => navigate('/bloom/mine')} aria-label="Back to your bouquets"><BloomIcon name="back" /></button><div className="bloom-arrival"><p>{senderName} gathered something for you.</p><img src={experienceById.get('envelope_closed')?.file} alt="A sealed envelope holding a bouquet" /><h1>A bouquet is waiting.</h1><BloomButton onClick={openBouquet}>Open it</BloomButton></div></main>
-  return <main className="bloom-receive bloom-receive--open"><button className="bloom-receive-back" onClick={() => navigate('/bloom/mine')} aria-label="Back to your bouquets"><BloomIcon name="back" /></button><div className="bloom-received-keepsake"><BouquetMiniature composition={bouquet.composition} /><div className="bloom-received-note"><span>For {bouquet.composition.note.to}</span><p>{bouquet.composition.note.body}</p><strong>— {bouquet.composition.note.from}</strong></div><small>Sent privately by {senderName} · {bouquetDate(bouquet.createdAt)}</small></div></main>
+  if (!opened) return <main className="bloom-receive bloom-receive--sealed"><button className="bloom-receive-back" onClick={() => navigate('/?view=Letters')} aria-label="Back to your letterbox"><BloomIcon name="back" /></button><div className="bloom-arrival"><p>{senderName} gathered something for you.</p><img src={experienceById.get('envelope_closed')?.file} alt="A sealed envelope holding a bouquet" /><h1>A bouquet is waiting.</h1><BloomButton onClick={openBouquet}>Open it</BloomButton></div></main>
+  return <main className="bloom-receive bloom-receive--open"><button className="bloom-receive-back" onClick={() => navigate('/?view=Letters')} aria-label="Back to your letterbox"><BloomIcon name="back" /></button><div className="bloom-received-keepsake"><BouquetMiniature composition={bouquet.composition} /><div className="bloom-received-note"><span>For {bouquet.composition.note.to}</span><p>{bouquet.composition.note.body}</p><strong>— {bouquet.composition.note.from}</strong></div><small>Sent privately by {senderName} · {bouquetDate(bouquet.createdAt)}</small></div></main>
 }
 
 function KitchenSink() {
@@ -809,8 +710,6 @@ export default function BouquetApp() {
   const viewing = Boolean(bouquetId)
   return <div className={`bloom-app ${creating ? 'bloom-app--create' : ''}${viewing ? ' bloom-app--receive' : ''}`}>
     {!online && <div className="bloom-offline-banner" role="status">You’re offline. Your bouquet draft stays safely on this device.</div>}
-    {!creating && !viewing && <BloomTopbar path={path} navigate={navigate} />}
-    {privateKitchen ? <KitchenSink /> : creating ? <CreateFoundation navigate={navigate} /> : bouquetId ? <BouquetDetail id={decodeURIComponent(bouquetId)} navigate={navigate} /> : path === '/bloom/mine' ? <MyBouquets navigate={navigate} /> : <BloomHome navigate={navigate} />}
-    <BloomMobileNav path={path} navigate={navigate} />
+    {privateKitchen ? <KitchenSink /> : creating ? <CreateFoundation navigate={navigate} /> : bouquetId ? <BouquetDetail id={decodeURIComponent(bouquetId)} navigate={navigate} /> : <main className="bloom-home"><BouquetHomePanel navigate={navigate} /></main>}
   </div>
 }

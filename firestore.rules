@@ -102,7 +102,8 @@ service cloud.firestore {
                     && request.resource.data.composition.items is list
                     && request.resource.data.composition.items.size() == request.resource.data.itemCount
                     && request.resource.data.composition.wrapId is string
-                    && request.resource.data.composition.ribbonId is string
+                    && (request.resource.data.composition.ribbonId == null
+                        || request.resource.data.composition.ribbonId is string)
                     && request.resource.data.composition.bouquetStyle in ['classic', 'meadow', 'tall']
                     && request.resource.data.composition.note is map
                     && request.resource.data.composition.note.to is string

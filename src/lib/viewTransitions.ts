@@ -4,6 +4,8 @@ export type ViewDirection = 'forward' | 'back' | 'fade' | 'sheet'
 
 type BrowserViewTransition = {
   finished: Promise<void>
+  ready?: Promise<void>
+  updateCallbackDone?: Promise<void>
   skipTransition: () => void
 }
 
@@ -31,6 +33,11 @@ export function transitionView(update: () => void, direction: ViewDirection = 'f
 
   const transition = transitionDocument.startViewTransition(() => flushSync(update))
   activeTransition = transition
+  // Skipping an in-flight transition is expected during fast tab changes.
+  // Consume every transition promise so browsers do not report that normal
+  // interruption as an unhandled console error.
+  void transition.ready?.catch(() => undefined)
+  void transition.updateCallbackDone?.catch(() => undefined)
 
   const finish = () => {
     if (activeTransition !== transition) return

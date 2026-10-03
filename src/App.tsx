@@ -59,7 +59,9 @@ function Shell() {
   const [path, setPath] = useState(location.pathname)
   const [startupSlow, setStartupSlow] = useState(false)
   const { needRefresh: [refresh], updateServiceWorker } = useRegisterSW()
-  const bouquetRoute = path.startsWith('/bloom')
+  // Bloom's library and home now live inside the main Letters shell. Only the
+  // immersive creation and opening moments need their own full-screen route.
+  const bouquetRoute = path.startsWith('/bloom/create') || path.startsWith('/bloom/bouquet/') || path === '/bloom/kitchen-sink'
   useEffect(() => subscribeToViewNavigation(() => setPath(location.pathname)), [])
   useEffect(() => {
     if (!bouquetRoute && (demo || import.meta.env.DEV || (user && me && !joiningInvite))) void import('./bouquet/BouquetApp')
