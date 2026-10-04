@@ -595,7 +595,7 @@ function CreateFoundation({ navigate }: { navigate: (path: string) => void }) {
       if (demo) sendDemoBouquet(draft)
       else await sendBouquet(draft, user!.uid, partnerUid!, pairingId!)
       draftStorage.remove(ownerId, draftId)
-      navigate('/?view=Letters')
+      navigate('/?view=Letters&sent=bouquet')
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'The bouquet could not be sent. Please try again.')
       setSending(false)

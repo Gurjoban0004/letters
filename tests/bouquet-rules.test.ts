@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { assertFails, assertSucceeds, initializeTestEnvironment } from '@firebase/rules-unit-testing'
-import { doc, getDoc, setDoc, Timestamp, updateDoc, deleteDoc } from 'firebase/firestore'
+import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, Timestamp, updateDoc, where } from 'firebase/firestore'
 
 const projectId = 'demo-twofold-bouquet-rules'
 const pairingId = 'pair-a'
@@ -61,6 +61,9 @@ try {
     composition: { ...composition, ribbonId: null },
   }))
   await assertSucceeds(getDoc(doc(recipient, 'bouquets', 'bouquet-a')))
+  await assertSucceeds(getDocs(query(collection(sender, 'bouquets'), where('pairingId', '==', pairingId))))
+  await assertSucceeds(getDocs(query(collection(recipient, 'bouquets'), where('pairingId', '==', pairingId))))
+  await assertFails(getDocs(query(collection(outsider, 'bouquets'), where('pairingId', '==', pairingId))))
   await assertFails(getDoc(doc(outsider, 'bouquets', 'bouquet-a')))
   await assertFails(getDoc(doc(anonymous, 'bouquets', 'bouquet-a')))
 

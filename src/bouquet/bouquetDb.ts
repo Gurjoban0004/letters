@@ -1,4 +1,4 @@
-import { collection, doc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, updateDoc, where } from 'firebase/firestore'
+import { collection, doc, limit, onSnapshot, query, serverTimestamp, setDoc, Timestamp, updateDoc, where } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 import { db } from '../lib/firebase'
 import { compositionFromDraft, type BouquetDraftV1, type PublishedBouquetV1 } from './studioModel'
@@ -6,21 +6,33 @@ import { compositionFromDraft, type BouquetDraftV1, type PublishedBouquetV1 } fr
 const bouquetsCol = () => collection(db, 'bouquets')
 const DEMO_KEY = 'letters:bouquets:demo-published:v1'
 
+function createdMillis(value: unknown) {
+  if (typeof value === 'number') return value
+  if (value instanceof Date) return value.getTime()
+  if (value && typeof value === 'object' && 'toMillis' in value && typeof value.toMillis === 'function') return value.toMillis()
+  return 0
+}
+
 export function useBouquets(uid: string | null, pairingId: string | null, max = 100) {
   const [bouquets, setBouquets] = useState<PublishedBouquetV1[] | null>(null)
   const [error, setError] = useState('')
+  const [retry, setRetry] = useState(0)
 
   useEffect(() => {
-    if (!uid || !pairingId) { setBouquets([]); return }
-    const request = query(bouquetsCol(), where('pairingId', '==', pairingId), orderBy('createdAt', 'desc'), limit(max))
+    if (!uid || !pairingId) { setBouquets([]); setError(''); return }
+    // Sort after reading so bouquet delivery does not depend on a separately
+    // deployed composite index. Firestore automatically indexes pairingId.
+    const request = query(bouquetsCol(), where('pairingId', '==', pairingId), limit(max))
     return onSnapshot(request, snapshot => {
       setError('')
-      setBouquets(snapshot.docs.map(item => ({ id: item.id, ...item.data() })) as PublishedBouquetV1[])
-    }, () => {
-      setError('Bouquets could not refresh. Your saved draft is still on this device.')
-      setBouquets(current => current ?? [])
+      const next = snapshot.docs.map(item => ({ id: item.id, ...item.data() })) as PublishedBouquetV1[]
+      setBouquets(next.sort((a, b) => createdMillis(b.createdAt) - createdMillis(a.createdAt)))
+    }, failure => {
+      console.warn('bouquet listener dropped:', failure.code)
+      setError('Bouquets could not refresh. Reconnecting…')
+      setTimeout(() => setRetry(value => value + 1), 1500)
     })
-  }, [max, pairingId, uid])
+  }, [max, pairingId, retry, uid])
 
   return { bouquets, error }
 }
@@ -38,7 +50,9 @@ export async function sendBouquet(draft: BouquetDraftV1, senderId: string, recip
     composition,
     receivedAt: null,
     viewedAt: null,
-    createdAt: Timestamp.fromMillis(draft.createdAt),
+    // A bouquet belongs at the top of the shared desk when it is sent, even if
+    // the draft was started days earlier.
+    createdAt: Timestamp.now(),
   })
   return id
 }
