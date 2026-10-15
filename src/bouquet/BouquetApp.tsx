@@ -194,22 +194,14 @@ export function BouquetHomePanel({ navigate }: { navigate: (path: string) => voi
     navigate(`/bloom/create?draft=${encodeURIComponent(draft.id)}`)
   }
   return <section className="bloom-home bloom-home-panel">
+    <header className="page-heading"><h1>Bouquets</h1><p>A little garden, made just for them.</p></header>
     <section className="bloom-hero">
       <div className="bloom-hero-copy">
-        <h1>Gather something beautiful for them.</h1>
+        <h2>Gather something beautiful for them.</h2>
         <p>Choose every stem, arrange it with care, and send a bouquet they can keep.</p>
         <div className="bloom-actions"><BloomButton icon="arrow" onClick={() => navigate('/bloom/create')}>Make a bouquet</BloomButton></div>
       </div>
-      <div className="bloom-note-preview" aria-label="A preview of the bouquet note">
-        <BloomIcon name="flower" size={30} />
-        <p>“A little garden,<br />just for you.”</p>
-        <span>Made with care in Letters</span>
-      </div>
-    </section>
-    <section className="bloom-home-promise" aria-label="How bouquets work">
-      <p><strong>Choose</strong><span>Pick the flowers that feel like them.</span></p>
-      <p><strong>Arrange</strong><span>Shape every stem by hand.</span></p>
-      <p><strong>Send</strong><span>Share a private keepsake.</span></p>
+      <div className="bloom-home-preview" aria-hidden="true"><BouquetMiniature composition={starterPresets[0].composition} /></div>
     </section>
     <section className="bloom-starters" aria-labelledby="bloom-starters-heading">
       <div className="bloom-section-heading"><div><h2 id="bloom-starters-heading">Begin with a garden</h2><p>Choose a starting point, then make every stem your own.</p></div><BloomButton tone="ghost" onClick={() => navigate('/bloom/create')}>Start from scratch</BloomButton></div>
@@ -605,8 +597,8 @@ function CreateFoundation({ navigate }: { navigate: (path: string) => void }) {
   return <main className={`bloom-create-studio ${sheetOpen ? 'is-expanded' : ''}`} data-mode={studioMode}>
     <header className="bloom-builder-header">
       <button className="bloom-studio-control" onClick={goBack} aria-label={studioMode === 'compose' ? 'Back to Bloom home' : `Back to ${studioMode === 'review' ? 'message' : 'bouquet editing'}`}><BloomIcon name="back" /></button>
-      <h1>Your Bouquet</h1>
-      <span aria-label={`Progress ${progress} of 5`}>{progress} / 5</span>
+      <h1>{studioMode === 'compose' ? 'Your bouquet' : studioMode === 'message' ? 'Your note' : 'Preview'}</h1>
+      <span aria-label={`Step ${studioMode === 'compose' ? 1 : studioMode === 'message' ? 2 : 3} of 3`}>{studioMode === 'compose' ? '1' : studioMode === 'message' ? '2' : '3'} of 3</span>
     </header>
     <section className="bloom-studio-canvas" aria-label="Bouquet arrangement canvas">
       <BouquetPreview items={items} selectedId={studioMode === 'compose' ? selectedId : null} zoom={zoom} wrap={selectedWrap} ribbon={selectedRibbon} bouquetStyle={bouquetStyle} interactive={studioMode === 'compose'} previewRef={previewRef} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onKeyDown={onStemKeyDown} />
